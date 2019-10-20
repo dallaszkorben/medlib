@@ -1,0 +1,12 @@
+/env
+/.metadata
+.project
+.pydevproject
+
+/media/Films
+**/*.kate-swp
+**/__pycache__
+
+**/.eggs
+**/dist
+**/*.egg-info
