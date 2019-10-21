@@ -1,3 +1,4 @@
+import locale
 from medlib.handle_property import _
 from builtins import object
 
@@ -17,7 +18,7 @@ class MediaBase(object):
     def sort_key(arg):
         """
         """
-        return arg.getTranslatedTitle() if arg.control.getOrderBy() == 'title' else arg.container_paths.getNameOfFolder() if arg.control.getOrderBy() == 'folder' else arg.container_paths.getNameOfFolder() 
+        return locale.strxfrm(arg.getTranslatedTitle()) if arg.control.getOrderBy() == 'title' else arg.container_paths.getNameOfFolder() if arg.control.getOrderBy() == 'folder' else arg.container_paths.getNameOfFolder() 
     
     def __init__(self, titles, control, general=None, storylines=None,  rating=None):
         """
