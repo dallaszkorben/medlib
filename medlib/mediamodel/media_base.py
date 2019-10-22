@@ -1,4 +1,9 @@
 import locale
+import os
+
+from pkg_resources import resource_filename
+
+from medlib.constants import *
 from medlib.handle_property import _
 from builtins import object
 
@@ -40,6 +45,12 @@ class MediaBase(object):
     
     def getPathOfImage(self):
         raise NotImplementedError
+
+    def getBackgroundColor(self):
+        raise NotImplementedError
+    
+    def getFolderType(self):
+        raise NotImplementedError
             
     def getTranslatedTitle(self):
         return self.titles.getTranslatedTitle()
@@ -57,7 +68,7 @@ class MediaBase(object):
         """
         return self.titles
     
-    def getControll(self):
+    def getControl(self):
         """
         Returns back the [control] section.
         _________________________________________________________________________________________________
@@ -110,7 +121,9 @@ class MediaBase(object):
     # ---------------- Title ---------------------
     # --------------------------------------------
     def getHtmlTitle(self):
-        out = "<b>" + self.titles.getTranslatedTitle() + "</b>"
+        iconFileName = TITLE_ICON_PREFIX + "-" + self.getFolderType() + "-" + self.control.getMedia() + "-" + self.control.getCategory() + "." + TITLE_ICON_EXTENSION
+        pathToFile = resource_filename(__name__, os.path.join(TITLE_ICON_FOLDER, iconFileName))
+        out = "<img height='" + TITLE_ICON_HEIGHT + "' src='file://" + pathToFile + "'> <b>" + self.titles.getTranslatedTitle() + "</b>"
         out += "<hr>"
         return out
     
@@ -160,16 +173,16 @@ class MediaBase(object):
         return "<table  id='content-multiline' >" + out + "</table><hr>" if out else ""
      
     def getHtmlMultilineInfoDirectors(self):
-         dir_list = ", ".join(d for d in self.general.getDirectors())
-         return "<tr><td valign='top'> <b>" + _('title_director') + ":</b> </td> <td>" + dir_list + "</td></tr>"  if  dir_list else ""
+        dir_list = ", ".join(d for d in self.general.getDirectors())
+        return "<tr><td valign='top'> <b>" + _('title_director') + ":</b> </td> <td>" + dir_list + "</td></tr>"  if  dir_list else ""
          
     def getHtmlMultilineInfoWriters(self):
-         writer_list = ", ".join(d for d in self.general.getWriters())
-         return "<tr><td valign='top'> <b>" + _('title_writer') + ":</b> </td> <td>" + writer_list + "</td></tr>"  if  writer_list else ""
+        writer_list = ", ".join(d for d in self.general.getWriters())
+        return "<tr><td valign='top'> <b>" + _('title_writer') + ":</b> </td> <td>" + writer_list + "</td></tr>"  if  writer_list else ""
          
     def getHtmlMultilineInfoActors(self):
-         actor_list = ", ".join(d for d in self.general.getActors())
-         return "<tr><td valign='top'> <b>" + _('title_actor') + ":</b> </td> <td>" + actor_list + "</td></tr>"  if  actor_list else ""
+        actor_list = ", ".join(d for d in self.general.getActors())
+        return "<tr><td valign='top'> <b>" + _('title_actor') + ":</b> </td> <td>" + actor_list + "</td></tr>"  if  actor_list else ""
      
     def getHtmlMultilineInfoGenres(self):
         genre_list = ", ".join( [ _("genre_" + c) for c in self.general.getGenres()])   
@@ -179,7 +192,7 @@ class MediaBase(object):
         theme_list = ", ".join( [ _("theme_" + c) for c in self.general.getThemes()])   
         return "<tr><td valign='top'> <b>" + _('title_theme') + ":</b> </td> <td>" + theme_list + "</td></tr>"  if  theme_list else ""
   
-     # -------------------------------------------
+    # -------------------------------------------
     # --------------- Storyline -----------------
     # --------------------------------------------
     def getHtmlStoryline(self):
@@ -198,7 +211,7 @@ class MediaBase(object):
         out += "<head><style>"
         out += "body{"
         out +=     "margin: 0;"        
-        out +=     "background-color:#0e997a;}" 
+        out +=     "background-color:" + self.getBackgroundColor() + ";}" 
         out += "table {"
         out +=     "font-size:" + self.__class__.FONT_SIZE + "px;" 
         out +=     "font-family: Comic Sans MS, cursive, sans-serif;}"
@@ -228,7 +241,7 @@ class MediaBase(object):
         out +=      "var imgRealHeight = image.naturalHeight;"
         out +=      "if( imgRealWidth > imgRealHeight){"
         out +=          "image.style.width = frame.clientWidth;"
-        out +=          "image.style.height = null; // frame.offsetHeight;"
+        out +=          "image.style.height = null;"
         out +=      "}else{"
         out +=          "image.style.height = frame.clientHeight;"
         out +=          "image.style.width = null;"

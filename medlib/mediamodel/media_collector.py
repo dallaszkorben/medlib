@@ -1,3 +1,4 @@
+from medlib.constants import *
 from medlib.mediamodel.media_base import MediaBase
 
 class MediaCollector(MediaBase):
@@ -26,6 +27,12 @@ class MediaCollector(MediaBase):
   
     def getPathOfImage(self):
         return self.paths_collector.getPathOfImage()
+    
+    def getBackgroundColor(self):
+        return COLLECTOR_BACKGROUND_COLOR
+        
+    def getFolderType(self):
+        return "collector" 
         
     def addMediaCollector(self, media_collector):
         """

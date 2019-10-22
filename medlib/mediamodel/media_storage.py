@@ -1,3 +1,5 @@
+from medlib.constants import *
+
 from medlib.mediamodel.media_base import MediaBase
 
 class MediaStorage(MediaBase):
@@ -25,6 +27,12 @@ class MediaStorage(MediaBase):
     def getPathOfImage(self):
         return self.paths_content.getPathOfImage()
 
+    def getBackgroundColor(self):
+        return STORAGE_BACKGROUND_COLOR
+
+    def getFolderType(self):
+        return "storage" 
+    
     def getHierarchyTitle(self, space):
         return space + "<S> " + self.getTranslatedTitle() + "\n"
      
