@@ -15,9 +15,7 @@ class MediaBase(object):
     """
     This object represents the MediaBase
     """
-    PANEL_HEIGHT  = "230"
-    PANEL_WIDTH = "500"
-    FONT_SIZE = "14"
+
    
     @staticmethod
     def sort_key(arg):
@@ -57,7 +55,7 @@ class MediaBase(object):
     
     def getTranslatedStoryline(self):
         return self.storylines.getTranslatedStoryline()
-    
+   
     def getTitles(self):
         """
         Returns back the [titles] section.
@@ -108,7 +106,79 @@ class MediaBase(object):
         """
         return self.rating
     
+    # --------------------------------------------
+    # -------------- Functions -------------------
+    # --------------------------------------------
+    def getHtmlFunctionChangeImageSize(self):
+        out = "window.addEventListener('resize', calculateStorylineHeight); "
+        out += "function changeImageSize(){"
+        out +=      "var frame = document.getElementById('main-image-td');"
+        out +=      "var image = document.getElementById('main-image');"
+        out +=      "var imgRealWidth = image.naturalWidth;"
+        out +=      "var imgRealHeight = image.naturalHeight;"
+        out +=      "if( imgRealWidth > imgRealHeight){"
+        out +=          "image.style.width = frame.clientWidth;"
+        out +=          "image.style.height = null;"
+        out +=      "}else{"
+        out +=          "image.style.height = frame.clientHeight;"
+        out +=          "image.style.width = null;"
+        out +=      "}"
+        out +=      "calculateStorylineHeight();"
+        out += "} "
+        
+        out += "function calculateStorylineHeight() {"
+        out +=      "totalHeight = document.body.clientHeight;"
+        out +=      "storylineHeight = totalHeight - document.getElementById('storyline-tr').offsetTop;"
+        out +=      "document.getElementById('storyline-textarea').style.height = " 
+        out +=          "storylineHeight - "        
+        out +=          "parseInt(window.getComputedStyle(document.getElementById('storyline-table')).borderTopWidth.slice(0, -2)) - "
+        out +=          "parseInt(window.getComputedStyle(document.getElementById('storyline-table')).borderBottomWidth.slice(0, -2)) - "
+        out +=          "parseInt(window.getComputedStyle(document.getElementById('storyline-table')).paddingTop.slice(0, -2)) - "
+        out +=          "parseInt(window.getComputedStyle(document.getElementById('storyline-table')).paddingBottom.slice(0, -2)) - "
+        out +=          "parseInt(window.getComputedStyle(document.getElementById('storyline-table')).marginTop.slice(0, -2)) - "
+        out +=          "parseInt(window.getComputedStyle(document.getElementById('storyline-table')).marginBottom.slice(0, -2)); "
+        out += "}"
+
+        return out
     
+    # --------------------------------------------
+    # ----------------- CSS ----------------------
+    # --------------------------------------------
+    def getHtmlCSS(self):
+        out = "body{"
+        out +=     "margin: 0;"        
+        out +=     "background-color:" + self.getBackgroundColor() + ";}" 
+        out += "table {"
+        out +=     "font-size:" + PANEL_FONT_SIZE + "px;" 
+        out +=     "font-family: Comic Sans MS, cursive, sans-serif;}"
+        out += "table, th, td{"
+        out +=     "margin: 0;" 
+        out +=     "padding: 0;" 
+        out +=     "border: 0px solid black;"
+        out +=     "border-spacing:0}"
+        out += "hr{"
+        out +=     "margin: 0;" 
+        out +=     "padding: 0;}"        
+        out += "#main-image-td{"
+        out +=     "background-color:#000000;}"
+        out += "#main-image{"
+        out +=      "display: block;"
+        out +=      "max-height:" + PANEL_HEIGHT + "px;"
+        out +=      "max-width:" + PANEL_HEIGHT + "px;"
+        out +=      "background-color:#000000;}"
+        out += "#maintitle-tr{"
+        out +=     "font-size:2.5em;}" 
+        out += "#storyline-textarea {"
+        out +=     "overflow:auto;" 
+        out +=     "white-space: pre-wrap;" 
+        out +=     "background-color:" + self.getBackgroundColor() + ";" 
+        out +=     "resize:none;" 
+        out +=     "width:100%;"
+        out +=     "border:0px;} "        
+        out += "#content-table tr td{"
+        out +=     "padding-left: 10px;}"
+
+        return out
     
     # --------------------------------------------
     # --------------- Image ---------------------
@@ -133,13 +203,15 @@ class MediaBase(object):
     def getHtmlOneLineInfo(self):
         out = ""
         
-        out += "<td>" + self.getHtmlOneLineInfoYear() + "</td>" if  self.getHtmlOneLineInfoYear() else ""
-        out +="<td>" +  self.getHtmlOneLineInfoLength() + "</td>" if self.getHtmlOneLineInfoLength() else  ""
-        out +="<td>" +  self.getHtmlOneLineInfoCountries() + "</td>" if self.getHtmlOneLineInfoCountries() else  ""
-        out +="<td>" +  self.getHtmlOneLineInfoSounds() + "</td>" if self.getHtmlOneLineInfoSounds() else  ""
-        out +="<td>" +  self.getHtmlOneLineInfoSubs() + "</td>" if self.getHtmlOneLineInfoSubs() else  ""
+        out += "<td width='20%'>" + self.getHtmlOneLineInfoYear() + "</td>" #if  self.getHtmlOneLineInfoYear() else ""
+        out +="<td width='20%' " + ("style='border-left:1px solid white;'" if self.getHtmlOneLineInfoLength() else  "") + ">" +  self.getHtmlOneLineInfoLength() + "</td>" #if self.getHtmlOneLineInfoLength() else  ""
+        out +="<td width='20%' " + ("style='border-left:1px solid white;'" if self.getHtmlOneLineInfoCountries() else  "") + ">" +  self.getHtmlOneLineInfoCountries() + "</td>" #if self.getHtmlOneLineInfoCountries() else  ""
+        out +="<td width='20%' " + ("style='border-left:1px solid white;'" if self.getHtmlOneLineInfoSounds() else  "") + ">" +  self.getHtmlOneLineInfoSounds() + "</td>" #if self.getHtmlOneLineInfoSounds() else  ""
+        out +="<td width='20%' " + ("style='border-left:1px solid white;'" if self.getHtmlOneLineInfoSubs() else  "") + ">" +  self.getHtmlOneLineInfoSubs() + "</td>" #if self.getHtmlOneLineInfoSubs() else  ""
         
-        out = "<table id='content-oneline' width='100%'><tr>" + out + "</tr></table><hr>" if out else ""
+        self.occupied['rows'] = self.occupied['rows'] + 1 if out else 0
+        self.occupied['divs'] = self.occupied['divs'] + 1 if out else 0
+        out = "<table id='oneline-table' width='100%'><tr>" + out + "</tr></table><hr>" if out else ""
         return out
     
     def getHtmlOneLineInfoYear(self):
@@ -170,34 +242,64 @@ class MediaBase(object):
         out += self.getHtmlMultilineInfoActors()
         out += self.getHtmlMultilineInfoGenres()
         out += self.getHtmlMultilineInfoThemes()
-        return "<table  id='content-multiline' >" + out + "</table><hr>" if out else ""
+     
+        self.occupied['divs'] = self.occupied['divs'] + 1 if out else 0        
+     
+        return "<table  id='multiline-table' >" + out + "</table><hr>" if out else ""
      
     def getHtmlMultilineInfoDirectors(self):
         dir_list = ", ".join(d for d in self.general.getDirectors())
-        return "<tr><td valign='top'> <b>" + _('title_director') + ":</b> </td> <td>" + dir_list + "</td></tr>"  if  dir_list else ""
+        out = "<tr><td valign='top'> <b>" + _('title_director') + ":</b> </td> <td>" + dir_list + "</td></tr>"  if  dir_list else ""
+        
+        self.occupied['rows'] = self.occupied['rows'] + 1 if dir_list else 0        
+        return out
          
     def getHtmlMultilineInfoWriters(self):
         writer_list = ", ".join(d for d in self.general.getWriters())
-        return "<tr><td valign='top'> <b>" + _('title_writer') + ":</b> </td> <td>" + writer_list + "</td></tr>"  if  writer_list else ""
+        out = "<tr><td valign='top'> <b>" + _('title_writer') + ":</b> </td> <td>" + writer_list + "</td></tr>"  if  writer_list else ""
+
+        self.occupied['rows'] = self.occupied['rows'] + 1 if writer_list else 0        
+        return out
          
     def getHtmlMultilineInfoActors(self):
         actor_list = ", ".join(d for d in self.general.getActors())
-        return "<tr><td valign='top'> <b>" + _('title_actor') + ":</b> </td> <td>" + actor_list + "</td></tr>"  if  actor_list else ""
+        out = "<tr><td valign='top'> <b>" + _('title_actor') + ":</b> </td> <td>" + actor_list + "</td></tr>"  if  actor_list else ""
+
+        self.occupied['rows'] = self.occupied['rows'] + 1 if actor_list else 0        
+        return out
      
     def getHtmlMultilineInfoGenres(self):
         genre_list = ", ".join( [ _("genre_" + c) for c in self.general.getGenres()])   
-        return "<tr><td valign='top'> <b>" + _('title_genre') + ":</b> </td> <td>" + genre_list + "</td></tr>"  if  genre_list else ""
+        out = "<tr><td valign='top'> <b>" + _('title_genre') + ":</b> </td> <td>" + genre_list + "</td></tr>"  if  genre_list else ""
+        
+        self.occupied['rows'] = self.occupied['rows'] + 1 if genre_list else 0        
+        return out
+     
     
     def getHtmlMultilineInfoThemes(self):
         theme_list = ", ".join( [ _("theme_" + c) for c in self.general.getThemes()])   
-        return "<tr><td valign='top'> <b>" + _('title_theme') + ":</b> </td> <td>" + theme_list + "</td></tr>"  if  theme_list else ""
+        out = "<tr><td valign='top'> <b>" + _('title_theme') + ":</b> </td> <td>" + theme_list + "</td></tr>"  if  theme_list else ""
+        
+        self.occupied['rows'] = self.occupied['rows'] + 1 if theme_list else 0        
+        return out     
   
     # -------------------------------------------
     # --------------- Storyline -----------------
     # --------------------------------------------
     def getHtmlStoryline(self):
-        out = "<table id='content-storyline' width='100%' ><tr><td valign='top'><b>" + _('title_storyline') + ":</b></td><td width='100%' height='100%' valign='top'><div  style='max-height:" + self.__class__.FONT_SIZE + "pt;overflow-y: hidden;'>" + self.storylines.getTranslatedStoryline().replace('\n', '<br>') + "</div></td></tr></table>"
-        
+        out = "<table id='storyline-table' width='100%' >"
+#        out += "<tbody style='display: block; border: 1px solid green; height:50px; overflow-y: scroll'>"
+        out +=   "<tr height='100%'>"
+        out +=      "<td valign='top'>"
+        out +=          "<b>" + _('title_storyline') + ":</b>"
+        out +=      "</td>"
+        out +=      "<td width='100%' valign='top'>"
+        out +=          "<textarea id='storyline-textarea' readonly>"
+        out +=               self.storylines.getTranslatedStoryline().replace('\n', '&#13;&#10;')
+        out +=          "</textarea>"        
+        out +=      "</td>"
+        out +=   "</tr>"
+        out +="</table>"        
         return out
     
     # --------------------------------------------
@@ -206,58 +308,29 @@ class MediaBase(object):
     # --------------------------------------------
     # --------------------------------------------
     def getHtml(self):
+        self.occupied = {'rows': 0, 'divs':0}        
+     
         out = "" #<!DOCTYPE html>"
         out += "<html>"
-        out += "<head><style>"
-        out += "body{"
-        out +=     "margin: 0;"        
-        out +=     "background-color:" + self.getBackgroundColor() + ";}" 
-        out += "table {"
-        out +=     "font-size:" + self.__class__.FONT_SIZE + "px;" 
-        out +=     "font-family: Comic Sans MS, cursive, sans-serif;}"
-        out += "table, th, td{"
-        out +=     "margin: 0;" 
-        out +=     "padding: 0;" 
-        out +=     "border: 1px solid black;}"
-        out += "#main-image-td{"
-        out +=     "background-color:#000000;}"
-        out += "#main-image{"
-        out +=      "display: block;"
-        out +=      "max-height:" + self.__class__.PANEL_HEIGHT + "px;"
-        out +=      "max-width:" + self.__class__.PANEL_HEIGHT + "px;"
-        out +=     "background-color:#000000;}"
-        out += "#main-title{"
-        out +=     "font-size:2.5em;}" 
-        out += "hr{"
-        out +=     "margin: 0;" 
-        out +=     "padding: 0;}"
+        out += "<head>"
+        out += "<meta http-equiv='Content-Type' content='text/html; charset=utf-8'>"
+        out += "<style>"
+        out +=      self.getHtmlCSS()
         out += "</style>"
         
         out += "<script>"
-        out += "function changeImageSize(){"
-        out +=      "var frame = document.getElementById('main-image-td');"
-        out +=      "var image = document.getElementById('main-image');"
-        out +=      "var imgRealWidth = image.naturalWidth;"
-        out +=      "var imgRealHeight = image.naturalHeight;"
-        out +=      "if( imgRealWidth > imgRealHeight){"
-        out +=          "image.style.width = frame.clientWidth;"
-        out +=          "image.style.height = null;"
-        out +=      "}else{"
-        out +=          "image.style.height = frame.clientHeight;"
-        out +=          "image.style.width = null;"
-        out +=      "}"
-        out += "}"
-
+        out +=      self.getHtmlFunctionChangeImageSize()
         out += "</script>"
         
         out += "</head>"        
         out += "<body onload='changeImageSize()'>"
-        out +=   "<table id='main-table' width='100%' height='" + self.__class__.PANEL_HEIGHT + "px'>"
+        out += "<div style='max-height: " + PANEL_HEIGHT + "'>"
+        out +=   "<table id='main-table' width='100%' height='100%' >"
         out +=     "<tr>"
 
         # Image
-        out +=       "<td id='main-image-td' width='"+ self.__class__.PANEL_HEIGHT + "px' height='" + self.__class__.PANEL_HEIGHT + "px' valign='middle' align='middle'>"
-        out +=      self.getHtmlImage()
+        out +=       "<td id='main-image-td' width='"+ PANEL_HEIGHT + "px' height='" + PANEL_HEIGHT + "px' valign='middle' align='middle'>"
+        out +=          self.getHtmlImage()
         out +=       "</td>"
         
         # Content
@@ -265,33 +338,32 @@ class MediaBase(object):
         out +=         "<table id='content-table' width='100%' height='100%'>"        
         
         # --- Title ---
-        out +=           "<tr>"
-        out +=             "<td id='main-title'>"
-        out +=               self.getHtmlTitle()
+        out +=           "<tr id='maintitle-tr'>"
+        out +=             "<td>"
+        out +=                self.getHtmlTitle()
         out +=             "</td>"
         out +=           "</tr>"
         
         # --- One-line Info: Year, Length, Country, Sound, Subtitle ---
-        out +=           "<tr>"
+        out +=           "<tr id='oneline-tr'>"
         out +=             "<td>"
-        out +=               self.getHtmlOneLineInfo()
+        out +=                self.getHtmlOneLineInfo()
         out +=             "</td>"
         out +=           "</tr>"
 
         # --- Multi-line Info: Writers, Directors, Actors Genre, Theme ---
-        out +=           "<tr>"
+        out +=           "<tr id='multiline-tr'>"
         out +=             "<td>"
-        out +=               self.getHtmlMultiLineInfo()
+        out +=                self.getHtmlMultiLineInfo()
         out +=             "</td>"
         out +=           "</tr>"
 
         # --- Storyline---
-        out +=           "<tr height='100%'>"
+        out +=           "<tr height='100%' id='storyline-tr'>"
         out +=             "<td valign='top'>"
-        out +=               self.getHtmlStoryline()
+        out +=                self.getHtmlStoryline()
         out +=             "</td>"
         out +=           "</tr>"
-
 
         out +=         "</table>"        
         out +=       "</td>"
@@ -300,6 +372,7 @@ class MediaBase(object):
         
         out +=     "</tr>"        
         out +=   "</table>"
+        out += "</div>"
         out += "</body>"
         out += "</html>"
         return out
