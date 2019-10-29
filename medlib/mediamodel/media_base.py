@@ -177,6 +177,10 @@ class MediaBase(object):
         out +=     "border:0px;} "        
         out += "#content-table tr td{"
         out +=     "padding-left: 10px;}"
+        out += "#favorite-img{"
+        out +=     "background:transparent;}"
+        out += "#rate-input{"
+        out +=      "background-color:#f7bb07;}"
 
         return out
     
@@ -209,8 +213,8 @@ class MediaBase(object):
         out +="<td width='20%' " + ("style='border-left:1px solid white;'" if self.getHtmlOneLineInfoSounds() else  "") + ">" +  self.getHtmlOneLineInfoSounds() + "</td>" #if self.getHtmlOneLineInfoSounds() else  ""
         out +="<td width='20%' " + ("style='border-left:1px solid white;'" if self.getHtmlOneLineInfoSubs() else  "") + ">" +  self.getHtmlOneLineInfoSubs() + "</td>" #if self.getHtmlOneLineInfoSubs() else  ""
         
-        self.occupied['rows'] = self.occupied['rows'] + 1 if out else 0
-        self.occupied['divs'] = self.occupied['divs'] + 1 if out else 0
+#        self.occupied['rows'] = self.occupied['rows'] + 1 if out else 0
+#        self.occupied['divs'] = self.occupied['divs'] + 1 if out else 0
         out = "<table id='oneline-table' width='100%'><tr>" + out + "</tr></table><hr>" if out else ""
         return out
     
@@ -243,36 +247,36 @@ class MediaBase(object):
         out += self.getHtmlMultilineInfoGenres()
         out += self.getHtmlMultilineInfoThemes()
      
-        self.occupied['divs'] = self.occupied['divs'] + 1 if out else 0        
+#        self.occupied['divs'] = self.occupied['divs'] + 1 if out else 0        
      
         return "<table  id='multiline-table' >" + out + "</table><hr>" if out else ""
      
     def getHtmlMultilineInfoDirectors(self):
-        dir_list = ", ".join(d for d in self.general.getDirectors())
+        dir_list = ", ".join( "<a href='' style='text-decoration:none;'>" + d + "</a>" for d in self.general.getDirectors())
         out = "<tr><td valign='top'> <b>" + _('title_director') + ":</b> </td> <td>" + dir_list + "</td></tr>"  if  dir_list else ""
         
-        self.occupied['rows'] = self.occupied['rows'] + 1 if dir_list else 0        
+#        self.occupied['rows'] = self.occupied['rows'] + 1 if dir_list else 0        
         return out
          
     def getHtmlMultilineInfoWriters(self):
         writer_list = ", ".join(d for d in self.general.getWriters())
         out = "<tr><td valign='top'> <b>" + _('title_writer') + ":</b> </td> <td>" + writer_list + "</td></tr>"  if  writer_list else ""
 
-        self.occupied['rows'] = self.occupied['rows'] + 1 if writer_list else 0        
+#        self.occupied['rows'] = self.occupied['rows'] + 1 if writer_list else 0        
         return out
          
     def getHtmlMultilineInfoActors(self):
         actor_list = ", ".join(d for d in self.general.getActors())
         out = "<tr><td valign='top'> <b>" + _('title_actor') + ":</b> </td> <td>" + actor_list + "</td></tr>"  if  actor_list else ""
 
-        self.occupied['rows'] = self.occupied['rows'] + 1 if actor_list else 0        
+#        self.occupied['rows'] = self.occupied['rows'] + 1 if actor_list else 0        
         return out
      
     def getHtmlMultilineInfoGenres(self):
         genre_list = ", ".join( [ _("genre_" + c) for c in self.general.getGenres()])   
         out = "<tr><td valign='top'> <b>" + _('title_genre') + ":</b> </td> <td>" + genre_list + "</td></tr>"  if  genre_list else ""
         
-        self.occupied['rows'] = self.occupied['rows'] + 1 if genre_list else 0        
+#        self.occupied['rows'] = self.occupied['rows'] + 1 if genre_list else 0        
         return out
      
     
@@ -280,7 +284,7 @@ class MediaBase(object):
         theme_list = ", ".join( [ _("theme_" + c) for c in self.general.getThemes()])   
         out = "<tr><td valign='top'> <b>" + _('title_theme') + ":</b> </td> <td>" + theme_list + "</td></tr>"  if  theme_list else ""
         
-        self.occupied['rows'] = self.occupied['rows'] + 1 if theme_list else 0        
+#        self.occupied['rows'] = self.occupied['rows'] + 1 if theme_list else 0        
         return out     
   
     # -------------------------------------------
@@ -288,7 +292,6 @@ class MediaBase(object):
     # --------------------------------------------
     def getHtmlStoryline(self):
         out = "<table id='storyline-table' width='100%' >"
-#        out += "<tbody style='display: block; border: 1px solid green; height:50px; overflow-y: scroll'>"
         out +=   "<tr height='100%'>"
         out +=      "<td valign='top'>"
         out +=          "<b>" + _('title_storyline') + ":</b>"
@@ -301,6 +304,45 @@ class MediaBase(object):
         out +=   "</tr>"
         out +="</table>"        
         return out
+
+    # --------------------------------------------
+    # --------------- Rating ---------------------
+    # --------------------------------------------
+    def getHtmlRating(self):
+        iconFavoriteFileName = RATING_ICON_PREFIX + "-" + RATING_ICON_FAVORITE_TAG + "-" + ("on" if self.getRating().getFavorite() else "off") + "." + RATING_ICON_EXTENSION        
+        pathToFavorite = resource_filename(__name__, os.path.join(RATING_ICON_FOLDER, iconFavoriteFileName))
+        
+        iconNewFileName = RATING_ICON_PREFIX + "-" + RATING_ICON_NEW_TAG + "-" + ("on" if self.getRating().getNew() else "off") + "." + RATING_ICON_EXTENSION        
+        pathToNew = resource_filename(__name__, os.path.join(RATING_ICON_FOLDER, iconNewFileName))
+        
+        out = "<table id='rating-table' height='100%'>"
+        out +=   "<tr height='20%'>"
+        out +=      "<td>"
+        out +=          "<input id='rate-input' type='number'  min='0' max='10' value='" + str(self.getRating().getRate()) + "'/>"
+        out +=      "</td>"
+        out +=   "</tr>"
+        out +=   "<tr height='20%'>"
+        out +=      "<td align='center'>"
+        out +=          "<a href=''>"
+        out +=              "<img id='favorite-img' src='file://" + pathToFavorite + "'>"
+        out +=          "</a>"                
+        out +=      "</td>"
+        out +=   "</tr>"
+        out +=   "<tr height='20%'>"
+        out +=      "<td align='center'>"
+        out +=          "<a href=''>"
+        out +=              "<img id='favorite-img' src='file://" + pathToNew + "'>"
+        out +=          "</a>"               
+        out +=      "</td>"
+        out +=   "</tr>"
+        out +=   "<tr height='40%'>"
+        out +=      "<td>"
+        out +=      "</td>"
+        out +=   "</tr>"        
+        out +="</table>"   
+
+        
+        return out
     
     # --------------------------------------------
     # --------------------------------------------
@@ -308,7 +350,7 @@ class MediaBase(object):
     # --------------------------------------------
     # --------------------------------------------
     def getHtml(self):
-        self.occupied = {'rows': 0, 'divs':0}        
+#        self.occupied = {'rows': 0, 'divs':0}        
      
         out = "" #<!DOCTYPE html>"
         out += "<html>"
@@ -332,18 +374,18 @@ class MediaBase(object):
         out +=       "<td id='main-image-td' width='"+ PANEL_HEIGHT + "px' height='" + PANEL_HEIGHT + "px' valign='middle' align='middle'>"
         out +=          self.getHtmlImage()
         out +=       "</td>"
-        
+
         # Content
-        out +=       "<td valign='top'>"
+        out +=       "<td valign='top' >"
         out +=         "<table id='content-table' width='100%' height='100%'>"        
-        
+
         # --- Title ---
         out +=           "<tr id='maintitle-tr'>"
         out +=             "<td>"
         out +=                self.getHtmlTitle()
         out +=             "</td>"
         out +=           "</tr>"
-        
+
         # --- One-line Info: Year, Length, Country, Sound, Subtitle ---
         out +=           "<tr id='oneline-tr'>"
         out +=             "<td>"
@@ -367,9 +409,12 @@ class MediaBase(object):
 
         out +=         "</table>"        
         out +=       "</td>"
-        
+
         # Rating
-        
+        out +=       "<td valign='top' width='35px'>"
+        out +=          self.getHtmlRating()
+        out +=       "</td>"        
+
         out +=     "</tr>"        
         out +=   "</table>"
         out += "</div>"
