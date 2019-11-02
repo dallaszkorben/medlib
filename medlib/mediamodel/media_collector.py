@@ -18,7 +18,7 @@ class MediaCollector(MediaBase):
                 control           IniControl        represents the [control] section
                 general           IniGeneral        represents the [general] section
                 storylines        IniStorylines     represents the [storyline] section
-                rating        IniRating         represents the [rating] section
+                rating            IniRating         represents the [rating] section
         """
         super().__init__(titles, control, general, storylines, rating)
         self.paths_collector = paths_collector

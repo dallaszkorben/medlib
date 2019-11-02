@@ -10,6 +10,18 @@ from builtins import object
 from medlib.mediamodel.ini_general import IniGeneral
 from medlib.mediamodel.ini_storylines import IniStorylines
 from medlib.mediamodel.ini_rating import IniRating
+from medlib.mediamodel.extra import QHLine
+
+from PyQt5.QtWidgets import QGridLayout
+from PyQt5.QtWidgets import QHBoxLayout, QVBoxLayout
+from PyQt5.QtWidgets import QLabel
+from PyQt5.QtWidgets import QWidget
+from PyQt5.QtGui import QColor
+from PyQt5.QtCore import Qt 
+from PyQt5.QtGui import QFont
+
+
+from PyQt5.QtGui import QPixmap
 
 class MediaBase(object):
     """
@@ -32,7 +44,7 @@ class MediaBase(object):
                 control           IniControl        represents the [control] section
                 general           IniGeneral        represents the [general] section
                 storylines        IniStorylines     represents the [storyline] section
-                rating        IniRating         represents the [rating] section
+                rating            IniRating         represents the [rating] section
         """
         super().__init__()
         self.titles = titles
@@ -106,136 +118,11 @@ class MediaBase(object):
         """
         return self.rating
     
-    # --------------------------------------------
-    # -------------- Functions -------------------
-    # --------------------------------------------
-    def getHtmlFunctionChangeImageSize(self):
-        out = "window.addEventListener('resize', calculateStorylineHeight); "
-        out += "function changeImageSize(){"
-        out +=      "var frame = document.getElementById('main-image-td');"
-        out +=      "var image = document.getElementById('main-image');"
-        out +=      "var imgRealWidth = image.naturalWidth;"
-        out +=      "var imgRealHeight = image.naturalHeight;"
-        out +=      "if( imgRealWidth > imgRealHeight){"
-        out +=          "image.style.width = frame.clientWidth;"
-        out +=          "image.style.height = null;"
-        out +=      "}else{"
-        out +=          "image.style.height = frame.clientHeight;"
-        out +=          "image.style.width = null;"
-        out +=      "}"
-        out +=      "calculateStorylineHeight();"
-        out += "} "
-        
-        out += "function calculateStorylineHeight() {"
-        out +=      "totalHeight = document.body.clientHeight;"
-        out +=      "storylineHeight = totalHeight - document.getElementById('storyline-tr').offsetTop;"
-        out +=      "document.getElementById('storyline-textarea').style.height = " 
-        out +=          "storylineHeight - "        
-        out +=          "parseInt(window.getComputedStyle(document.getElementById('storyline-table')).borderTopWidth.slice(0, -2)) - "
-        out +=          "parseInt(window.getComputedStyle(document.getElementById('storyline-table')).borderBottomWidth.slice(0, -2)) - "
-        out +=          "parseInt(window.getComputedStyle(document.getElementById('storyline-table')).paddingTop.slice(0, -2)) - "
-        out +=          "parseInt(window.getComputedStyle(document.getElementById('storyline-table')).paddingBottom.slice(0, -2)) - "
-        out +=          "parseInt(window.getComputedStyle(document.getElementById('storyline-table')).marginTop.slice(0, -2)) - "
-        out +=          "parseInt(window.getComputedStyle(document.getElementById('storyline-table')).marginBottom.slice(0, -2)); "
-        out += "}"
-
-        return out
+   
     
-    # --------------------------------------------
-    # ----------------- CSS ----------------------
-    # --------------------------------------------
-    def getHtmlCSS(self):
-        out = "body{"
-        out +=     "margin: 0;"        
-        out +=     "background-color:" + self.getBackgroundColor() + ";}" 
-        out += "table {"
-        out +=     "font-size:" + PANEL_FONT_SIZE + "px;" 
-        out +=     "font-family: Comic Sans MS, cursive, sans-serif;}"
-        out += "table, th, td{"
-        out +=     "margin: 0;" 
-        out +=     "padding: 0;" 
-        out +=     "border: 0px solid black;"
-        out +=     "border-spacing:0}"
-        out += "hr{"
-        out +=     "margin: 0;" 
-        out +=     "padding: 0;}"        
-        out += "#main-image-td{"
-        out +=     "background-color:#000000;}"
-        out += "#main-image{"
-        out +=      "display: block;"
-        out +=      "max-height:" + PANEL_HEIGHT + "px;"
-        out +=      "max-width:" + PANEL_HEIGHT + "px;"
-        out +=      "background-color:#000000;}"
-        out += "#maintitle-tr{"
-        out +=     "font-size:2.5em;}" 
-        out += "#storyline-textarea {"
-        out +=     "overflow:auto;" 
-        out +=     "white-space: pre-wrap;" 
-        out +=     "background-color:" + self.getBackgroundColor() + ";" 
-        out +=     "resize:none;" 
-        out +=     "width:100%;"
-        out +=     "border:0px;} "        
-        out += "#content-table tr td{"
-        out +=     "padding-left: 10px;}"
-        out += "#favorite-img{"
-        out +=     "background:transparent;}"
-        out += "#rate-input{"
-        out +=      "background-color:#f7bb07;}"
-
-        return out
-    
-    # --------------------------------------------
-    # --------------- Image ---------------------
-    # --------------------------------------------
-    def getHtmlImage(self):
-        out = "<img id='main-image' src='file://" + self.getPathOfImage() + "' alt='Needs a default image' width='100%'>"
-        return out
-        
-    # --------------------------------------------
-    # ---------------- Title ---------------------
-    # --------------------------------------------
-    def getHtmlTitle(self):
-        iconFileName = TITLE_ICON_PREFIX + "-" + self.getFolderType() + "-" + self.control.getMedia() + "-" + self.control.getCategory() + "." + TITLE_ICON_EXTENSION
-        pathToFile = resource_filename(__name__, os.path.join(TITLE_ICON_FOLDER, iconFileName))
-        out = "<img height='" + TITLE_ICON_HEIGHT + "' src='file://" + pathToFile + "'> <b>" + self.titles.getTranslatedTitle() + "</b>"
-        out += "<hr>"
-        return out
-    
-    # --------------------------------------------
-    # ----------- OneLineInfo -----------------
-    # --------------------------------------------
-    def getHtmlOneLineInfo(self):
-        out = ""
-        
-        out += "<td width='20%'>" + self.getHtmlOneLineInfoYear() + "</td>" #if  self.getHtmlOneLineInfoYear() else ""
-        out +="<td width='20%' " + ("style='border-left:1px solid white;'" if self.getHtmlOneLineInfoLength() else  "") + ">" +  self.getHtmlOneLineInfoLength() + "</td>" #if self.getHtmlOneLineInfoLength() else  ""
-        out +="<td width='20%' " + ("style='border-left:1px solid white;'" if self.getHtmlOneLineInfoCountries() else  "") + ">" +  self.getHtmlOneLineInfoCountries() + "</td>" #if self.getHtmlOneLineInfoCountries() else  ""
-        out +="<td width='20%' " + ("style='border-left:1px solid white;'" if self.getHtmlOneLineInfoSounds() else  "") + ">" +  self.getHtmlOneLineInfoSounds() + "</td>" #if self.getHtmlOneLineInfoSounds() else  ""
-        out +="<td width='20%' " + ("style='border-left:1px solid white;'" if self.getHtmlOneLineInfoSubs() else  "") + ">" +  self.getHtmlOneLineInfoSubs() + "</td>" #if self.getHtmlOneLineInfoSubs() else  ""
-        
-#        self.occupied['rows'] = self.occupied['rows'] + 1 if out else 0
-#        self.occupied['divs'] = self.occupied['divs'] + 1 if out else 0
-        out = "<table id='oneline-table' width='100%'><tr>" + out + "</tr></table><hr>" if out else ""
-        return out
-    
-    def getHtmlOneLineInfoYear(self):
-        return "<b>" + _('title_year')  + ":</b> " + self.general.getYear() if self.general.getYear() else ""
-        
-    def getHtmlOneLineInfoLength(self):
-        return "<b>" + _('title_length')  + ":</b> " + self.general.getLength() if self.general.getLength() else ""
-        
-    def getHtmlOneLineInfoCountries(self):        
-        country_list = ", ".join( [ _("country_" + c) for c in self.general.getCountries()])        
-        return "<b>" + _('title_country')  + ":</b> " + country_list if country_list else ""
-        
-    def getHtmlOneLineInfoSounds(self):
-        sound_list = ", ".join( [ _("lang_" + c) for c in self.general.getSounds()])        
-        return "<b>" + _('title_sound')  + ":</b> " + sound_list if sound_list else ""
-        
-    def getHtmlOneLineInfoSubs(self):
-        sub_list = ", ".join( [ _("lang_" + c) for c in self.general.getSounds()])        
-        return "<b>" + _('title_sub')  + ":</b> " + sub_list if sub_list else ""
-        
+       
+ 
+         
     # --------------------------------------------
     # ----------- MultiLineInfo -----------------
     # --------------------------------------------
@@ -318,7 +205,7 @@ class MediaBase(object):
         out = "<table id='rating-table' height='100%'>"
         out +=   "<tr height='20%'>"
         out +=      "<td>"
-        out +=          "<input id='rate-input' type='number'  min='0' max='10' value='" + str(self.getRating().getRate()) + "'/>"
+        out +=          "<input id='rate-input' type='number'  min='0' max='10' oninput='if(parseInt(this.value)>10){ this.value =10; }else if(this.value.length<1){this.value=0}' value='" + str(self.getRating().getRate()) + "'/>"
         out +=      "</td>"
         out +=   "</tr>"
         out +=   "<tr height='20%'>"
@@ -343,82 +230,281 @@ class MediaBase(object):
 
         
         return out
+
+        
+        
+        
+        
+        
+    # --------------------------------------------
+    # --------------- Image ---------------------
+    # --------------------------------------------
+    def getWidgetImage(self, sizeRate):
+        
+        # layout of this widget => three columns
+        image_layout = QHBoxLayout()
+        
+        # space between the three grids
+        image_layout.setSpacing(1)
+        
+        # margin around the widget
+        image_layout.setContentsMargins(0, 0, 0, 0)
+        
+        widget = QLabel()
+        widget.setStyleSheet('background: black')
+        widget.setLayout(image_layout)
+
+        pixmap = QPixmap( self.getPathOfImage( ) )
+
+        # if card image was not found
+        if pixmap.isNull():            
+            # then a blanc image appears
+            smaller_pixmap = QPixmap(PANEL_HEIGHT * sizeRate, PANEL_HEIGHT * sizeRate)
+            smaller_pixmap.fill(QColor('gray'))
+        elif pixmap.width() >= pixmap.height():
+            smaller_pixmap = pixmap.scaledToWidth(PANEL_HEIGHT * sizeRate)
+        else:
+            smaller_pixmap = pixmap.scaledToHeight(PANEL_HEIGHT * sizeRate)
+   
+        widget.setPixmap(smaller_pixmap)
+        
+        return widget         
+        
+    # --------------------------------------------
+    # ------------- Middle - Text part -----------
+    # --------------------------------------------
+    def getWidgetMiddleText(self, sizeRate):
+        
+        # layout of this widget => three columns
+        middle_layout = QVBoxLayout()
+        middle_layout.setAlignment(Qt.AlignTop)
+        
+        # space between the three grids
+        middle_layout.setSpacing(1)
+        
+        # margin around the widget
+        middle_layout.setContentsMargins(0, 0, 0, 0)
+        
+        widget = QWidget()
+        widget.setLayout(middle_layout)
+
+        middle_layout.addWidget(self.getWidgetTitle(sizeRate))
+        middle_layout.addWidget(QHLine())
+        middle_layout.addWidget(self.getWidgetOneLineInfo(sizeRate))
+        middle_layout.addWidget(QLabel("general"))
+        return widget         
+
+    # --------------------------------------------
+    # ---------------- Title ---------------------
+    # --------------------------------------------
+    def getWidgetTitle(self, sizeRate):
+        title_layout = QHBoxLayout()
+        title_layout.setAlignment(Qt.AlignLeft)
+        
+        # space between the three grids
+        title_layout.setSpacing(1)
+        
+        # margin around the widget
+        title_layout.setContentsMargins(0, 0, 0, 0)
+        
+        widget = QWidget()
+        widget.setLayout(title_layout)
+
+        #
+        # Icon
+        #
+        iconFileName = TITLE_ICON_PREFIX + "-" + self.getFolderType() + "-" + self.control.getMedia() + "-" + self.control.getCategory() + "." + TITLE_ICON_EXTENSION
+        pathToFile = resource_filename(__name__, os.path.join(TITLE_ICON_FOLDER, iconFileName))       
+        pixmap = QPixmap( pathToFile )
+
+        if pixmap.isNull():            
+            smaller_pixmap = QPixmap(TITLE_ICON_HEIGHT * sizeRate, TITLE_ICON_HEIGHT * sizeRate)
+            smaller_pixmap.fill(QColor(self.getBackgroundColor()))
+        else:
+            smaller_pixmap = pixmap.scaledToWidth(TITLE_ICON_HEIGHT * sizeRate)
+   
+        iconWidget = QLabel()
+        iconWidget.setPixmap(smaller_pixmap)
+
+        title_layout.addWidget(iconWidget)
+
+        #
+        # Title
+        #
+        titleWidget = QLabel(self.titles.getTranslatedTitle())
+        titleWidget.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate * 1.8, weight=QFont.Bold))
+
+        title_layout.addWidget(titleWidget)
+        return widget                 
+        
+        
+    # --------------------------------------------
+    # ----------- OneLineInfo -----------------
+    # --------------------------------------------
+    def getWidgetOneLineInfo(self, sizeRate):
+                
+        layout = QGridLayout()
+        
+        layout.setSpacing(1)
+        
+        layout.setContentsMargins(0, 0, 0, 0)
+
+        widget = QWidget()
+        #widget.setStyleSheet('background: ' + self.getBackgroundColor())
+        widget.setLayout(layout)
+        widget.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Normal))
+
+        layout.addWidget(self.getWidgetOneLineInfoYear(sizeRate), 0, 0)
+
+        layout.addWidget(self.getWidgetOneLineInfoLength(sizeRate), 0, 1)
+        
+        layout.addWidget(self.getWidgetOneLineInfoCountries(sizeRate), 0, 2)
+        
+        layout.addWidget(self.getWidgetOneLineInfoSounds(sizeRate), 0, 3)
+        
+        layout.addWidget(self.getHtmlOneLineInfoSubs(sizeRate), 0, 4)
+        
+        if layout.sizeHint().height() > 0:
+            layout.addWidget(QHLine(), 1, 0, 1, 5)
+
+        return widget
     
-    # --------------------------------------------
-    # --------------------------------------------
-    # --------------- HTML ---------------------
-    # --------------------------------------------
-    # --------------------------------------------
-    def getHtml(self):
-#        self.occupied = {'rows': 0, 'divs':0}        
-     
-        out = "" #<!DOCTYPE html>"
-        out += "<html>"
-        out += "<head>"
-        out += "<meta http-equiv='Content-Type' content='text/html; charset=utf-8'>"
-        out += "<style>"
-        out +=      self.getHtmlCSS()
-        out += "</style>"
+    def getWidgetOneLineInfoYear(self, sizeRate):
+        layout = QHBoxLayout()
+        layout.setAlignment(Qt.AlignLeft)        
+        layout.setSpacing(1)        
+        layout.setContentsMargins(0, 0, 0, 0)
         
-        out += "<script>"
-        out +=      self.getHtmlFunctionChangeImageSize()
-        out += "</script>"
+        widget = QWidget()
+        widget.setLayout(layout)
         
-        out += "</head>"        
-        out += "<body onload='changeImageSize()'>"
-        out += "<div style='max-height: " + PANEL_HEIGHT + "'>"
-        out +=   "<table id='main-table' width='100%' height='100%' >"
-        out +=     "<tr>"
+        if self.general.getYear():
 
-        # Image
-        out +=       "<td id='main-image-td' width='"+ PANEL_HEIGHT + "px' height='" + PANEL_HEIGHT + "px' valign='middle' align='middle'>"
-        out +=          self.getHtmlImage()
-        out +=       "</td>"
-
-        # Content
-        out +=       "<td valign='top' >"
-        out +=         "<table id='content-table' width='100%' height='100%'>"        
-
-        # --- Title ---
-        out +=           "<tr id='maintitle-tr'>"
-        out +=             "<td>"
-        out +=                self.getHtmlTitle()
-        out +=             "</td>"
-        out +=           "</tr>"
-
-        # --- One-line Info: Year, Length, Country, Sound, Subtitle ---
-        out +=           "<tr id='oneline-tr'>"
-        out +=             "<td>"
-        out +=                self.getHtmlOneLineInfo()
-        out +=             "</td>"
-        out +=           "</tr>"
-
-        # --- Multi-line Info: Writers, Directors, Actors Genre, Theme ---
-        out +=           "<tr id='multiline-tr'>"
-        out +=             "<td>"
-        out +=                self.getHtmlMultiLineInfo()
-        out +=             "</td>"
-        out +=           "</tr>"
-
-        # --- Storyline---
-        out +=           "<tr height='100%' id='storyline-tr'>"
-        out +=             "<td valign='top'>"
-        out +=                self.getHtmlStoryline()
-        out +=             "</td>"
-        out +=           "</tr>"
-
-        out +=         "</table>"        
-        out +=       "</td>"
-
-        # Rating
-        out +=       "<td valign='top' width='35px'>"
-        out +=          self.getHtmlRating()
-        out +=       "</td>"        
-
-        out +=     "</tr>"        
-        out +=   "</table>"
-        out += "</div>"
-        out += "</body>"
-        out += "</html>"
-        return out
+            key_label = QLabel(_('title_year')  + ": ")
+            layout.addWidget(key_label)
         
+            value_label = QLabel(self.general.getYear())
+            value_label.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Bold))
+            layout.addWidget(value_label)
+        
+        return widget
+        
+    def getWidgetOneLineInfoLength(self, sizeRate):
+        layout = QHBoxLayout()
+        layout.setAlignment(Qt.AlignLeft)        
+        layout.setSpacing(1)        
+        layout.setContentsMargins(0, 0, 0, 0)
+        
+        widget = QWidget()
+        widget.setLayout(layout)
+        
+        if self.general.getLength():
+
+            key_label = QLabel(_('title_length')  + ": ")
+            layout.addWidget(key_label)
+        
+            value_label = QLabel(self.general.getLength())
+            value_label.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Bold))
+            layout.addWidget(value_label)
+        
+        return widget
+    
+        
+    def getWidgetOneLineInfoCountries(self, sizeRate):
+        country_list = ", ".join( [ _("country_" + c) for c in self.general.getCountries()])
+        
+        layout = QHBoxLayout()
+        layout.setAlignment(Qt.AlignLeft)        
+        layout.setSpacing(1)        
+        layout.setContentsMargins(0, 0, 0, 0)
+        
+        widget = QWidget()
+        widget.setLayout(layout)
+        
+        if country_list:
+
+            key_label = QLabel(_('title_country')  + ": ")
+            layout.addWidget(key_label)
+        
+            value_label = QLabel(country_list)
+            value_label.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Bold))
+            layout.addWidget(value_label)
+        
+        return widget
+        
+    def getWidgetOneLineInfoSounds(self, sizeRate):
+        sound_list = ", ".join( [ _("lang_" + c) for c in self.general.getSounds()])        
+        
+        layout = QHBoxLayout()
+        layout.setAlignment(Qt.AlignLeft)        
+        layout.setSpacing(1)        
+        layout.setContentsMargins(0, 0, 0, 0)
+        
+        widget = QWidget()
+        widget.setLayout(layout)
+        
+        if sound_list:
+
+            key_label = QLabel( _('title_sound')  + ": ")
+            layout.addWidget(key_label)
+        
+            value_label = QLabel(sound_list)
+            value_label.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Bold))
+            layout.addWidget(value_label)
+        
+        return widget
+        
+    def getHtmlOneLineInfoSubs(self, sizeRate):
+        sub_list = ", ".join( [ _("lang_" + c) for c in self.general.getSubs()])
+        
+        layout = QHBoxLayout()
+        layout.setAlignment(Qt.AlignLeft)        
+        layout.setSpacing(1)        
+        layout.setContentsMargins(0, 0, 0, 0)
+        
+        widget = QWidget()
+        widget.setLayout(layout)
+        
+        if sub_list:
+
+            key_label = QLabel( _('title_sub')  + ": ")
+            layout.addWidget(key_label)
+        
+            value_label = QLabel(sub_list)
+            value_label.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Bold))
+            layout.addWidget(value_label)
+        
+        return widget
+ 
+        
+    # --------------------------------------------
+    # --------------------------------------------
+    # --------------- WIDGET -------------------
+    # --------------------------------------------
+    # --------------------------------------------
+    def getWidget(self, sizeRate):
+
+        # layout of this widget => three columns
+        grid_layout = QGridLayout()
+        
+        # space between the three grids
+        grid_layout.setSpacing(1)
+        
+        # margin around the widget
+        grid_layout.setContentsMargins(0, 0, 0, 0)
+        
+        # stretch out the middle part
+        grid_layout.setColumnStretch(1, 1)
+
+        widget = QWidget()
+        widget.setStyleSheet('background: ' + self.getBackgroundColor())
+        widget.setLayout(grid_layout)
+        
+        label_vege = QLabel("vege")
+        label_vege.setStyleSheet('background:yellow')                
+        
+        grid_layout.addWidget(self.getWidgetImage(sizeRate), 0, 0)
+        grid_layout.addWidget(self.getWidgetMiddleText(sizeRate), 0, 1)
+        grid_layout.addWidget(label_vege, 0, 2)
+        
+        return widget
