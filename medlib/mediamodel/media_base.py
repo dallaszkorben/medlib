@@ -69,7 +69,10 @@ class MediaBase(object):
     
     def getTranslatedStoryline(self):
         return self.storylines.getTranslatedStoryline()
-   
+
+    def getTranslatedGenres(self):
+        return self.general.getTranslatedGenres(self.control.getCategory())
+
     def getTitles(self):
         """
         Returns back the [titles] section.
@@ -503,6 +506,7 @@ class MediaBase(object):
     # #########
     def addWidgetGeneralInfoGenres(self, sizeRate, grid_layout, row):
        
+       ### MUST BE FIXED ###
         widget_key = QLabel(_('title_genre') + ":", )
         widget_key.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Bold))
         
@@ -515,7 +519,7 @@ class MediaBase(object):
         widget_value.setLayout( layout_genres )
         widget_value.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Normal))
         first = True
-        for d in self.general.getGenres():
+        for d in self.getTranslatedGenres():
             if not first:
                 layout_genres.addWidget( QLabel(", ") )
             label = QLabel(d)

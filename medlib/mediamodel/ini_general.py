@@ -1,3 +1,5 @@
+from medlib.handle_property import _
+
 class IniGeneral(object):
     """
     This class represents the [general] section in the card.ini file
@@ -30,6 +32,19 @@ class IniGeneral(object):
         self.genres = genres if genres else []
         self.themes = themes if themes else []
         self.countries = countries if countries else []
+        
+    def getTranslatedGenres(self, category=None):
+        """
+        Returns back the Genres list in the respective language.
+        _________________________________________________________________________________________________
+        input:
+                category:    movie, music, show, presentation, alternative, miscellaneous, radioplay, audiobook 
+        """
+        pre = "genre" + ("_" + category if category is not None and category == "music" else "" ) + "_"
+        genres = [ _(pre+g) for g in self.getGenres() ]
+        
+        return genres
+
         
     def getYear(self):
         return self.year
