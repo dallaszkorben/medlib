@@ -6,34 +6,99 @@ class IniGeneral(object):
 
     """
     
-    def __init__(self, year=None, directors=None, writers=None, actors=None, length=None, sounds=None, subs=None, genres=None, themes=None, countries=None):
+    def __init__(self):
         """
         This is the constructor of the IniGeneral class
         _______________________________________________
         input:
-            year         string             like "1987" or "1987-1988"
-            directors    list of strings    ["Director 1", "Director 2"]
-            writers      list of strings    ["Writer 1", "Writer 2"]
-            actors       list of strings    ["Actor 1", "Actor 2"]
-            length       string             "2:15"
-            sounds       list of strings    ["en", "hu"]
-            subs         list of strings    ["en", "hu"]
-            genres       list of strings    ["drama", "action"]
-            themes       list of strings    ["money", "greed"]
-            countries    list of strings    ["us", "ca"]
+            year             string             like "1987" or "1987-1988"
+            
+            directors        list of strings    ["Director 1", "Director 2"]
+            makers           list of strings    ["Maker 1", "Maker 2"]            
+            
+            writers          list of strings    ["Writer 1", "Writer 2"]
+            authors          list of strings    ["Author 1", "Author 2"]
+            
+            actors           list of strings    ["Actor 1", "Actor 2"]
+            performers       list of strings    ["Performer 1", "Performer 2"]
+            lecturer         list of strings    ["Lecturer 1", "Lecturer 2"]
+            contributor      list of strings    ["Contributor 1", "Contributor 2"]
+            voice            list of strings    ["Voice 1", "Voice 2"]
+            
+            length           string             "2:15"
+            sounds           list of strings    ["en", "hu"]
+            subs             list of strings    ["en", "hu"]
+            genres           list of strings    ["drama", "action"]
+            themes           list of strings    ["money", "greed"]
+            countries        list of strings    ["us", "ca"]
         """
-        self.year = year 
-        self.directors = directors if directors else []
-        self.writers = writers if writers else []
-        self.actors = actors if actors else []
-        self.length = length
-        self.sounds = sounds  if sounds else []
-        self.subs = subs if subs else []
-        self.genres = genres if genres else []
-        self.themes = themes if themes else []
-        self.countries = countries if countries else []
+        self.year = None 
+        self.directors = []
+        self.makers = []
+        self.writers = []
+        self.authors = []
+        self.actors = []
+        self.performers = []
+        self.lecturer = []
+        self.contributor = []
+        self.voice = []
         
-    def getTranslatedGenres(self, category=None):
+        self.length = None
+        self.sounds = []
+        self.subs = []
+        self.genres = []
+        self.themes = []
+        self.countries = []
+    
+    def setYear(self, year):
+        self.year = year
+        
+    def setDirectors(self, directors):
+        self.directors = directors
+
+    def setMakers(self, makers):
+        self.makers = makers
+
+    def setWriters(self, writers):
+        self.writers = writers
+
+    def setAuthors(self, authors):
+        self.authors = authors
+
+    def setActors(self, actors):
+        self.actors = actors
+
+    def setPerformers(self, performers):
+        self.performers = performers
+
+    def setLecturers(self, lecturer):
+        self.lecturer = lecturer
+        
+    def setContributors(self, contributor):
+        self.contributor = contributor
+    
+    def setVoices(self, voice):
+        self.voice = voice
+        
+    def setLength(self, length):
+        self.length = length
+    
+    def setSounds(self, sounds):
+        self.sounds = sounds
+
+    def setSubs(self, subs):
+        self.subs = subs
+
+    def setGenres(self, genres):
+        self.genres = genres
+
+    def setThemes(self, themes):
+        self.themes = themes
+
+    def setCountries(self, countries):
+        self.countries = countries
+        
+    def getTranslatedGenreList(self, category=None):
         """
         Returns back the Genres list in the respective language.
         _________________________________________________________________________________________________
@@ -45,19 +110,57 @@ class IniGeneral(object):
         
         return genres
 
+    def getTranslatedThemeList(self, category=None):
+        """
+        Returns back the Theme list in the respective language.
+        _________________________________________________________________________________________________
+        input:
+        """
+        pre = "theme_"
+        themes = [ _(pre+t) for t in self.getThemes() ]
+        
+        return themes
+
+    def getTranslatedSoundStringList(self, category=None):
+        """
+        Returns back the Sounds list in the respective language.
+        _________________________________________________________________________________________________
+        input:
+        """
+        sound_list = ", ".join( [ _("lang_" + s) for s in self.getSounds()])        
+
+        return sound_list
         
     def getYear(self):
         return self.year
     
     def getDirectors(self):
         return self.directors
+
+    def getMakers(self):
+        return self.makers
     
     def getWriters(self):
         return self.writers
+
+    def getAuthors(self):
+        return self.authors
     
     def getActors(self):
         return self.actors
+
+    def getPerformers(self):
+        return self.performers
+        
+    def getLecturers(self):
+        return self.lecturer
     
+    def getContributors(self):
+        return self.contributor
+    
+    def getVoices(self):
+        return self.voice        
+
     def getLength(self):
         return self.length
     

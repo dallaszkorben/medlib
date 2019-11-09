@@ -5,31 +5,31 @@ from pathlib import Path
 #from akoteka.logger import logger
 
 class Property(object):
-       
+ 
     def __init__(self, file, writable=False, folder=None):
         self.writable = writable
         self.file = file
         self.folder = folder
         self.parser = configparser.RawConfigParser()
-        
+
         # !!! make it CASE SENSITIVE !!! otherwise it duplicates the hit if there was a key with upper and lower cases. Now it throws an exception
         self.parser.optionxform = str
 
     def __write_file(self):
-        
+
         if self.folder:
             Path(self.folder).mkdir(parents=True, exist_ok=True)
-        
+
         with open(self.file, 'w', encoding='utf-8') as configfile:
             self.parser.write(configfile)
 
 
-    def get(self, section, key, default_value, writable=None):        
+    def get(self, section, key, default_value, writable=None):
 
         # if not existing file and we want to create it
         if not os.path.exists(self.file) and self.should_write(writable) :
             #self.log_msg("MESSAGE: No file found FILE NAME: " + self.file + " OPERATION: get")
-            
+
             self.parser[section]={key: default_value}
             self.__write_file()
         self.parser.read(self.file, encoding='utf-8')
@@ -37,7 +37,7 @@ class Property(object):
         # try to read the key
         try:
             result=self.parser.get(section,key)
-            
+
             # if it is EMPTY
             if not result:
                 result = default_value
@@ -160,7 +160,7 @@ class Dict( Property ):
 
 class Config:
     HOME = str(Path.home())
-    CONFIG_FOLDER = '.akoteka'
+    CONFIG_FOLDER = '.medlib'
     
     @staticmethod 
     def get_path_to_config_folder():

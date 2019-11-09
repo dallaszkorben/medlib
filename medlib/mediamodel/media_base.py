@@ -70,8 +70,11 @@ class MediaBase(object):
     def getTranslatedStoryline(self):
         return self.storylines.getTranslatedStoryline()
 
-    def getTranslatedGenres(self):
-        return self.general.getTranslatedGenres(self.control.getCategory())
+    def getTranslatedGenreList(self):
+        return self.general.getTranslatedGenreList(self.control.getCategory())
+    
+    def getTranslatedThemeList(self):
+        return self.general.getTranslatedThemeList()
 
     def getTitles(self):
         """
@@ -161,6 +164,14 @@ class MediaBase(object):
     # ------------- Middle - Text part -----------
     # --------------------------------------------
     def getWidgetCardInformationText(self, sizeRate):
+        """  _________________________________________
+            |  Title                                  |
+            |_________________________________________|       
+            |  One line Info                          |
+            |_________________________________________|       
+            |  General Info                           |
+            |_________________________________________|
+        """
         
         # layout of this widget => three columns
         cardinfo_layout = QVBoxLayout()
@@ -191,6 +202,10 @@ class MediaBase(object):
     # ---------------- Title ---------------------
     # --------------------------------------------
     def getWidgetTitle(self, sizeRate):
+        """  _________________________________________
+            | Icon | Title                            |
+            |______|__________________________________|
+        """
         title_layout = QHBoxLayout()
         title_layout.setAlignment(Qt.AlignLeft)
         
@@ -235,7 +250,10 @@ class MediaBase(object):
     # ----------- OneLineInfo -----------------
     # --------------------------------------------
     def getWidgetOneLineInfo(self, sizeRate):
-                
+        """  _________________________________________
+            | Year: Length: Country: Sound: Sutitle:  |
+            |_________________________________________|
+        """                
         layout = QGridLayout()
         
         layout.setSpacing(1)
@@ -326,8 +344,7 @@ class MediaBase(object):
         return widget
         
     def getWidgetOneLineInfoSounds(self, sizeRate):
-        sound_list = ", ".join( [ _("lang_" + c) for c in self.general.getSounds()])        
-        
+        sound_list = self.general.getTranslatedSoundStringList()
         layout = QHBoxLayout()
         layout.setAlignment(Qt.AlignLeft)        
         layout.setSpacing(1)        
@@ -373,6 +390,21 @@ class MediaBase(object):
     # ------------GENERAL INFORMATION ------------
     # --------------------------------------------
     def getWidgetGeneralInfo(self, sizeRate):
+        """  ___________________________________________________________________________
+            | Director/Maker:                             |                             |
+            |                                             |                             |
+            | Writer/Author:                              |                             |
+            |                                             |                             |
+            | Actor/Performer/Lecturer/Contributor/Voice: |                             |
+            |                                             |                             |
+            | Genre :                                     |                             |
+            |                                             |                             |
+            | Theme:                                      |                             |
+            |_____________________________________________|_____________________________|
+            | Storyline/Topic/Lyrics:                     |                             |
+            |_____________________________________________|_____________________________|
+        """                
+
         grid_layout = QGridLayout()
         widget = QWidget()
         widget.setLayout(grid_layout)
@@ -386,128 +418,93 @@ class MediaBase(object):
 
         # stretch out the 2nd column
         grid_layout.setColumnStretch(1, 1)
+
+        #
+        # TODO if by control.media / control.category 
+        #
  
-        # --- DIRECTORS ---       
-        row = self.addWidgetGeneralInfoDirectors(sizeRate, grid_layout, row)
+        # ---
+        # --- DIRECTORS ---
+        row = self.addWidgetGeneralInfoLinkList(sizeRate, grid_layout, row, 'title_director', self.general.getDirectors)
 
-        # --- WRITERS ---       
-        row = self.addWidgetGeneralInfoWriters(sizeRate, grid_layout, row)
+        # --- MAKER ---       
+        row = self.addWidgetGeneralInfoLinkList(sizeRate, grid_layout, row, 'title_maker', self.general.getMakers)
 
+        # ---
+        # --- WRITERS ---
+        row = self.addWidgetGeneralInfoLinkList(sizeRate, grid_layout, row, 'title_writer', self.general.getWriters)
+
+        # --- AUTHORS ---
+        row = self.addWidgetGeneralInfoLinkList(sizeRate, grid_layout, row, 'title_author', self.general.getAuthors)
+
+        # ---
         # --- ACTORS ---       
-        row = self.addWidgetGeneralInfoActors(sizeRate, grid_layout, row)
+        row = self.addWidgetGeneralInfoLinkList(sizeRate, grid_layout, row, 'title_actor', self.general.getActors)
 
+        # --- PERFORMER ---       
+        row = self.addWidgetGeneralInfoLinkList(sizeRate, grid_layout, row, 'title_performer', self.general.getPerformers)
+
+        # --- LECTURER ---       
+        row = self.addWidgetGeneralInfoLinkList(sizeRate, grid_layout, row, 'title_lecturer', self.general.getLecturers)
+
+        # --- CONTRIBUTOR ---       
+        row = self.addWidgetGeneralInfoLinkList(sizeRate, grid_layout, row, 'title_contributor', self.general.getContributors)
+
+        # --- VOICE ---       
+        row = self.addWidgetGeneralInfoLinkList(sizeRate, grid_layout, row, 'title_voice', self.general.getVoices)
+
+        # ---
         # --- GEMRE ---       
-        row = self.addWidgetGeneralInfoGenres(sizeRate, grid_layout, row)
+        row = self.addWidgetGeneralInfoStringList(sizeRate, grid_layout, row, 'title_genre', self.getTranslatedGenreList)
 
+        # ---
         # --- THEME ---       
-        row = self.addWidgetGeneralInfoThemes(sizeRate, grid_layout, row)
+        row = self.addWidgetGeneralInfoStringList(sizeRate, grid_layout, row, 'title_theme', self.getTranslatedThemeList)
         
+        # ---
         # --- STORILINES ---
         row = self.addWidgetGeneralInfoStoryline(widget, sizeRate, grid_layout, row)
                 
         return widget
 
-    # #########
-    # Directors 
-    # #########
-    def addWidgetGeneralInfoDirectors(self, sizeRate, grid_layout, row):
-       
-        widget_key = QLabel(_('title_director') + ":", )
+    # #####################################################################################
+    # Link List - Director/Maker/Writer/Author/Actor/Performer/Lecturer/Contributor/Voice #
+    # #####################################################################################
+    def addWidgetGeneralInfoLinkList(self, sizeRate, grid_layout, row, title_id, value_method):
+        widget_key = QLabel(_(title_id) + ":", )
         widget_key.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Bold))
+        widget_key.setAlignment(Qt.AlignTop)
         
-        layout_directors = QHBoxLayout()
-        layout_directors.setAlignment(Qt.AlignLeft)        
-        layout_directors.setSpacing(1)        
-        layout_directors.setContentsMargins(0, 0, 0, 0)
+        layout = FlowLayout()
+        layout.setAlignment(Qt.AlignLeft)        
+        layout.setSpacing(1)        
+        layout.setContentsMargins(0, 0, 0, 0)
 
         widget_value = QWidget()
-        widget_value.setLayout( layout_directors )
-        widget_value.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Normal))
+        widget_value.setLayout( layout )
+        widget_value.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Normal))        
         first = True
-        for d in self.general.getDirectors():
+        for d in value_method():
             if not first:
-                layout_directors.addWidget( QLabel(", ") )
+                layout.addWidget( QLabel(", ") )
             label = QLabel(d)
-            layout_directors.addWidget(label)
+            layout.addWidget(label)
             first = False
 
-        if self.general.getDirectors():
+        if value_method():
             grid_layout.addWidget(widget_key, row, 0)
             grid_layout.addWidget(widget_value, row, 1)
             row = row + 1
             
         return row   
 
-    # #########
-    # Writers 
-    # #########
-    def addWidgetGeneralInfoWriters(self, sizeRate, grid_layout, row):
+    # ###########################
+    # String List - Genre/Theme #
+    # ###########################
+    def addWidgetGeneralInfoStringList(self, sizeRate, grid_layout, row, title_id, value_method):
        
-        widget_key = QLabel(_('title_writer') + ":", )
-        widget_key.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Bold))
-        
-        layout_directors = QHBoxLayout()
-        layout_directors.setAlignment(Qt.AlignLeft)        
-        layout_directors.setSpacing(1)        
-        layout_directors.setContentsMargins(0, 0, 0, 0)
-
-        widget_value = QWidget()
-        widget_value.setLayout( layout_directors )
-        widget_value.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Normal))
-        first = True
-        for d in self.general.getWriters():
-            if not first:
-                layout_directors.addWidget( QLabel(", ") )
-            label = QLabel(d)
-            layout_directors.addWidget(label)
-            first = False
-        
-        if self.general.getWriters():
-            grid_layout.addWidget(widget_key, row, 0)
-            grid_layout.addWidget(widget_value, row, 1)
-            row = row + 1
-            
-        return row
-
-    # #########
-    # Actors 
-    # #########
-    def addWidgetGeneralInfoActors(self, sizeRate, grid_layout, row):
-       
-        widget_key = QLabel(_('title_actor') + ":", )
-        widget_key.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Bold))
-        widget_key.setAlignment(Qt.AlignTop)
-        
-        layout_actors = FlowLayout()
-        layout_actors.setAlignment(Qt.AlignLeft)        
-        layout_actors.setSpacing(1)        
-        layout_actors.setContentsMargins(0, 0, 0, 0)
-
-        widget_value = QWidget()
-        widget_value.setLayout( layout_actors )
-        widget_value.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Normal))
-        first = True
-        for d in self.general.getActors():
-            if not first:
-                layout_actors.addWidget( QLabel(", ") )
-            label = QLabel(d)
-            layout_actors.addWidget(label)
-            first = False
-        
-        if self.general.getActors():
-            grid_layout.addWidget(widget_key, row, 0)
-            grid_layout.addWidget(widget_value, row, 1)
-            row = row + 1
-            
-        return row
-
-    # #########
-    # Genre 
-    # #########
-    def addWidgetGeneralInfoGenres(self, sizeRate, grid_layout, row):
-       
-       ### MUST BE FIXED ###
-        widget_key = QLabel(_('title_genre') + ":", )
+        element_list = value_method()
+        widget_key = QLabel(_(title_id) + ":", )
         widget_key.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Bold))
         
         layout_genres = QHBoxLayout()
@@ -519,51 +516,21 @@ class MediaBase(object):
         widget_value.setLayout( layout_genres )
         widget_value.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Normal))
         first = True
-        for d in self.getTranslatedGenres():
+        for d in element_list:
             if not first:
                 layout_genres.addWidget( QLabel(", ") )
             label = QLabel(d)
             layout_genres.addWidget(label)
             first = False
         
-        if self.general.getGenres():
+        if element_list:
             grid_layout.addWidget(widget_key, row, 0)
             grid_layout.addWidget(widget_value, row, 1)
             row = row + 1
             
         return row
 
-    # #########
-    # Theme 
-    # #########
-    def addWidgetGeneralInfoThemes(self, sizeRate, grid_layout, row):
-       
-        widget_key = QLabel(_('title_theme') + ":", )
-        widget_key.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Bold))
-        
-        layout_themes = QHBoxLayout()
-        layout_themes.setAlignment(Qt.AlignLeft)        
-        layout_themes.setSpacing(1)        
-        layout_themes.setContentsMargins(0, 0, 0, 0)
-
-        widget_value = QWidget()
-        widget_value.setLayout( layout_themes )
-        widget_value.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Normal))
-        first = True
-        for d in self.general.getThemes():
-            if not first:
-                layout_themes.addWidget( QLabel(", ") )
-            label = QLabel(d)
-            layout_themes.addWidget(label)
-            first = False
-        
-        if self.general.getThemes():
-            grid_layout.addWidget(widget_key, row, 0)
-            grid_layout.addWidget(widget_value, row, 1)
-            row = row + 1
-            
-        return row
-    
+     
     # #########
     # Storiline
     # #########
@@ -688,6 +655,13 @@ class MediaBase(object):
     # --------------------------------------------
     # --------------------------------------------
     def getWidget(self, sizeRate):
+        """  ___________________________________________
+            |         |                        |        |
+            |         |                        |        |
+            |  Image  |  Card Information Text | Rating |
+            |         |                        |        |
+            |_________|________________________|________|
+        """
 
         # layout of this widget => three columns
         grid_layout = QGridLayout()
