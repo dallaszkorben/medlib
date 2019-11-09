@@ -14,7 +14,7 @@ class IniStorylines(object):
             storyline_list_by_language    dictionary    {"hu":"A történet ...", "en":"The story ..."}
         """
         self.orig_storyline = orig_storyline if orig_storyline else ""
-        self.storyline_list_by_language = storyline_list_by_language if storyline_list_by_language else []
+        self.storyline_list_by_language = storyline_list_by_language if storyline_list_by_language else {}
     
     def getOrigStoryline(self):
         return self.orig_storyline

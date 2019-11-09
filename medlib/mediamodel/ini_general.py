@@ -1,4 +1,5 @@
 from medlib.handle_property import _
+from medlib.mediamodel.ini_storylines import IniStorylines
 
 class IniGeneral(object):
     """
@@ -31,6 +32,10 @@ class IniGeneral(object):
             genres           list of strings    ["drama", "action"]
             themes           list of strings    ["money", "greed"]
             countries        list of strings    ["us", "ca"]
+            
+            storyline        storyLine
+            topic            storyLine
+            lyrics           storyLine
         """
         self.year = None 
         self.directors = []
@@ -49,6 +54,10 @@ class IniGeneral(object):
         self.genres = []
         self.themes = []
         self.countries = []
+        
+        self.storyline = IniStorylines()
+        self.topic = IniStorylines()
+        self.lyrics = IniStorylines()
     
     def setYear(self, year):
         self.year = year
@@ -97,6 +106,16 @@ class IniGeneral(object):
 
     def setCountries(self, countries):
         self.countries = countries
+        
+    def setStoryline(self, storyline):
+        self.storyline = storyline
+ 
+    def setTopic(self, topic):
+        self.topic = topic
+
+    def setLyrics(self, lyrics):
+        self.lyrics = lyrics
+        
         
     def getTranslatedGenreList(self, category=None):
         """
@@ -179,5 +198,12 @@ class IniGeneral(object):
     def getCountries(self):
         return self.countries
     
+    def getStoryline(self):
+        return self.storyline
+
+    def getTopic(self):
+        return self.topic
     
+    def getLyrics(self):
+        return self.lyrics
     

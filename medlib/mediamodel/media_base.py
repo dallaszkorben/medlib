@@ -23,6 +23,7 @@ from PyQt5.QtWidgets import QApplication
 from PyQt5.QtGui import QColor
 from PyQt5.QtGui import QFont
 from PyQt5.QtGui import QPixmap
+from PyQt5.QtGui import QTextCursor
 
 from PyQt5.QtCore import Qt 
 
@@ -45,14 +46,12 @@ class MediaBase(object):
                 titles            IniTitles         represents the [titles] section
                 control           IniControl        represents the [control] section
                 general           IniGeneral        represents the [general] section
-                storylines        IniStorylines     represents the [storyline] section
                 rating            IniRating         represents the [rating] section
         """
         super().__init__()
         self.titles = titles
         self.control = control
         self.general = general if general else IniGeneral()
-        self.storylines = storylines if storylines else IniStorylines()
         self.rating = rating if rating else IniRating()
     
     def getPathOfImage(self):
@@ -67,8 +66,8 @@ class MediaBase(object):
     def getTranslatedTitle(self):
         return self.titles.getTranslatedTitle()
     
-    def getTranslatedStoryline(self):
-        return self.storylines.getTranslatedStoryline()
+    def getTranslatedStoryline(self, storyline):
+        return storyline.getTranslatedStoryline()
 
     def getTranslatedGenreList(self):
         return self.general.getTranslatedGenreList(self.control.getCategory())
@@ -105,16 +104,6 @@ class MediaBase(object):
                 general       IniGeneral
         """
         return self.general
-
-    def getStorylines(self):
-        """
-        Returns back the [storylines] section.
-        _________________________________________________________________________________________________
-        input:
-        output:
-                storylines       IniStoryline
-        """
-        return self.storylines
 
     def getRating(self):
         """
@@ -243,8 +232,7 @@ class MediaBase(object):
         titleWidget.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate * 1.8, weight=QFont.Bold))
 
         title_layout.addWidget(titleWidget)
-        return widget                 
-        
+        return widget
         
     # --------------------------------------------
     # ----------- OneLineInfo -----------------
@@ -463,7 +451,13 @@ class MediaBase(object):
         
         # ---
         # --- STORILINES ---
-        row = self.addWidgetGeneralInfoStoryline(widget, sizeRate, grid_layout, row)
+        row = self.addWidgetGeneralInfoStoryline(widget, sizeRate, grid_layout, row, 'title_storyline', self.getTranslatedStoryline(self.general.getStoryline()))
+
+        # --- TOPIC ---
+        row = self.addWidgetGeneralInfoStoryline(widget, sizeRate, grid_layout, row, 'title_topic', self.getTranslatedStoryline(self.general.getTopic()))
+
+        # --- LYRICS ---
+        row = self.addWidgetGeneralInfoStoryline(widget, sizeRate, grid_layout, row, 'title_lyrics', self.getTranslatedStoryline(self.general.getLyrics()))
                 
         return widget
 
@@ -471,27 +465,30 @@ class MediaBase(object):
     # Link List - Director/Maker/Writer/Author/Actor/Performer/Lecturer/Contributor/Voice #
     # #####################################################################################
     def addWidgetGeneralInfoLinkList(self, sizeRate, grid_layout, row, title_id, value_method):
-        widget_key = QLabel(_(title_id) + ":", )
-        widget_key.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Bold))
-        widget_key.setAlignment(Qt.AlignTop)
+        value = value_method()
+
+        if value:
         
-        layout = FlowLayout()
-        layout.setAlignment(Qt.AlignLeft)        
-        layout.setSpacing(1)        
-        layout.setContentsMargins(0, 0, 0, 0)
+            widget_key = QLabel(_(title_id) + ":", )
+            widget_key.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Bold))
+            widget_key.setAlignment(Qt.AlignTop)
+        
+            layout = FlowLayout()
+            layout.setAlignment(Qt.AlignLeft)        
+            layout.setSpacing(1)        
+            layout.setContentsMargins(0, 0, 0, 0)
 
-        widget_value = QWidget()
-        widget_value.setLayout( layout )
-        widget_value.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Normal))        
-        first = True
-        for d in value_method():
-            if not first:
-                layout.addWidget( QLabel(", ") )
-            label = QLabel(d)
-            layout.addWidget(label)
-            first = False
+            widget_value = QWidget()
+            widget_value.setLayout( layout )
+            widget_value.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Normal))        
+            first = True
+            for d in value:
+                if not first:
+                    layout.addWidget( QLabel(", ") )
+                label = QLabel(d)
+                layout.addWidget(label)
+                first = False
 
-        if value_method():
             grid_layout.addWidget(widget_key, row, 0)
             grid_layout.addWidget(widget_value, row, 1)
             row = row + 1
@@ -504,49 +501,50 @@ class MediaBase(object):
     def addWidgetGeneralInfoStringList(self, sizeRate, grid_layout, row, title_id, value_method):
        
         element_list = value_method()
-        widget_key = QLabel(_(title_id) + ":", )
-        widget_key.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Bold))
-        
-        layout_genres = QHBoxLayout()
-        layout_genres.setAlignment(Qt.AlignLeft)        
-        layout_genres.setSpacing(1)        
-        layout_genres.setContentsMargins(0, 0, 0, 0)
-
-        widget_value = QWidget()
-        widget_value.setLayout( layout_genres )
-        widget_value.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Normal))
-        first = True
-        for d in element_list:
-            if not first:
-                layout_genres.addWidget( QLabel(", ") )
-            label = QLabel(d)
-            layout_genres.addWidget(label)
-            first = False
         
         if element_list:
+            widget_key = QLabel(_(title_id) + ":", )
+            widget_key.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Bold))
+        
+            layout_genres = QHBoxLayout()
+            layout_genres.setAlignment(Qt.AlignLeft)        
+            layout_genres.setSpacing(1)        
+            layout_genres.setContentsMargins(0, 0, 0, 0)
+
+            widget_value = QWidget()
+            widget_value.setLayout( layout_genres )
+            widget_value.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Normal))
+            first = True
+            for d in element_list:
+                if not first:
+                    layout_genres.addWidget( QLabel(", ") )
+                label = QLabel(d)
+                layout_genres.addWidget(label)
+                first = False
+        
             grid_layout.addWidget(widget_key, row, 0)
             grid_layout.addWidget(widget_value, row, 1)
             row = row + 1
             
         return row
-
      
     # #########
     # Storiline
     # #########
-    def addWidgetGeneralInfoStoryline(self, parent, sizeRate, grid_layout, row):
-       
-        widget_key = QLabel(_('title_storyline') + ":", )
-        widget_key.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Bold))
-        widget_key.setAlignment(Qt.AlignTop)
+    def addWidgetGeneralInfoStoryline(self, parent, sizeRate, grid_layout, row, title_id, value):
 
-        widget_value = QPlainTextEdit(parent)
-        widget_value.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Normal))
-        widget_value.insertPlainText(self.getTranslatedStoryline())
-        widget_value.setReadOnly(True)
-        widget_value.setMinimumHeight( PANEL_FONT_SIZE * sizeRate )
+        if value:
+            widget_key = QLabel(_(title_id) + ":", )
+            widget_key.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Bold))
+            widget_key.setAlignment(Qt.AlignTop)
+
+            widget_value = QPlainTextEdit(parent)
+            widget_value.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Normal))
+            widget_value.insertPlainText(value)
+            widget_value.setReadOnly(True)
+            widget_value.setMinimumHeight( PANEL_FONT_SIZE * sizeRate )
+            widget_value.moveCursor(QTextCursor.Start)
         
-        if self.getTranslatedStoryline():
             grid_layout.addWidget( widget_key, row, 0)
             grid_layout.addWidget( widget_value, row, 1)        
             row = row + 1

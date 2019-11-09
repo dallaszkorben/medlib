@@ -62,7 +62,6 @@ class App(QWidget):
         storylines_D = IniStorylines("A tortenet ...", {"en":"the story is ..", "hu":"a történet ..."})
         collector_D = MediaCollector(path_collector_D, titles_D, control_D, None, storylines_D)
 
-# ---
 
         path_collector_BA = PathsCollector('A_folder_name', "/path/to/ini", "/path/to/jpeg")
         titles_BA =  IniTitles("A Konténer", {"hu":"A Konténer", "en":"A Container", "se":"D"})
@@ -73,15 +72,17 @@ class App(QWidget):
 
         path_collector_BB = PathsCollector('A_folder_name', "/path/to/ini", "/path/to/jpeg")
         titles_BB =  IniTitles("K Konténer", {"hu":"K Konténer", "en":"K Container", "se":"D"})
-        control_BB =IniControl("title", "video", "movie")
-        storylines_BB =IniStorylines("A gyujtő ...", {"en":"the container is ..", "hu":"A Gyüjtő ..."})
+        control_BB = IniControl("title", "video", "movie")
+        storylines_BB = IniStorylines("A gyujtő ...", {"en":"the container is ..", "hu":"A Gyüjtő ..."})
         collector_BB = MediaCollector(path_collector_BB, titles_BB, control_BB, None, storylines_BB)
         collector_B.addMediaCollector(collector_BB)
 
+# ---
+
         path_storage_BC = PathsStorage('C_folder_name', "/path/to/ini", "/media/akoel/Movies/Final/01.Video/01.Movie/01.Films/01.Uncategorized/A.Profi-1981/image.jpeg", "/path/to/media")
-        titles_BC = IniTitles("B Mozi cime", {"hu":"B Mozi cim", "en":"D Movie title", "se":"B"})
-        control_BC =IniControl("title", "video", "movie")
-        storylines_BC =IniStorylines("Ez a default: \nA Moz\ni tor\ntenet ...\n Ez egy\ntobb \nsoros\nUzenet\n Mert p\nont ezt \nakarom \n tesz\nte\nlni", {"en":"the movie's story is .." })
+        titles_BC = IniTitles("B Mozi cime", {"hu":"B Mozi cim", "en":"D Movie title", "hu":"Magyar cim"})
+        control_BC = IniControl("title", "video", "movie")
+        storylines_BC = IniStorylines("Ez a \ndefault tortenet", {"en": "English story\nSecond line\nThird line\nFourth line", "hu": "Magyar tortenet" })
         general_BC = IniGeneral()
         general_BC.setYear( "2012-2013")
         general_BC.setDirectors(["Director 1", "Director 2", "Director 3", "Director 4", "Director 5", "Director 6", "Director 7", "Director 8"])
@@ -98,14 +99,18 @@ class App(QWidget):
         general_BC.setSubs(["en", "hu", "de", "it", "pl"])
         general_BC.setGenres(["action", "crime"])
         general_BC.setThemes(["money", "greed"])
+        general_BC.setStoryline(storylines_BC)
         rating_BC = IniRating(10, True, True) 
-        storage_BC = MediaStorage(path_storage_BC, titles_BC, control_BC, general_BC, storylines_BC, rating_BC)
+        storage_BC = MediaStorage(path_storage_BC, titles_BC, control_BC, general_BC, rating_BC)
         collector_B.addMediaStorage(storage_BC)
+
+# ---
 
         path_storage_BD = PathsStorage('C_folder_name', "/path/to/ini", "/media/akoel/Movies/Final/01.Video/01.Movie/01.Films/01.Uncategorized/A.Profi-1981/image.jpeg", "/path/to/media")
         titles_BD = IniTitles("C Default Mozi cime", {"en":"A Movie title", "se":"B"})
         control_BD = IniControl("title", "video", "movie")
         storylines_BD = IniStorylines("Ez a \ndefault: \nA Mozi \ntorte\nnet ...\n Ez egy tobb soros\nUzenet\n Mert po\nnt ezt a\nkarom \n tesztelni", {"en":"the movie's story is .." })
+       
         general_BD = IniGeneral()
         general_BD.setYear( "2012-2013")
         general_BD.setDirectors(["Dir 1", "Dir 2"])
@@ -122,8 +127,9 @@ class App(QWidget):
         general_BD.setSubs(["en", "hu", "de", "it", "pl"])
         general_BD.setGenres(["action", "crime"])
         general_BD.setThemes(["money", "greed"])
+        general_BD.setStoryline(storylines_BD)
         rating_BD = IniRating(10, True, True) 
-        storage_BD = MediaStorage(path_storage_BD, titles_BD, control_BD, general_BD, storylines_BD, rating_BD)
+        storage_BD = MediaStorage(path_storage_BD, titles_BD, control_BD, general_BD, rating_BD)
         collector_B.addMediaStorage(storage_BD)
 
 # ---
