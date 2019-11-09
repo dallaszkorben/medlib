@@ -23,8 +23,8 @@ class App(QWidget):
         self.title = 'Card test'
         self.left = 10
         self.top = 10
-        self.width = 420
-        self.height = 300
+        self.width = 820
+        self.height = 250
         self.initUI()
 
     def initUI(self):
@@ -82,7 +82,7 @@ class App(QWidget):
         titles_BC = IniTitles("B Mozi cime", {"hu":"B Mozi cim", "en":"D Movie title", "se":"B"})
         control_BC =IniControl("title", "video", "movie")
         storylines_BC =IniStorylines("Ez a default: \nA Moz\ni tor\ntenet ...\n Ez egy\ntobb \nsoros\nUzenet\n Mert p\nont ezt \nakarom \n tesz\nte\nlni", {"en":"the movie's story is .." })
-        general_BC = IniGeneral("2012-2013", ["Dir 1", "Dir 2"], ["Writ 1", "Writ 2"], ["Act 1", "Act 2"], None, None, None, ["action", "crime"], ["money", "greed"], ["us", "ca"])
+        general_BC = IniGeneral("2012-2013", ["Dir 1", "Dir 2"], ["Writ 1", "Writ 2"], ["Act 1", "Act 2", "Long named actor 3", "More longed named actor with many names 4", "Finaly Actor with middle name 5"], None, None, None, ["action", "crime"], ["money", "greed"], ["us", "ca"])
 #        general_BC = IniGeneral("2012-2013", ["Dir 1", "Dir 2"], ["Writ 1", "Writ 2"], ["Act 1", "Act 2"], "2:12", ["en", "hu"], ["en", "hu"], ["action", "crime"], ["money", "greed"], ["us", "ca"])        
 #        general_BC = IniGeneral("2012-2013", ["Dir 1", "Dir 2"], ["Writ 1", "Writ 2"], ["Act 1", "Act 2"], "2:12", [], [], ["action", "crime"], ["money", "greed"], ['us', 'ca'])
         rating_BC = IniRating(10, True, True) 

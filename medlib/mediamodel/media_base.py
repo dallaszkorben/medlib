@@ -10,24 +10,26 @@ from builtins import object
 from medlib.mediamodel.ini_general import IniGeneral
 from medlib.mediamodel.ini_storylines import IniStorylines
 from medlib.mediamodel.ini_rating import IniRating
-from medlib.mediamodel.extra import QHLine
+from medlib.mediamodel.extra import QHLine, FlowLayout
 
-from PyQt5.QtWidgets import QGridLayout
+from PyQt5.QtWidgets import QGridLayout, QSpinBox
 from PyQt5.QtWidgets import QHBoxLayout, QVBoxLayout
 from PyQt5.QtWidgets import QLabel
 from PyQt5.QtWidgets import QWidget
+from PyQt5.QtWidgets import QPlainTextEdit
+from PyQt5.QtWidgets import QAbstractSpinBox
+from PyQt5.QtWidgets import QApplication
+
 from PyQt5.QtGui import QColor
-from PyQt5.QtCore import Qt 
 from PyQt5.QtGui import QFont
-
-
 from PyQt5.QtGui import QPixmap
+
+from PyQt5.QtCore import Qt 
 
 class MediaBase(object):
     """
     This object represents the MediaBase
     """
-
    
     @staticmethod
     def sort_key(arg):
@@ -117,124 +119,6 @@ class MediaBase(object):
                 general       IniRating
         """
         return self.rating
-    
-   
-    
-       
- 
-         
-    # --------------------------------------------
-    # ----------- MultiLineInfo -----------------
-    # --------------------------------------------
-    def getHtmlMultiLineInfo(self):
-        out = ""
-        out += self.getHtmlMultilineInfoDirectors()
-        out += self.getHtmlMultilineInfoWriters()
-        out += self.getHtmlMultilineInfoActors()
-        out += self.getHtmlMultilineInfoGenres()
-        out += self.getHtmlMultilineInfoThemes()
-     
-#        self.occupied['divs'] = self.occupied['divs'] + 1 if out else 0        
-     
-        return "<table  id='multiline-table' >" + out + "</table><hr>" if out else ""
-     
-    def getHtmlMultilineInfoDirectors(self):
-        dir_list = ", ".join( "<a href='' style='text-decoration:none;'>" + d + "</a>" for d in self.general.getDirectors())
-        out = "<tr><td valign='top'> <b>" + _('title_director') + ":</b> </td> <td>" + dir_list + "</td></tr>"  if  dir_list else ""
-        
-#        self.occupied['rows'] = self.occupied['rows'] + 1 if dir_list else 0        
-        return out
-         
-    def getHtmlMultilineInfoWriters(self):
-        writer_list = ", ".join(d for d in self.general.getWriters())
-        out = "<tr><td valign='top'> <b>" + _('title_writer') + ":</b> </td> <td>" + writer_list + "</td></tr>"  if  writer_list else ""
-
-#        self.occupied['rows'] = self.occupied['rows'] + 1 if writer_list else 0        
-        return out
-         
-    def getHtmlMultilineInfoActors(self):
-        actor_list = ", ".join(d for d in self.general.getActors())
-        out = "<tr><td valign='top'> <b>" + _('title_actor') + ":</b> </td> <td>" + actor_list + "</td></tr>"  if  actor_list else ""
-
-#        self.occupied['rows'] = self.occupied['rows'] + 1 if actor_list else 0        
-        return out
-     
-    def getHtmlMultilineInfoGenres(self):
-        genre_list = ", ".join( [ _("genre_" + c) for c in self.general.getGenres()])   
-        out = "<tr><td valign='top'> <b>" + _('title_genre') + ":</b> </td> <td>" + genre_list + "</td></tr>"  if  genre_list else ""
-        
-#        self.occupied['rows'] = self.occupied['rows'] + 1 if genre_list else 0        
-        return out
-     
-    
-    def getHtmlMultilineInfoThemes(self):
-        theme_list = ", ".join( [ _("theme_" + c) for c in self.general.getThemes()])   
-        out = "<tr><td valign='top'> <b>" + _('title_theme') + ":</b> </td> <td>" + theme_list + "</td></tr>"  if  theme_list else ""
-        
-#        self.occupied['rows'] = self.occupied['rows'] + 1 if theme_list else 0        
-        return out     
-  
-    # -------------------------------------------
-    # --------------- Storyline -----------------
-    # --------------------------------------------
-    def getHtmlStoryline(self):
-        out = "<table id='storyline-table' width='100%' >"
-        out +=   "<tr height='100%'>"
-        out +=      "<td valign='top'>"
-        out +=          "<b>" + _('title_storyline') + ":</b>"
-        out +=      "</td>"
-        out +=      "<td width='100%' valign='top'>"
-        out +=          "<textarea id='storyline-textarea' readonly>"
-        out +=               self.storylines.getTranslatedStoryline().replace('\n', '&#13;&#10;')
-        out +=          "</textarea>"        
-        out +=      "</td>"
-        out +=   "</tr>"
-        out +="</table>"        
-        return out
-
-    # --------------------------------------------
-    # --------------- Rating ---------------------
-    # --------------------------------------------
-    def getHtmlRating(self):
-        iconFavoriteFileName = RATING_ICON_PREFIX + "-" + RATING_ICON_FAVORITE_TAG + "-" + ("on" if self.getRating().getFavorite() else "off") + "." + RATING_ICON_EXTENSION        
-        pathToFavorite = resource_filename(__name__, os.path.join(RATING_ICON_FOLDER, iconFavoriteFileName))
-        
-        iconNewFileName = RATING_ICON_PREFIX + "-" + RATING_ICON_NEW_TAG + "-" + ("on" if self.getRating().getNew() else "off") + "." + RATING_ICON_EXTENSION        
-        pathToNew = resource_filename(__name__, os.path.join(RATING_ICON_FOLDER, iconNewFileName))
-        
-        out = "<table id='rating-table' height='100%'>"
-        out +=   "<tr height='20%'>"
-        out +=      "<td>"
-        out +=          "<input id='rate-input' type='number'  min='0' max='10' oninput='if(parseInt(this.value)>10){ this.value =10; }else if(this.value.length<1){this.value=0}' value='" + str(self.getRating().getRate()) + "'/>"
-        out +=      "</td>"
-        out +=   "</tr>"
-        out +=   "<tr height='20%'>"
-        out +=      "<td align='center'>"
-        out +=          "<a href=''>"
-        out +=              "<img id='favorite-img' src='file://" + pathToFavorite + "'>"
-        out +=          "</a>"                
-        out +=      "</td>"
-        out +=   "</tr>"
-        out +=   "<tr height='20%'>"
-        out +=      "<td align='center'>"
-        out +=          "<a href=''>"
-        out +=              "<img id='favorite-img' src='file://" + pathToNew + "'>"
-        out +=          "</a>"               
-        out +=      "</td>"
-        out +=   "</tr>"
-        out +=   "<tr height='40%'>"
-        out +=      "<td>"
-        out +=      "</td>"
-        out +=   "</tr>"        
-        out +="</table>"   
-
-        
-        return out
-
-        
-        
-        
-        
         
     # --------------------------------------------
     # --------------- Image ---------------------
@@ -273,26 +157,32 @@ class MediaBase(object):
     # --------------------------------------------
     # ------------- Middle - Text part -----------
     # --------------------------------------------
-    def getWidgetMiddleText(self, sizeRate):
+    def getWidgetCardInformationText(self, sizeRate):
         
         # layout of this widget => three columns
-        middle_layout = QVBoxLayout()
-        middle_layout.setAlignment(Qt.AlignTop)
+        cardinfo_layout = QVBoxLayout()
+        cardinfo_layout.setAlignment(Qt.AlignTop)
         
         # space between the three grids
-        middle_layout.setSpacing(1)
+        cardinfo_layout.setSpacing(1)
         
         # margin around the widget
-        middle_layout.setContentsMargins(0, 0, 0, 0)
+        cardinfo_layout.setContentsMargins(0, 0, 0, 0)
         
         widget = QWidget()
-        widget.setLayout(middle_layout)
+        widget.setLayout(cardinfo_layout)
 
-        middle_layout.addWidget(self.getWidgetTitle(sizeRate))
-        middle_layout.addWidget(QHLine())
-        middle_layout.addWidget(self.getWidgetOneLineInfo(sizeRate))
-        middle_layout.addWidget(QLabel("general"))
-        return widget         
+        # --- TITLE ---
+        cardinfo_layout.addWidget(self.getWidgetTitle(sizeRate))
+        cardinfo_layout.addWidget(QHLine())
+        
+        # --- ONLINE INFO ---"
+        cardinfo_layout.addWidget(self.getWidgetOneLineInfo(sizeRate))
+        
+        # --- GENERAL INFO ---
+        cardinfo_layout.addWidget(self.getWidgetGeneralInfo(sizeRate))
+        
+        return widget
 
     # --------------------------------------------
     # ---------------- Title ---------------------
@@ -476,6 +366,317 @@ class MediaBase(object):
         
         return widget
  
+    # --------------------------------------------
+    # ------------GENERAL INFORMATION ------------
+    # --------------------------------------------
+    def getWidgetGeneralInfo(self, sizeRate):
+        grid_layout = QGridLayout()
+        widget = QWidget()
+        widget.setLayout(grid_layout)
+        row = 0;
+        
+        # space between the three grids
+        grid_layout.setSpacing(1)
+        
+        # margin around the widget
+        grid_layout.setContentsMargins(0, 0, 0, 0)
+
+        # stretch out the 2nd column
+        grid_layout.setColumnStretch(1, 1)
+ 
+        # --- DIRECTORS ---       
+        row = self.addWidgetGeneralInfoDirectors(sizeRate, grid_layout, row)
+
+        # --- WRITERS ---       
+        row = self.addWidgetGeneralInfoWriters(sizeRate, grid_layout, row)
+
+        # --- ACTORS ---       
+        row = self.addWidgetGeneralInfoActors(sizeRate, grid_layout, row)
+
+        # --- GEMRE ---       
+        row = self.addWidgetGeneralInfoGenres(sizeRate, grid_layout, row)
+
+        # --- THEME ---       
+        row = self.addWidgetGeneralInfoThemes(sizeRate, grid_layout, row)
+        
+        # --- STORILINES ---
+        row = self.addWidgetGeneralInfoStoryline(widget, sizeRate, grid_layout, row)
+                
+        return widget
+
+    # #########
+    # Directors 
+    # #########
+    def addWidgetGeneralInfoDirectors(self, sizeRate, grid_layout, row):
+       
+        widget_key = QLabel(_('title_director') + ":", )
+        widget_key.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Bold))
+        
+        layout_directors = QHBoxLayout()
+        layout_directors.setAlignment(Qt.AlignLeft)        
+        layout_directors.setSpacing(1)        
+        layout_directors.setContentsMargins(0, 0, 0, 0)
+
+        widget_value = QWidget()
+        widget_value.setLayout( layout_directors )
+        widget_value.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Normal))
+        first = True
+        for d in self.general.getDirectors():
+            if not first:
+                layout_directors.addWidget( QLabel(", ") )
+            label = QLabel(d)
+            layout_directors.addWidget(label)
+            first = False
+
+        if self.general.getDirectors():
+            grid_layout.addWidget(widget_key, row, 0)
+            grid_layout.addWidget(widget_value, row, 1)
+            row = row + 1
+            
+        return row   
+
+    # #########
+    # Writers 
+    # #########
+    def addWidgetGeneralInfoWriters(self, sizeRate, grid_layout, row):
+       
+        widget_key = QLabel(_('title_writer') + ":", )
+        widget_key.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Bold))
+        
+        layout_directors = QHBoxLayout()
+        layout_directors.setAlignment(Qt.AlignLeft)        
+        layout_directors.setSpacing(1)        
+        layout_directors.setContentsMargins(0, 0, 0, 0)
+
+        widget_value = QWidget()
+        widget_value.setLayout( layout_directors )
+        widget_value.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Normal))
+        first = True
+        for d in self.general.getWriters():
+            if not first:
+                layout_directors.addWidget( QLabel(", ") )
+            label = QLabel(d)
+            layout_directors.addWidget(label)
+            first = False
+        
+        if self.general.getWriters():
+            grid_layout.addWidget(widget_key, row, 0)
+            grid_layout.addWidget(widget_value, row, 1)
+            row = row + 1
+            
+        return row
+
+    # #########
+    # Actors 
+    # #########
+    def addWidgetGeneralInfoActors(self, sizeRate, grid_layout, row):
+       
+        widget_key = QLabel(_('title_actor') + ":", )
+        widget_key.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Bold))
+        widget_key.setAlignment(Qt.AlignTop)
+        
+        layout_actors = FlowLayout()
+        layout_actors.setAlignment(Qt.AlignLeft)        
+        layout_actors.setSpacing(1)        
+        layout_actors.setContentsMargins(0, 0, 0, 0)
+
+        widget_value = QWidget()
+        widget_value.setLayout( layout_actors )
+        widget_value.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Normal))
+        first = True
+        for d in self.general.getActors():
+            if not first:
+                layout_actors.addWidget( QLabel(", ") )
+            label = QLabel(d)
+            layout_actors.addWidget(label)
+            first = False
+        
+        if self.general.getActors():
+            grid_layout.addWidget(widget_key, row, 0)
+            grid_layout.addWidget(widget_value, row, 1)
+            row = row + 1
+            
+        return row
+
+    # #########
+    # Genre 
+    # #########
+    def addWidgetGeneralInfoGenres(self, sizeRate, grid_layout, row):
+       
+        widget_key = QLabel(_('title_genre') + ":", )
+        widget_key.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Bold))
+        
+        layout_genres = QHBoxLayout()
+        layout_genres.setAlignment(Qt.AlignLeft)        
+        layout_genres.setSpacing(1)        
+        layout_genres.setContentsMargins(0, 0, 0, 0)
+
+        widget_value = QWidget()
+        widget_value.setLayout( layout_genres )
+        widget_value.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Normal))
+        first = True
+        for d in self.general.getGenres():
+            if not first:
+                layout_genres.addWidget( QLabel(", ") )
+            label = QLabel(d)
+            layout_genres.addWidget(label)
+            first = False
+        
+        if self.general.getGenres():
+            grid_layout.addWidget(widget_key, row, 0)
+            grid_layout.addWidget(widget_value, row, 1)
+            row = row + 1
+            
+        return row
+
+    # #########
+    # Theme 
+    # #########
+    def addWidgetGeneralInfoThemes(self, sizeRate, grid_layout, row):
+       
+        widget_key = QLabel(_('title_theme') + ":", )
+        widget_key.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Bold))
+        
+        layout_themes = QHBoxLayout()
+        layout_themes.setAlignment(Qt.AlignLeft)        
+        layout_themes.setSpacing(1)        
+        layout_themes.setContentsMargins(0, 0, 0, 0)
+
+        widget_value = QWidget()
+        widget_value.setLayout( layout_themes )
+        widget_value.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Normal))
+        first = True
+        for d in self.general.getThemes():
+            if not first:
+                layout_themes.addWidget( QLabel(", ") )
+            label = QLabel(d)
+            layout_themes.addWidget(label)
+            first = False
+        
+        if self.general.getThemes():
+            grid_layout.addWidget(widget_key, row, 0)
+            grid_layout.addWidget(widget_value, row, 1)
+            row = row + 1
+            
+        return row
+    
+    # #########
+    # Storiline
+    # #########
+    def addWidgetGeneralInfoStoryline(self, parent, sizeRate, grid_layout, row):
+       
+        widget_key = QLabel(_('title_storyline') + ":", )
+        widget_key.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Bold))
+        widget_key.setAlignment(Qt.AlignTop)
+
+        widget_value = QPlainTextEdit(parent)
+        widget_value.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Normal))
+        widget_value.insertPlainText(self.getTranslatedStoryline())
+        widget_value.setReadOnly(True)
+        widget_value.setMinimumHeight( PANEL_FONT_SIZE * sizeRate )
+        
+        if self.getTranslatedStoryline():
+            grid_layout.addWidget( widget_key, row, 0)
+            grid_layout.addWidget( widget_value, row, 1)        
+            row = row + 1
+            
+        return row   
+
+    # --------------------------------------------
+    # ----------------- Rating -------------------
+    # --------------------------------------------
+    def getWidgetRatingInfo(self, sizeRate):
+        
+        # layout of this widget => three columns
+        rating_layout = QVBoxLayout()
+        rating_layout.setAlignment(Qt.AlignTop)
+        
+        # space between the three grids
+        rating_layout.setSpacing(1)
+        
+        # margin around the widget
+        rating_layout.setContentsMargins(0, 0, 0, 0)
+        
+        widget = QWidget()
+        widget.setLayout(rating_layout)
+        
+        # --- RATE ---
+        rating_layout.addWidget(self.getWidgetRatingInfoRate(sizeRate))
+        
+        # --- FAVORITE ---
+        rating_layout.addWidget(self.getWidgetRatingInfoFavorite(sizeRate)) 
+
+        # --- NEW ---
+        rating_layout.addWidget(self.getWidgetRatingInfoNew(sizeRate)) 
+        
+        return widget
+
+    def getWidgetRatingInfoRate( self, sizeRate ):
+        
+        class MySpinBox(QSpinBox):
+            #def __init__(self, card_panel):
+            def __init__(self):
+                super().__init__()
+        
+                #self.card_panel = card_panel
+        
+                self.setButtonSymbols(QAbstractSpinBox.NoButtons) #PlusMinus / NoButtons / UpDownArrows        
+                self.setMaximum(10)
+                self.setFocusPolicy(Qt.NoFocus)
+                self.lineEdit().setReadOnly(True)
+                self.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Normal))
+                self.lineEdit().setStyleSheet( "QLineEdit{color:black}")
+                self.setStyleSheet( "QSpinBox{background:'" + RATE_BACKGROUND_COLOR + "'}")
+
+            def stepBy(self, steps):
+                """
+                It needs to be override to make deselection after the step.
+                If it it not there, the selection color (blue) will be appear on the field
+                """
+                super().stepBy(steps)
+                self.lineEdit().deselect()
+
+            # Mouse Hover in
+            def enterEvent(self, event):
+                self.update()
+                QApplication.setOverrideCursor(Qt.PointingHandCursor)
+
+                self.setButtonSymbols(QAbstractSpinBox.PlusMinus) #PlusMinus / NoButtons / UpDownArrows        
+
+#                self.card_panel.get_card_holder().setFocus()
+                event.ignore()
+
+            # Mouse Hover out
+            def leaveEvent(self, event):
+                self.update()
+                QApplication.restoreOverrideCursor()
+
+                self.setButtonSymbols(QAbstractSpinBox.NoButtons) #PlusMinus / NoButtons / UpDownArrows        
+        
+#                self.card_panel.get_card_holder().setFocus()
+                event.ignore()
+
+        widget = MySpinBox()        
+        return widget
+        
+    def getWidgetRatingInfoFavorite(self, sizeRate):
+        iconFileName = RATING_ICON_PREFIX + "-" + RATING_ICON_FAVORITE_TAG + "-" + ON + "." + RATING_ICON_EXTENSION
+        pathToFile = resource_filename(__name__, os.path.join(RATING_ICON_FOLDER, iconFileName))       
+        pixmap_on = QPixmap( pathToFile )
+
+        iconWidget = QLabel()
+        iconWidget.setPixmap(pixmap_on)
+        return iconWidget
+
+    def getWidgetRatingInfoNew(self, sizeRate):
+        iconFileName = RATING_ICON_PREFIX + "-" + RATING_ICON_NEW_TAG + "-" + ON + "." + RATING_ICON_EXTENSION
+        pathToFile = resource_filename(__name__, os.path.join(RATING_ICON_FOLDER, iconFileName))       
+        pixmap_on = QPixmap( pathToFile )
+
+        iconWidget = QLabel()
+        iconWidget.setPixmap(pixmap_on)
+        return iconWidget
+
         
     # --------------------------------------------
     # --------------------------------------------
@@ -486,7 +687,7 @@ class MediaBase(object):
 
         # layout of this widget => three columns
         grid_layout = QGridLayout()
-        
+
         # space between the three grids
         grid_layout.setSpacing(1)
         
@@ -500,11 +701,14 @@ class MediaBase(object):
         widget.setStyleSheet('background: ' + self.getBackgroundColor())
         widget.setLayout(grid_layout)
         
-        label_vege = QLabel("vege")
-        label_vege.setStyleSheet('background:yellow')                
-        
+        # --- Image ---
         grid_layout.addWidget(self.getWidgetImage(sizeRate), 0, 0)
-        grid_layout.addWidget(self.getWidgetMiddleText(sizeRate), 0, 1)
-        grid_layout.addWidget(label_vege, 0, 2)
+        
+        # --- Card Information ---
+        grid_layout.addWidget(self.getWidgetCardInformationText(sizeRate), 0, 1)
+        
+        # --- Rating ---
+        grid_layout.addWidget(self.getWidgetRatingInfo(sizeRate), 0, 2)
         
         return widget
+    
