@@ -12,9 +12,11 @@ from medlib.mediamodel.ini_general import IniGeneral
 
 from medlib.mediamodel.media_collector import MediaCollector
 from medlib.mediamodel.media_storage import MediaStorage
+from medlib.mediamodel.media_appendix import MediaAppendix
 
 from medlib.mediamodel.paths_collector import PathsCollector
 from medlib.mediamodel.paths_storage import PathsStorage
+from medlib.mediamodel.paths_appendix import PathsAppendix
 
 class App(QWidget):
  
@@ -23,12 +25,14 @@ class App(QWidget):
         self.title = 'Card test'
         self.left = 10
         self.top = 10
-        self.width = 820
+        self.width = 900
         self.height = 250
         self.initUI()
 
     def initUI(self):
         layout = QHBoxLayout()
+        
+        layout.setContentsMargins(0, 0, 0, 0)
         
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height) 
@@ -41,43 +45,61 @@ class App(QWidget):
         path_collector_A = PathsCollector('A_folder_name', "/path/to/ini", "/path/to/jpeg")
         titles_A = IniTitles("Eredeti cim", {"hu":"Magyar cim", "en":"English title", "se":" "})
         control_A =IniControl("title", "video", "movie")
-        storylines_A = IniStorylines("A tortenet ...", {"en":"the story is ..", "hu":"a történet ..."})    
-        collector_A = MediaCollector(path_collector_A, titles_A, control_A, None, storylines_A)
+        storylines_A = IniStorylines("A tortenet ...", {"en":"the story is ..", "hu":"a történet ..."})
+        general_A = IniGeneral()
+        general_A.setStoryline(storylines_A)    
+        collector_A = MediaCollector(path_collector_A, titles_A, control_A, general_A)
 
         path_collector_B = PathsCollector('C_folder_name', "/path/to/ini", "/path/to/jpeg")
         titles_B = IniTitles("B Eredeti cim", {"hu":"oMagyar cim", "en":"D English title", "se":"B"})
         control_B =IniControl("title", "video", "movie")
-        storylines_B = IniStorylines("A tortenet ...", {"en":"the story is ..", "hu":"a történet \n tobb soros\n leiras a filmrol\n hogy lehessen tesztelnei milyen hosszu uzeneteket\n tud kezelni"})    
-        collector_B = MediaCollector(path_collector_B, titles_B, control_B, None, storylines_B)
+        storylines_B = IniStorylines("A tortenet ...", {"en":"the story is\nreally interesting\nbut now I will not tell more details", "hu":"a történet \n tobb soros\n leiras a filmrol\n hogy lehessen tesztelnei milyen hosszu uzeneteket\n tud kezelni"})    
+        general_B = IniGeneral()
+        general_B.setStoryline(storylines_B)
+        rating_B = IniRating(12, True, True) 
+        collector_B = MediaCollector(path_collector_B, titles_B, control_B, general_B, rating_B)
 
         path_collector_C = PathsCollector('D_folder_name', "/path/to/ini", "/path/to/jpeg")
         titles_C =  IniTitles("C Eredeti cim", {"hu":"ö Magyar cim", "en":"A English title", "se":"C"})
         control_C =IniControl("title", "video", "movie")
         storylines_C = IniStorylines("A tortenet ...", {"en":"the story is ..", "hu":"a történet ..."})    
-        collector_C = MediaCollector(path_collector_C, titles_C, control_C, None, storylines_C)
+        general_C = IniGeneral()
+        general_C.setStoryline(storylines_C)    
+        collector_C = MediaCollector(path_collector_C, titles_C, control_C, general_C)
 
         path_collector_D = PathsCollector('A_folder_name', "/path/to/ini", "/path/to/jpeg")
         titles_D =  IniTitles("D Eredeti cim", {"hu":"á Magyar cim", "en":"B English title", "se":"D"})
         control_D =IniControl("title", "video", "movie")
         storylines_D = IniStorylines("A tortenet ...", {"en":"the story is ..", "hu":"a történet ..."})
-        collector_D = MediaCollector(path_collector_D, titles_D, control_D, None, storylines_D)
+        general_D = IniGeneral()
+        general_D.setStoryline(storylines_D)    
+        collector_D = MediaCollector(path_collector_D, titles_D, control_D, general_D)
 
 
         path_collector_BA = PathsCollector('A_folder_name', "/path/to/ini", "/path/to/jpeg")
         titles_BA =  IniTitles("A Konténer", {"hu":"A Konténer", "en":"A Container", "se":"D"})
         control_BA =IniControl("title", "video", "movie")
         storylines_BA = IniStorylines("A gyujtő ...", {"en":"the container is ..", "hu":"A Gyüjtő ..."})
-        collector_BA = MediaCollector(path_collector_BA, titles_BA, control_BA, None, storylines_BA)
+        general_BA = IniGeneral()
+        general_BA.setStoryline(storylines_BA)    
+        collector_BA = MediaCollector(path_collector_BA, titles_BA, control_BA, general_BA)
         collector_B.addMediaCollector(collector_BA)
 
         path_collector_BB = PathsCollector('A_folder_name', "/path/to/ini", "/path/to/jpeg")
         titles_BB =  IniTitles("K Konténer", {"hu":"K Konténer", "en":"K Container", "se":"D"})
         control_BB = IniControl("title", "video", "movie")
         storylines_BB = IniStorylines("A gyujtő ...", {"en":"the container is ..", "hu":"A Gyüjtő ..."})
-        collector_BB = MediaCollector(path_collector_BB, titles_BB, control_BB, None, storylines_BB)
+        collector_BB = MediaCollector(path_collector_BB, titles_BB, control_BB, None)
         collector_B.addMediaCollector(collector_BB)
 
 # ---
+
+        path_appendix_A = PathsAppendix('C_folder_name', "/path/to/ini", "/media/akoel/Movies/Final/01.Video/01.Movie/01.Films/01.Uncategorized/A.Profi-1981/image.jpeg", "/media/akoel/Movies/Films/Red.Planet.2000.720p.mkv")
+        path_appendix_B = PathsAppendix('C_folder_name', "/path/to/ini", "/media/akoel/Movies/Final/01.Video/01.Movie/01.Films/01.Uncategorized/A.Profi-1981/image.jpeg", "/media/akoel/Movies/Films/Red.Planet.2000.720p.mkv")
+        media_appendix_titles_A = IniTitles("Appendix orig cim A", {"hu":"Magyar Appendix cim A", "en":"English Appendix title A"})
+        media_appendix_titles_B = IniTitles("Appendix orig cim B", {"hu":"Magyar Appendix cim B", "en":"English Appendix title B"})
+        media_appendix_A = MediaAppendix(path_appendix_A, media_appendix_titles_A)
+        media_appendix_B = MediaAppendix(path_appendix_B, media_appendix_titles_B)
 
         path_storage_BC = PathsStorage('C_folder_name', "/path/to/ini", "/media/akoel/Movies/Final/01.Video/01.Movie/01.Films/01.Uncategorized/A.Profi-1981/image.jpeg", "/path/to/media")
         titles_BC = IniTitles("B Mozi cime", {"hu":"B Mozi cim", "en":"D Movie title", "hu":"Magyar cim"})
@@ -102,6 +124,8 @@ class App(QWidget):
         general_BC.setStoryline(storylines_BC)
         rating_BC = IniRating(10, True, True) 
         storage_BC = MediaStorage(path_storage_BC, titles_BC, control_BC, general_BC, rating_BC)
+        storage_BC.addMediaAppendix(media_appendix_A)
+        storage_BC.addMediaAppendix(media_appendix_B)
         collector_B.addMediaStorage(storage_BC)
 
 # ---
@@ -139,6 +163,8 @@ class App(QWidget):
         collector_A.addMediaCollector(collector_C)
         
         widget = storage_BC.getWidget(1)
+        widget = collector_B.getWidget(1)
+        
         layout.addWidget(widget)
         self.show()
         

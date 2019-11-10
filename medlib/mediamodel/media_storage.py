@@ -1,6 +1,14 @@
 from medlib.constants import *
 
 from medlib.mediamodel.media_base import MediaBase
+from medlib.mediamodel.media_appendix import MediaAppendix
+from medlib.mediamodel.paths_storage import PathsStorage
+from medlib.mediamodel.extra import QHLine
+
+from PyQt5.QtCore import Qt , QSize
+
+from PyQt5.QtWidgets import QVBoxLayout
+from PyQt5.QtWidgets import QWidget
 
 class MediaStorage(MediaBase):
     """
@@ -8,23 +16,27 @@ class MediaStorage(MediaBase):
     This container can contain
     """
     
-    def __init__(self, paths_content, titles, control, general=None,  rating=None):
+    def __init__(self, paths_storage, titles, control, general=None,  rating=None):
         """
         This is the constructor of the MediaStorage
         ___________________________________________
         input:
-                paths_content PathsContent      paths to the media content (card.ini, image.jpg, media)
+                paths_storage PathsContent      paths to the media content (card.ini, image.jpg, media)
 
-                titles            IniTitles         represents the [titles] section
-                control           IniControl        represents the [control] section
-                general           IniGeneral        represents the [general] section
+                titles        IniTitles         represents the [titles] section
+                control       IniControl        represents the [control] section
+                general       IniGeneral        represents the [general] section
                 rating        IniRating         represents the [rating] section
         """
         super().__init__(titles, control, general, rating)
-        self.paths_content = paths_content    
+        
+        assert issubclass(paths_storage.__class__, PathsStorage)
+        
+        self.paths_stirage = paths_storage
+        self.media_appendix_list = []
 
     def getPathOfImage(self):
-        return self.paths_content.getPathOfImage()
+        return self.paths_stirage.getPathOfImage()
 
     def getBackgroundColor(self):
         return STORAGE_BACKGROUND_COLOR
@@ -49,4 +61,46 @@ class MediaStorage(MediaBase):
 
         self.media_container_list.sort(key=lambda arg: arg.getTitle())
         
+    def addMediaAppendix(self, media_appendix):
+        """
+        Adds a new MediaAppendix to this MediaStorage
+        It is ordered accordingly the language by the control.orderby
+        _____________________________________________________________
+        input:
+                media_appendix    MediaAppendix    the MediaAppendix to add
+        """
+        
+        assert issubclass(media_appendix.__class__, MediaAppendix), media_appendix.__class__
+
+        # Add the MediaStorage
+        self.media_appendix_list.append(media_appendix)
+        
+        # Sort the list
+        #self.sortMediaStorage()        
+
+    def getMediaAppendixList(self):
+        return self.media_appendix_list
+        
+    def getWidgetCardInformationText(self, sizeRate):
+        """
+            Appends the Links of MediaAppendixes to the bottom of the InformationText
+        """
+        super_widget = super().getWidgetCardInformationText(sizeRate)
+        
+        layout = QVBoxLayout()
+        layout.setAlignment(Qt.AlignTop)
+        layout.setSpacing(0)
+        layout.setContentsMargins(0, 0, 0, 0)
+        
+        widget = QWidget()
+        widget.setLayout(layout)
+
+        layout.addWidget(super_widget)        
+        layout.addWidget(QHLine())
+
+        for media_appendix in self.getMediaAppendixList():
+            layout.addWidget(media_appendix.getWidget(sizeRate))
+        
+        return widget
+
         

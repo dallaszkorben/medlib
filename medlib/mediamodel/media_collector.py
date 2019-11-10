@@ -1,5 +1,7 @@
 from medlib.constants import *
 from medlib.mediamodel.media_base import MediaBase
+from medlib.mediamodel.media_storage import MediaStorage
+from medlib.mediamodel.paths_collector import PathsCollector
 
 class MediaCollector(MediaBase):
     """
@@ -7,7 +9,7 @@ class MediaCollector(MediaBase):
     This container can contain more MediaContainers and/or
     one MediaContent
     """
-    def __init__(self, paths_collector, titles, control, general=None, storylines=None,  rating=None):  
+    def __init__(self, paths_collector, titles, control, general=None, rating=None):  
         """
         This is the constructor of the MediaCollector
         ________________________________________
@@ -17,10 +19,12 @@ class MediaCollector(MediaBase):
                 titles            IniTitles         represents the [titles] section
                 control           IniControl        represents the [control] section
                 general           IniGeneral        represents the [general] section
-                storylines        IniStorylines     represents the [storyline] section
                 rating            IniRating         represents the [rating] section
         """
         super().__init__(titles, control, general, rating)
+        
+        assert issubclass(paths_collector.__class__, PathsCollector)
+        
         self.paths_collector = paths_collector
         self.media_collector_list = []
         self.media_storage_list = []
@@ -42,6 +46,9 @@ class MediaCollector(MediaBase):
         input:
                 media_collector    MediaCollector    the MediaCollector to add
         """
+        
+        assert issubclass(media_collector.__class__, MediaCollector)
+        
         # Add the MediaCollector
         self.media_collector_list.append(media_collector)
         
@@ -56,6 +63,9 @@ class MediaCollector(MediaBase):
         input:
                 media_storage    MediaStorage    the MediaStorage to add
         """
+        
+        assert issubclass(media_storage.__class__, MediaStorage) 
+
         # Add the MediaStorage
         self.media_storage_list.append(media_storage)
         
@@ -115,6 +125,7 @@ class MediaCollector(MediaBase):
             
         for storage in self.media_storage_list:
             out += storage.getHierarchyTitle(space + "   ")        
-        return out  
+        return out
+
    
         

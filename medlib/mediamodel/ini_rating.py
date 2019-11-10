@@ -15,9 +15,9 @@ class IniRating(object):
             favorite     boolean       True,False
             new          boolean       True,False
         """
-        self.rate = rate if rate else 0
-        self.favorite = favorite if favorite else False
-        self.new = new if new else False
+        self.rate = rate if (rate is None or (rate >= 0 and rate <= 10)) else 1 if rate < 0 else 10
+        self.favorite = favorite
+        self.new = new
         
     def getRate(self):
         return self.rate

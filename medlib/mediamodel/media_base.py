@@ -9,6 +9,9 @@ from builtins import object
 
 from medlib.mediamodel.ini_general import IniGeneral
 from medlib.mediamodel.ini_rating import IniRating
+from medlib.mediamodel.ini_titles import IniTitles
+from medlib.mediamodel.ini_control import IniControl 
+
 from medlib.mediamodel.extra import QHLine, FlowLayout
 
 from PyQt5.QtWidgets import QGridLayout, QSpinBox
@@ -52,6 +55,13 @@ class MediaBase(object):
                 rating            IniRating         represents the [rating] section
         """
         super().__init__()
+        
+        NoneType = type(None)
+        assert issubclass(titles.__class__, IniTitles)
+        assert issubclass(control.__class__, IniControl)
+        assert issubclass(general.__class__, (IniGeneral, NoneType)), general.__class__
+        assert issubclass(rating.__class__, (IniRating, NoneType)), rating.__class__
+        
         self.titles = titles
         self.control = control
         self.general = general if general else IniGeneral()
@@ -590,27 +600,33 @@ class MediaBase(object):
         
         return widget
 
+    #             #
+    # Rating Rate #
+    #             #
     def getWidgetRatingInfoRate( self, sizeRate ):
         
         class MySpinBox(QSpinBox):
             #def __init__(self, card_panel):
-            def __init__(self):
+            def __init__(self, parent, sizeRate):
                 super().__init__()
+                self.parent = parent
         
-                #self.card_panel = card_panel
-        
-                self.setButtonSymbols(QAbstractSpinBox.NoButtons) #PlusMinus / NoButtons / UpDownArrows        
-                self.setMaximum(10)
-                self.setFocusPolicy(Qt.NoFocus)
-                self.lineEdit().setReadOnly(True)
-                self.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Normal))
-                self.lineEdit().setStyleSheet( "QLineEdit{color:black}")
-                self.setStyleSheet( "QSpinBox{background:'" + RATE_BACKGROUND_COLOR + "'}")
+                if self.parent.rating.getRate() is None:
+                    self.hide()
+                else:
+                    self.setButtonSymbols(QAbstractSpinBox.NoButtons) #PlusMinus / NoButtons / UpDownArrows        
+                    self.setMaximum(10)
+                    self.setFocusPolicy(Qt.NoFocus)
+                    self.lineEdit().setReadOnly(True)
+                    self.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Normal))
+                    self.lineEdit().setStyleSheet( "QLineEdit{color:black}")
+                    self.setStyleSheet( "QSpinBox{background:'" + RATE_BACKGROUND_COLOR + "'}")
+                    self.setValue(self.parent.rating.getRate())
 
             def stepBy(self, steps):
                 """
                 It needs to be override to make deselection after the step.
-                If it it not there, the selection color (blue) will be appear on the field
+                If it is not there, the selection color (blue) will be appear on the field
                 """
                 super().stepBy(steps)
                 self.lineEdit().deselect()
@@ -620,7 +636,7 @@ class MediaBase(object):
                 self.update()
                 QApplication.setOverrideCursor(Qt.PointingHandCursor)
 
-                self.setButtonSymbols(QAbstractSpinBox.PlusMinus) #PlusMinus / NoButtons / UpDownArrows        
+                self.setButtonSymbols(QAbstractSpinBox.UpDownArrows) #PlusMinus / NoButtons / UpDownArrows        
 
 #                self.card_panel.get_card_holder().setFocus()
                 event.ignore()
@@ -635,14 +651,64 @@ class MediaBase(object):
 #                self.card_panel.get_card_holder().setFocus()
                 event.ignore()
 
-        widget = MySpinBox()        
+        widget = MySpinBox(self, sizeRate)        
         return widget
         
+    #                 #
+    # Rating Favorite #
+    #                 #
     def getWidgetRatingInfoFavorite(self, sizeRate):
+        class FavoriteButton(QPushButton):
+            def __init__(self, parent, sizeRate):
+                QPushButton.__init__(self)
+                self.parent = parent
+        
+                if self.parent.rating.getFavorite() is None:
+                    self.hide()
+                else:
+                    self.setCheckable(True)        
+                    icon = QIcon()
+                    icon.addPixmap(QPixmap( resource_filename(__name__, os.path.join(RATING_ICON_FOLDER, RATING_ICON_PREFIX + "-" + RATING_ICON_FAVORITE_TAG + "-" + ON + "." + RATING_ICON_EXTENSION)) ), QIcon.Normal, QIcon.On)
+                    icon.addPixmap(QPixmap( resource_filename(__name__, os.path.join(RATING_ICON_FOLDER, RATING_ICON_PREFIX + "-" + RATING_ICON_FAVORITE_TAG + "-" + OFF + "." + RATING_ICON_EXTENSION)) ), QIcon.Normal, QIcon.Off)
+                    self.setIcon(icon)
+                    self.setIconSize(QSize(RATING_ICON_SIZE * sizeRate, RATING_ICON_SIZE * sizeRate))
+                    self.setCursor(QCursor(Qt.PointingHandCursor))
+                    self.setStyleSheet("background:transparent; border:none")
+                    self.setChecked(self.parent.rating.getFavorite())
+                    self.clicked.connect(self.ratingFavoriteButtonOnClick)
+
+            def ratingFavoriteButtonOnClick(self):
+                self.parent.rating.setFavorite(self.isChecked())        
+        
         button = FavoriteButton(self, sizeRate)
         return button
 
+    #            #
+    # Rating New #
+    #            #
     def getWidgetRatingInfoNew(self, sizeRate):
+        class NewButton(QPushButton):
+            def __init__(self, parent, sizeRate):
+                QPushButton.__init__(self)    
+                self.parent = parent
+
+                if self.parent.rating.getNew() is None:
+                    self.hide()
+                else:        
+                    self.setCheckable(True)        
+                    icon = QIcon()
+                    icon.addPixmap(QPixmap(resource_filename(__name__, os.path.join(RATING_ICON_FOLDER, RATING_ICON_PREFIX + "-" + RATING_ICON_NEW_TAG + "-" + ON + "." + RATING_ICON_EXTENSION))), QIcon.Normal, QIcon.On)
+                    icon.addPixmap(QPixmap(resource_filename(__name__, os.path.join(RATING_ICON_FOLDER, RATING_ICON_PREFIX + "-" + RATING_ICON_NEW_TAG + "-" + OFF + "." + RATING_ICON_EXTENSION))), QIcon.Normal, QIcon.Off)
+                    self.setIcon(icon)
+                    self.setIconSize(QSize(RATING_ICON_SIZE * sizeRate, RATING_ICON_SIZE * sizeRate))
+                    self.setCursor(QCursor(Qt.PointingHandCursor))
+                    self.setStyleSheet("background:transparent; border:none")
+                    self.setChecked(parent.rating.getNew())
+                    self.clicked.connect(self.ratingNewButtonOnClick)
+        
+            def ratingNewButtonOnClick(self):
+                self.parent.rating.setNew(self.isChecked())
+        
         button = NewButton(self, sizeRate)
         return button
     
@@ -687,44 +753,6 @@ class MediaBase(object):
         
         return widget
     
-class FavoriteButton(QPushButton):
-    def __init__(self, parent, sizeRate):
-        QPushButton.__init__(self)
-    
-        self.parent = parent
         
-        self.setCheckable(True)        
-        icon = QIcon()
-        icon.addPixmap(QPixmap( resource_filename(__name__, os.path.join(RATING_ICON_FOLDER, RATING_ICON_PREFIX + "-" + RATING_ICON_FAVORITE_TAG + "-" + ON + "." + RATING_ICON_EXTENSION)) ), QIcon.Normal, QIcon.On)
-        icon.addPixmap(QPixmap( resource_filename(__name__, os.path.join(RATING_ICON_FOLDER, RATING_ICON_PREFIX + "-" + RATING_ICON_FAVORITE_TAG + "-" + OFF + "." + RATING_ICON_EXTENSION)) ), QIcon.Normal, QIcon.Off)
-        self.setIcon(icon)
-        self.setIconSize(QSize(RATING_ICON_SIZE * sizeRate, RATING_ICON_SIZE * sizeRate))
-        self.setCursor(QCursor(Qt.PointingHandCursor))
-        self.setStyleSheet("background:transparent; border:none")
-        self.setChecked(self.parent.rating.getFavorite())
-        self.clicked.connect(self.ratingFavoriteButtonOnClick)
-
-    def ratingFavoriteButtonOnClick(self):
-        self.parent.rating.setFavorite(self.isChecked())
-        
-class NewButton(QPushButton):
-    def __init__(self, parent, sizeRate):
-        QPushButton.__init__(self)
-    
-        self.parent = parent
-        
-        self.setCheckable(True)        
-        icon = QIcon()
-        icon.addPixmap(QPixmap(resource_filename(__name__, os.path.join(RATING_ICON_FOLDER, RATING_ICON_PREFIX + "-" + RATING_ICON_NEW_TAG + "-" + ON + "." + RATING_ICON_EXTENSION))), QIcon.Normal, QIcon.On)
-        icon.addPixmap(QPixmap(resource_filename(__name__, os.path.join(RATING_ICON_FOLDER, RATING_ICON_PREFIX + "-" + RATING_ICON_NEW_TAG + "-" + OFF + "." + RATING_ICON_EXTENSION))), QIcon.Normal, QIcon.Off)
-        self.setIcon(icon)
-        self.setIconSize(QSize(RATING_ICON_SIZE * sizeRate, RATING_ICON_SIZE * sizeRate))
-        self.setCursor(QCursor(Qt.PointingHandCursor))
-        self.setStyleSheet("background:transparent; border:none")
-        self.setChecked(parent.rating.getNew())
-        self.clicked.connect(self.ratingNewButtonOnClick)
-        
-    def ratingNewButtonOnClick(self):
-        self.parent.rating.setNew(self.isChecked())
 
     
