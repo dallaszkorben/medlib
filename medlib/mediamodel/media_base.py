@@ -545,7 +545,7 @@ class MediaBase(object):
             widget_value.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Normal))
             widget_value.insertPlainText(value)
             widget_value.setReadOnly(True)
-            widget_value.setMinimumHeight( PANEL_FONT_SIZE * sizeRate )
+            widget_value.setMinimumHeight( (PANEL_FONT_SIZE + 3) * sizeRate )
             widget_value.moveCursor(QTextCursor.Start)
         
             grid_layout.addWidget( widget_key, row, 0)
@@ -558,16 +558,23 @@ class MediaBase(object):
     # ----------------- Rating -------------------
     # --------------------------------------------
     def getWidgetRatingInfo(self, sizeRate):
-        
+        """   __________
+             | Rate     |
+             |__________|
+             | Favorite |            
+             |__________|
+             | New      |
+             |__________|
+        """        
         # layout of this widget => three columns
         rating_layout = QVBoxLayout()
         rating_layout.setAlignment(Qt.AlignTop)
         
         # space between the three grids
-        rating_layout.setSpacing(1)
+        rating_layout.setSpacing(20 * sizeRate)
         
         # margin around the widget
-        rating_layout.setContentsMargins(0, 0, 0, 0)
+        rating_layout.setContentsMargins(0, 5, 5, 5)
         
         widget = QWidget()
         widget.setLayout(rating_layout)
@@ -632,33 +639,13 @@ class MediaBase(object):
         return widget
         
     def getWidgetRatingInfoFavorite(self, sizeRate):
-        button = QPushButton()
-        button.setCheckable(True)
-        
-        icon = QIcon()
-        icon.addPixmap(QPixmap( resource_filename(__name__, os.path.join(RATING_ICON_FOLDER, RATING_ICON_PREFIX + "-" + RATING_ICON_FAVORITE_TAG + "-" + ON + "." + RATING_ICON_EXTENSION)) ), QIcon.Normal, QIcon.On)
-        icon.addPixmap(QPixmap( resource_filename(__name__, os.path.join(RATING_ICON_FOLDER, RATING_ICON_PREFIX + "-" + RATING_ICON_FAVORITE_TAG + "-" + OFF + "." + RATING_ICON_EXTENSION)) ), QIcon.Normal, QIcon.Off)
-        button.setIcon(icon)
-        button.setIconSize(QSize(RATING_ICON_SIZE * sizeRate, RATING_ICON_SIZE * sizeRate))
-        button.setCursor(QCursor(Qt.PointingHandCursor))
-        button.setStyleSheet("background:transparent; border:none")
-        button.setChecked(self.rating.getFavorite())
+        button = FavoriteButton(self, sizeRate)
         return button
 
     def getWidgetRatingInfoNew(self, sizeRate):
-        button = QPushButton()
-        button.setCheckable(True)
-        
-        icon = QIcon()
-        icon.addPixmap(QPixmap(resource_filename(__name__, os.path.join(RATING_ICON_FOLDER, RATING_ICON_PREFIX + "-" + RATING_ICON_NEW_TAG + "-" + ON + "." + RATING_ICON_EXTENSION))), QIcon.Normal, QIcon.On)
-        icon.addPixmap(QPixmap(resource_filename(__name__, os.path.join(RATING_ICON_FOLDER, RATING_ICON_PREFIX + "-" + RATING_ICON_NEW_TAG + "-" + OFF + "." + RATING_ICON_EXTENSION))), QIcon.Normal, QIcon.Off)
-        button.setIcon(icon)
-        button.setIconSize(QSize(RATING_ICON_SIZE * sizeRate, RATING_ICON_SIZE * sizeRate))
-        button.setCursor(QCursor(Qt.PointingHandCursor))
-        button.setStyleSheet("background:transparent; border:none")
-        button.setChecked(self.rating.getNew())
+        button = NewButton(self, sizeRate)
         return button
-        
+    
     # --------------------------------------------
     # --------------------------------------------
     # --------------- WIDGET -------------------
@@ -677,7 +664,7 @@ class MediaBase(object):
         grid_layout = QGridLayout()
 
         # space between the three grids
-        grid_layout.setSpacing(1)
+        grid_layout.setSpacing(10)
         
         # margin around the widget
         grid_layout.setContentsMargins(0, 0, 0, 0)
@@ -699,4 +686,45 @@ class MediaBase(object):
         grid_layout.addWidget(self.getWidgetRatingInfo(sizeRate), 0, 2)
         
         return widget
+    
+class FavoriteButton(QPushButton):
+    def __init__(self, parent, sizeRate):
+        QPushButton.__init__(self)
+    
+        self.parent = parent
+        
+        self.setCheckable(True)        
+        icon = QIcon()
+        icon.addPixmap(QPixmap( resource_filename(__name__, os.path.join(RATING_ICON_FOLDER, RATING_ICON_PREFIX + "-" + RATING_ICON_FAVORITE_TAG + "-" + ON + "." + RATING_ICON_EXTENSION)) ), QIcon.Normal, QIcon.On)
+        icon.addPixmap(QPixmap( resource_filename(__name__, os.path.join(RATING_ICON_FOLDER, RATING_ICON_PREFIX + "-" + RATING_ICON_FAVORITE_TAG + "-" + OFF + "." + RATING_ICON_EXTENSION)) ), QIcon.Normal, QIcon.Off)
+        self.setIcon(icon)
+        self.setIconSize(QSize(RATING_ICON_SIZE * sizeRate, RATING_ICON_SIZE * sizeRate))
+        self.setCursor(QCursor(Qt.PointingHandCursor))
+        self.setStyleSheet("background:transparent; border:none")
+        self.setChecked(self.parent.rating.getFavorite())
+        self.clicked.connect(self.ratingFavoriteButtonOnClick)
+
+    def ratingFavoriteButtonOnClick(self):
+        self.parent.rating.setFavorite(self.isChecked())
+        
+class NewButton(QPushButton):
+    def __init__(self, parent, sizeRate):
+        QPushButton.__init__(self)
+    
+        self.parent = parent
+        
+        self.setCheckable(True)        
+        icon = QIcon()
+        icon.addPixmap(QPixmap(resource_filename(__name__, os.path.join(RATING_ICON_FOLDER, RATING_ICON_PREFIX + "-" + RATING_ICON_NEW_TAG + "-" + ON + "." + RATING_ICON_EXTENSION))), QIcon.Normal, QIcon.On)
+        icon.addPixmap(QPixmap(resource_filename(__name__, os.path.join(RATING_ICON_FOLDER, RATING_ICON_PREFIX + "-" + RATING_ICON_NEW_TAG + "-" + OFF + "." + RATING_ICON_EXTENSION))), QIcon.Normal, QIcon.Off)
+        self.setIcon(icon)
+        self.setIconSize(QSize(RATING_ICON_SIZE * sizeRate, RATING_ICON_SIZE * sizeRate))
+        self.setCursor(QCursor(Qt.PointingHandCursor))
+        self.setStyleSheet("background:transparent; border:none")
+        self.setChecked(parent.rating.getNew())
+        self.clicked.connect(self.ratingNewButtonOnClick)
+        
+    def ratingNewButtonOnClick(self):
+        self.parent.rating.setNew(self.isChecked())
+
     
