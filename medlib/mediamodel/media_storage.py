@@ -1,14 +1,20 @@
 from medlib.constants import *
+from medlib.handle_property import _
 
 from medlib.mediamodel.media_base import MediaBase
 from medlib.mediamodel.media_appendix import MediaAppendix
 from medlib.mediamodel.paths_storage import PathsStorage
 from medlib.mediamodel.extra import QHLine
 
-from PyQt5.QtCore import Qt , QSize
+from PyQt5.QtCore import Qt
 
 from PyQt5.QtWidgets import QVBoxLayout
 from PyQt5.QtWidgets import QWidget
+from PyQt5.QtWidgets import QLabel
+from PyQt5.QtWidgets import QPlainTextEdit
+
+from PyQt5.QtGui import QTextCursor
+from PyQt5.QtGui import QFont
 
 class MediaStorage(MediaBase):
     """
@@ -102,5 +108,24 @@ class MediaStorage(MediaBase):
             layout.addWidget(media_appendix.getWidget(sizeRate))
         
         return widget
+
+    def addWidgetGeneralInfoStoryline(self, parent, sizeRate, grid_layout, row, title_id, value):
+        if value:
+            widget_key = QLabel(_(title_id) + ":", )
+            widget_key.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Bold))
+            widget_key.setAlignment(Qt.AlignTop)
+
+            widget_value = QPlainTextEdit(parent)
+            widget_value.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Normal))
+            widget_value.insertPlainText(value)
+            widget_value.setReadOnly(True)
+            widget_value.setMinimumHeight( (PANEL_FONT_SIZE + 3) * sizeRate )
+            widget_value.moveCursor(QTextCursor.Start)
+            
+            grid_layout.addWidget( widget_key, row, 0)            
+            grid_layout.addWidget( widget_value, row, 1)        
+            row = row + 1
+            
+        return row   
 
         

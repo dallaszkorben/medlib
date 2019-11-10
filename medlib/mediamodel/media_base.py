@@ -10,7 +10,7 @@ from builtins import object
 from medlib.mediamodel.ini_general import IniGeneral
 from medlib.mediamodel.ini_rating import IniRating
 from medlib.mediamodel.ini_titles import IniTitles
-from medlib.mediamodel.ini_control import IniControl 
+from medlib.mediamodel.ini_control import IniControl
 
 from medlib.mediamodel.extra import QHLine, FlowLayout
 
@@ -212,7 +212,7 @@ class MediaBase(object):
         title_layout.setAlignment(Qt.AlignLeft)
         
         # space between the three grids
-        title_layout.setSpacing(1)
+        title_layout.setSpacing(10)
         
         # margin around the widget
         title_layout.setContentsMargins(0, 0, 0, 0)
@@ -402,7 +402,7 @@ class MediaBase(object):
             |                                             |                             |
             | Theme:                                      |                             |
             |_____________________________________________|_____________________________|
-            | Storyline/Topic/Lyrics:                     |                             |
+            | Storyline/Topic/Lyrics/-:                   |                             |
             |_____________________________________________|_____________________________|
         """                
 
@@ -542,26 +542,10 @@ class MediaBase(object):
         return row
      
     # #########
-    # Storiline
+    # Storyline
     # #########
     def addWidgetGeneralInfoStoryline(self, parent, sizeRate, grid_layout, row, title_id, value):
-
-        if value:
-            widget_key = QLabel(_(title_id) + ":", )
-            widget_key.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Bold))
-            widget_key.setAlignment(Qt.AlignTop)
-
-            widget_value = QPlainTextEdit(parent)
-            widget_value.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Normal))
-            widget_value.insertPlainText(value)
-            widget_value.setReadOnly(True)
-            widget_value.setMinimumHeight( (PANEL_FONT_SIZE + 3) * sizeRate )
-            widget_value.moveCursor(QTextCursor.Start)
-        
-            grid_layout.addWidget( widget_key, row, 0)
-            grid_layout.addWidget( widget_value, row, 1)        
-            row = row + 1
-            
+        raise NotImplementedError
         return row   
 
     # --------------------------------------------

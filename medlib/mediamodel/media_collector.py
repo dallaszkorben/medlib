@@ -3,6 +3,10 @@ from medlib.mediamodel.media_base import MediaBase
 from medlib.mediamodel.media_storage import MediaStorage
 from medlib.mediamodel.paths_collector import PathsCollector
 
+from PyQt5.QtWidgets import QPlainTextEdit
+from PyQt5.QtGui import QTextCursor
+from PyQt5.QtGui import QFont
+
 class MediaCollector(MediaBase):
     """
     This object represents the MediaCollector
@@ -127,5 +131,19 @@ class MediaCollector(MediaBase):
             out += storage.getHierarchyTitle(space + "   ")        
         return out
 
+    def addWidgetGeneralInfoStoryline(self, parent, sizeRate, grid_layout, row, title_id, value):
+        if value:
+            widget_value = QPlainTextEdit(parent)
+            widget_value.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Normal))
+            widget_value.insertPlainText(value)
+            widget_value.setReadOnly(True)
+            widget_value.setMinimumHeight( (PANEL_FONT_SIZE + 3) * sizeRate )
+            widget_value.moveCursor(QTextCursor.Start)
+            
+            
+            grid_layout.addWidget( widget_value, row, 1)        
+            row = row + 1
+            
+        return row   
    
         

@@ -56,7 +56,7 @@ class App(QWidget):
         storylines_B = IniStorylines("A tortenet ...", {"en":"the story is\nreally interesting\nbut now I will not tell more details", "hu":"a történet \n tobb soros\n leiras a filmrol\n hogy lehessen tesztelnei milyen hosszu uzeneteket\n tud kezelni"})    
         general_B = IniGeneral()
         general_B.setStoryline(storylines_B)
-        rating_B = IniRating(12, True, True) 
+        rating_B = IniRating(None, True, True) 
         collector_B = MediaCollector(path_collector_B, titles_B, control_B, general_B, rating_B)
 
         path_collector_C = PathsCollector('D_folder_name', "/path/to/ini", "/path/to/jpeg")
