@@ -20,7 +20,7 @@ class MediaCollector(MediaBase):
                 storylines        IniStorylines     represents the [storyline] section
                 rating            IniRating         represents the [rating] section
         """
-        super().__init__(titles, control, general, storylines, rating)
+        super().__init__(titles, control, general, rating)
         self.paths_collector = paths_collector
         self.media_collector_list = []
         self.media_storage_list = []

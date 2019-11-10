@@ -8,7 +8,6 @@ from medlib.handle_property import _
 from builtins import object
 
 from medlib.mediamodel.ini_general import IniGeneral
-from medlib.mediamodel.ini_storylines import IniStorylines
 from medlib.mediamodel.ini_rating import IniRating
 from medlib.mediamodel.extra import QHLine, FlowLayout
 
@@ -19,13 +18,17 @@ from PyQt5.QtWidgets import QWidget
 from PyQt5.QtWidgets import QPlainTextEdit
 from PyQt5.QtWidgets import QAbstractSpinBox
 from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QPushButton
 
 from PyQt5.QtGui import QColor
 from PyQt5.QtGui import QFont
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtGui import QTextCursor
+from PyQt5.QtGui import QCursor
 
-from PyQt5.QtCore import Qt 
+from PyQt5.QtCore import Qt , QSize
+
+from PyQt5.Qt import QIcon
 
 class MediaBase(object):
     """
@@ -38,7 +41,7 @@ class MediaBase(object):
         """
         return locale.strxfrm(arg.getTranslatedTitle()) if arg.control.getOrderBy() == 'title' else arg.container_paths.getNameOfFolder() if arg.control.getOrderBy() == 'folder' else arg.container_paths.getNameOfFolder() 
     
-    def __init__(self, titles, control, general=None, storylines=None,  rating=None):
+    def __init__(self, titles, control, general=None, rating=None):
         """
         This is the constructor of the MediaCollector
         ________________________________________
@@ -507,7 +510,7 @@ class MediaBase(object):
             widget_key.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Bold))
         
             layout_genres = QHBoxLayout()
-            layout_genres.setAlignment(Qt.AlignLeft)        
+            layout_genres.setAlignment(Qt.AlignLeft)
             layout_genres.setSpacing(1)        
             layout_genres.setContentsMargins(0, 0, 0, 0)
 
@@ -629,23 +632,32 @@ class MediaBase(object):
         return widget
         
     def getWidgetRatingInfoFavorite(self, sizeRate):
-        iconFileName = RATING_ICON_PREFIX + "-" + RATING_ICON_FAVORITE_TAG + "-" + ON + "." + RATING_ICON_EXTENSION
-        pathToFile = resource_filename(__name__, os.path.join(RATING_ICON_FOLDER, iconFileName))       
-        pixmap_on = QPixmap( pathToFile )
-
-        iconWidget = QLabel()
-        iconWidget.setPixmap(pixmap_on)
-        return iconWidget
+        button = QPushButton()
+        button.setCheckable(True)
+        
+        icon = QIcon()
+        icon.addPixmap(QPixmap( resource_filename(__name__, os.path.join(RATING_ICON_FOLDER, RATING_ICON_PREFIX + "-" + RATING_ICON_FAVORITE_TAG + "-" + ON + "." + RATING_ICON_EXTENSION)) ), QIcon.Normal, QIcon.On)
+        icon.addPixmap(QPixmap( resource_filename(__name__, os.path.join(RATING_ICON_FOLDER, RATING_ICON_PREFIX + "-" + RATING_ICON_FAVORITE_TAG + "-" + OFF + "." + RATING_ICON_EXTENSION)) ), QIcon.Normal, QIcon.Off)
+        button.setIcon(icon)
+        button.setIconSize(QSize(RATING_ICON_SIZE * sizeRate, RATING_ICON_SIZE * sizeRate))
+        button.setCursor(QCursor(Qt.PointingHandCursor))
+        button.setStyleSheet("background:transparent; border:none")
+        button.setChecked(self.rating.getFavorite())
+        return button
 
     def getWidgetRatingInfoNew(self, sizeRate):
-        iconFileName = RATING_ICON_PREFIX + "-" + RATING_ICON_NEW_TAG + "-" + ON + "." + RATING_ICON_EXTENSION
-        pathToFile = resource_filename(__name__, os.path.join(RATING_ICON_FOLDER, iconFileName))       
-        pixmap_on = QPixmap( pathToFile )
-
-        iconWidget = QLabel()
-        iconWidget.setPixmap(pixmap_on)
-        return iconWidget
-
+        button = QPushButton()
+        button.setCheckable(True)
+        
+        icon = QIcon()
+        icon.addPixmap(QPixmap(resource_filename(__name__, os.path.join(RATING_ICON_FOLDER, RATING_ICON_PREFIX + "-" + RATING_ICON_NEW_TAG + "-" + ON + "." + RATING_ICON_EXTENSION))), QIcon.Normal, QIcon.On)
+        icon.addPixmap(QPixmap(resource_filename(__name__, os.path.join(RATING_ICON_FOLDER, RATING_ICON_PREFIX + "-" + RATING_ICON_NEW_TAG + "-" + OFF + "." + RATING_ICON_EXTENSION))), QIcon.Normal, QIcon.Off)
+        button.setIcon(icon)
+        button.setIconSize(QSize(RATING_ICON_SIZE * sizeRate, RATING_ICON_SIZE * sizeRate))
+        button.setCursor(QCursor(Qt.PointingHandCursor))
+        button.setStyleSheet("background:transparent; border:none")
+        button.setChecked(self.rating.getNew())
+        return button
         
     # --------------------------------------------
     # --------------------------------------------

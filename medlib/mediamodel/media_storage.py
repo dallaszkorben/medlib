@@ -8,7 +8,7 @@ class MediaStorage(MediaBase):
     This container can contain
     """
     
-    def __init__(self, paths_content, titles, control, general=None, storylines=None,  rating=None):
+    def __init__(self, paths_content, titles, control, general=None,  rating=None):
         """
         This is the constructor of the MediaStorage
         ___________________________________________
@@ -18,10 +18,9 @@ class MediaStorage(MediaBase):
                 titles            IniTitles         represents the [titles] section
                 control           IniControl        represents the [control] section
                 general           IniGeneral        represents the [general] section
-                storylines        IniStorylines     represents the [storyline] section
                 rating        IniRating         represents the [rating] section
         """
-        super().__init__(titles, control, general, storylines, rating)
+        super().__init__(titles, control, general, rating)
         self.paths_content = paths_content    
 
     def getPathOfImage(self):

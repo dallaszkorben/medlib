@@ -27,4 +27,12 @@ class IniRating(object):
     
     def getNew(self):
         return self.new
-    
+        
+    def setRate(self, rate):
+        self.rate = 10 if rate > 10 else 0 if rate < 0 else rate
+
+    def setFavorite(self, favorite):
+        self.favorite = favorite
+
+    def setNew(self, new):
+        self.new = new
