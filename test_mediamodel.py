@@ -38,8 +38,7 @@ class App(QWidget):
         self.setGeometry(self.left, self.top, self.width, self.height) 
         self.setStyleSheet('background: white')
                 
-        self.setLayout(layout)
-        
+        self.setLayout(layout)        
         
         #global dic
         path_collector_A = PathsCollector('A_folder_name', "/path/to/ini", "/path/to/jpeg")
@@ -50,9 +49,9 @@ class App(QWidget):
         general_A.setStoryline(storylines_A)    
         collector_A = MediaCollector(path_collector_A, titles_A, control_A, general_A)
 
-        path_collector_B = PathsCollector('C_folder_name', "/path/to/ini", "/path/to/jpeg")
-        titles_B = IniTitles("B Eredeti cim", {"hu":"oMagyar cim", "en":"D English title", "se":"B"})
-        control_B =IniControl("title", "video", "movie")
+        path_collector_B = PathsCollector('C_folder_name', "/path/to/ini", "/media/akoel/Movies/Final/01.Video/01.Movie/01.Films/01.Uncategorized/A.Profi-1981/image.jpeg")
+        titles_B = IniTitles("B Eredeti cim", {"hu":"Magyar cim", "en":"D English title", "se":"B"})
+        control_B =IniControl("title", "video", "movie", None, "03")
         storylines_B = IniStorylines("A tortenet ...", {"en":"the story is\nreally interesting\nbut now I will not tell more details", "hu":"a történet \n tobb soros\n leiras a filmrol\n hogy lehessen tesztelnei milyen hosszu uzeneteket\n tud kezelni"})    
         general_B = IniGeneral()
         general_B.setStoryline(storylines_B)

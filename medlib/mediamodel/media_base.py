@@ -132,7 +132,7 @@ class MediaBase(object):
     # --------------- Image ---------------------
     # --------------------------------------------
     def getWidgetImage(self, sizeRate):
-        
+
         # layout of this widget => three columns
         image_layout = QHBoxLayout()
         
@@ -241,7 +241,12 @@ class MediaBase(object):
         #
         # Title
         #
-        titleWidget = QLabel(self.titles.getTranslatedTitle())
+        
+        
+        titleWidget = QLabel(
+            ("S" + self.control.getSeries() + "E" + self.control.getEpisode() + "-" if self.control.getEpisode() is not None and self.control.getSeries() is not None else "") + 
+            self.titles.getTranslatedTitle() + 
+            ("-"+_("title_part").format(self.control.getEpisode()) if self.control.getEpisode() is not None and self.control.getSeries() is None else "") )
         titleWidget.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate * 1.8, weight=QFont.Bold))
 
         title_layout.addWidget(titleWidget)
