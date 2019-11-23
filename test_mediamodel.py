@@ -105,7 +105,7 @@ class App(QWidget):
         path_storage_BC = PathsStorage('C_folder_name', "/path/to/ini", "/media/akoel/Movies/Final/01.Video/01.Movie/01.Films/01.Uncategorized/A.Profi-1981/image.jpeg", "/path/to/media")
         titles_BC = IniTitles("B Mozi cime", {"hu":"B Mozi cim", "en":"D Movie title", "hu":"Magyar cim"})
         control_BC = IniControl("title", "video", "movie")
-        storylines_BC = IniStorylines("Ez a \ndefault tortenet", {"en": "English story\nSecond line\nThird line\nFourth line", "hu": "Magyar tortenet" })
+        storylines_BC = IniStorylines("Ez a \ndefault tortenet", {"en": "English story\nSecond line\nThird line\nFourth line", "hu": "Magyar tortenet\nmasodik sor\nharmadik sor" })
         general_BC = IniGeneral()
         general_BC.setYear( "2012-2013")
         general_BC.setDirectors(["Director 1", "Director 2", "Director 3", "Director 4", "Director 5", "Director 6", "Director 7", "Director 8"])

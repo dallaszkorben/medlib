@@ -121,6 +121,10 @@ class MediaStorage(MediaBase):
             widget_value.setReadOnly(True)
             widget_value.setMinimumHeight( (PANEL_FONT_SIZE + 3) * sizeRate )
             widget_value.moveCursor(QTextCursor.Start)
+
+            # - eliminate the padding from the top - #            
+            widget_value.document().setDocumentMargin(0)
+            widget_value.setStyleSheet("QPlainTextEdit {padding-left:5px; padding-top:0px; }")
             
             grid_layout.addWidget( widget_key, row, 0)            
             grid_layout.addWidget( widget_value, row, 1)        
