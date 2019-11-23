@@ -51,10 +51,12 @@ class App(QWidget):
 
         path_collector_B = PathsCollector('C_folder_name', "/path/to/ini", "/media/akoel/Movies/Final/01.Video/01.Movie/01.Films/01.Uncategorized/A.Profi-1981/image.jpeg")
         titles_B = IniTitles("B Eredeti cim", {"hu":"Magyar cim", "en":"D English title", "se":"B"})
-        control_B =IniControl("title", "video", "movie", None, "03")
+        control_B =IniControl("title", "video", "movie")
         storylines_B = IniStorylines("A tortenet ...", {"en":"the story is\nreally interesting\nbut now I will not tell more details", "hu":"a történet \n tobb soros\n leiras a filmrol\n hogy lehessen tesztelnei milyen hosszu uzeneteket\n tud kezelni"})    
         general_B = IniGeneral()
         general_B.setStoryline(storylines_B)
+        general_B.setSeries("3")
+        general_B.setEpisode("2")
         rating_B = IniRating(None, True, True) 
         collector_B = MediaCollector(path_collector_B, titles_B, control_B, general_B, rating_B)
 
@@ -121,6 +123,9 @@ class App(QWidget):
         general_BC.setGenres(["action", "crime"])
         general_BC.setThemes(["money", "greed"])
         general_BC.setStoryline(storylines_BC)
+        general_BC.setSeries("9")
+        general_BC.setEpisode("5")
+
         rating_BC = IniRating(10, True, True) 
         storage_BC = MediaStorage(path_storage_BC, titles_BC, control_BC, general_BC, rating_BC)
         storage_BC.addMediaAppendix(media_appendix_A)
@@ -162,7 +167,7 @@ class App(QWidget):
         collector_A.addMediaCollector(collector_C)
         
         widget = storage_BC.getWidget(1)
-        widget = collector_B.getWidget(1)
+#        widget = collector_B.getWidget(1)
         
         layout.addWidget(widget)
         self.show()

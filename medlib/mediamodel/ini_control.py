@@ -4,27 +4,20 @@ class IniControl(object):
         -orderby
         -media - (icon)
         -category
-        -series
-        -episode
-        -(media)
     """
     
-    def __init__(self, orderby, media, category, series=None, episode=None):
+    def __init__(self, orderby, media, category):
         """
         This is the constructor of the IniControl class
         ___________________________________________
         input:
             orderby         string        "folder","title","episode"
             media           string        "video", "audio", "ebook", "picture", "doc"
-            category        string        "movie", "music", "show", "presentation", "alternative", "miscellaneous", "radioplay"
-            series          integer       index of the series
-            episode         integer       index of the episode
+            category        string        "movie", "music", "show", "presentation", "alternative", "miscellaneous", "radioplay"            
         """
         self.orderby = orderby
         self.media = media
-        self.category = category
-        self.series = series
-        self.episode = episode
+        self.category = category        
         
     def getOrderBy(self):
         return self.orderby
@@ -34,11 +27,3 @@ class IniControl(object):
     
     def getCategory(self):
         return self.category
-    
-    def getSeries(self):
-        return self.series
-    
-    def getEpisode(self):
-        return self.episode
-  
-    

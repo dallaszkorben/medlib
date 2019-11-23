@@ -36,6 +36,9 @@ class IniGeneral(object):
             storyline        storyLine
             topic            storyLine
             lyrics           storyLine
+            
+            series          integer       index of the series
+            episode         integer       index of the episode
         """
         self.year = None 
         self.directors = []
@@ -58,6 +61,9 @@ class IniGeneral(object):
         self.storyline = IniStorylines()
         self.topic = IniStorylines()
         self.lyrics = IniStorylines()
+        
+        self.series = None
+        self.episode = None
     
     def setYear(self, year):
         self.year = year
@@ -116,6 +122,11 @@ class IniGeneral(object):
     def setLyrics(self, lyrics):
         self.lyrics = lyrics
         
+    def setSeries(self, series):
+        self.series = series
+
+    def setEpisode(self, episode):
+        self.episode = episode
         
     def getTranslatedGenreList(self, category=None):
         """
@@ -206,4 +217,11 @@ class IniGeneral(object):
     
     def getLyrics(self):
         return self.lyrics
+    
+    def getSeries(self):
+        return self.series
+    
+    def getEpisode(self):
+        return self.episode
+
     

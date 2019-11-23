@@ -58,11 +58,11 @@ class MediaAppendix(object):
 
             layout.addWidget(titleWidget)
 
-        def enterEvent(self):
+        def enterEvent(self, event):
             self.update()
             QApplication.setOverrideCursor(Qt.PointingHandCursor)
             
-        def leaveEvent(self):
+        def leaveEvent(self, event):
             self.update()
             QApplication.restoreOverrideCursor()
             

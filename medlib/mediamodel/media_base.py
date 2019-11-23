@@ -242,11 +242,12 @@ class MediaBase(object):
         # Title
         #
         
-        
+        series = self.general.getSeries()
+        episode = self.general.getEpisode()
         titleWidget = QLabel(
-            ("S" + self.control.getSeries() + "E" + self.control.getEpisode() + "-" if self.control.getEpisode() is not None and self.control.getSeries() is not None else "") + 
+            ("S" + series + "E" + episode + "-" if episode is not None and series is not None else "") + 
             self.titles.getTranslatedTitle() + 
-            ("-"+_("title_part").format(self.control.getEpisode()) if self.control.getEpisode() is not None and self.control.getSeries() is None else "") )
+            ("-"+_("title_part").format(episode) if episode is not None and series is None else "") )
         titleWidget.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate * 1.8, weight=QFont.Bold))
 
         title_layout.addWidget(titleWidget)
