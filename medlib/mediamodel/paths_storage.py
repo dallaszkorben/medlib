@@ -5,18 +5,18 @@ class PathsStorage(PathsCollector):
     This class represents the paths to the content elements
     """
     
-    def __init__(self, name_folder, path_ini, path_jpeg, path_media):
+    def __init__(self, nameFolder, pathIni, pathJpeg, pathMedia):
         """
         This is the constructor of the ContainerPaths class
         ___________________________________________________
         input:
-            name_folder        string        name of the folder of the MediaContainer
-            path_ini           string        path to the ini file - for storing data
-            path_jpeg          string        path to the jpeg file - for showing the image
-            path_media         string        path to the media file - to play/show
+            nameFolder        string        name of the folder of the MediaContainer
+            pathIni           string        path to the ini file - for storing data
+            pathJpeg          string        path to the jpeg file - for showing the image
+            pathMedia         string        path to the media file - to play/show
         """
-        super().__init__(name_folder, path_ini, path_jpeg)
-        self.path_media = path_media
+        super().__init__(nameFolder, pathIni, pathJpeg)
+        self.pathMedia = pathMedia
         
     def getPathOfMedia(self):
-        return self.path_media
+        return self.pathMedia

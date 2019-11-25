@@ -6,6 +6,9 @@ from medlib.mediamodel.paths_collector import PathsCollector
 from PyQt5.QtWidgets import QPlainTextEdit
 from PyQt5.QtGui import QTextCursor
 from PyQt5.QtGui import QFont
+from PyQt5.QtCore import Qt
+
+from medlib.mediamodel.extra import QHLine
 
 class MediaCollector(MediaBase):
     """
@@ -13,12 +16,12 @@ class MediaCollector(MediaBase):
     This container can contain more MediaContainers and/or
     one MediaContent
     """
-    def __init__(self, paths_collector, titles, control, general=None, rating=None):  
+    def __init__(self, pathsCollector, titles, control, general=None, rating=None):  
         """
         This is the constructor of the MediaCollector
         ________________________________________
         input:
-                paths_collector   PathsCollector    paths to the collector elements (card.ini, image.jpg ...)
+                pathsCollector    PathsCollector    paths to the collector elements (card.ini, image.jpg ...)
         
                 titles            IniTitles         represents the [titles] section
                 control           IniControl        represents the [control] section
@@ -27,14 +30,19 @@ class MediaCollector(MediaBase):
         """
         super().__init__(titles, control, general, rating)
         
-        assert issubclass(paths_collector.__class__, PathsCollector)
+#        NoneType = type(None)
+#        assert issubclass(parentCollector.__class__, (MediaCollector, NoneType)), general.__class__
+        assert issubclass(pathsCollector.__class__, PathsCollector)
         
-        self.paths_collector = paths_collector
+        self.pathsCollector = pathsCollector
         self.media_collector_list = []
         self.media_storage_list = []
   
+    def getNameOfFolder(self):
+        return self.pathsCollector.getNameOfFolder()
+    
     def getPathOfImage(self):
-        return self.paths_collector.getPathOfImage()
+        return self.pathsCollector.getPathOfImage()
     
     def getBackgroundColor(self):
         return COLLECTOR_BACKGROUND_COLOR
@@ -42,42 +50,46 @@ class MediaCollector(MediaBase):
     def getFolderType(self):
         return "collector" 
         
-    def addMediaCollector(self, media_collector):
+    def addMediaCollector(self, mediaCollector):
         """
         Adds a new MediaCollector to this MediaCollector
         It is ordered accordingly the language by the control.orderby
         _____________________________________________________________
         input:
-                media_collector    MediaCollector    the MediaCollector to add
+                mediaCollector    MediaCollector    the MediaCollector to add
         """
         
-        assert issubclass(media_collector.__class__, MediaCollector)
+        assert issubclass(mediaCollector.__class__, MediaCollector)
+        
+        mediaCollector.setParentCollector(self)
         
         # Add the MediaCollector
-        self.media_collector_list.append(media_collector)
+        self.media_collector_list.append(mediaCollector)
         
         # Sort the list
         self.sortMediaCollector()
         
-    def addMediaStorage(self, media_storage):
+    def addMediaStorage(self, mediaStorage):
         """
         Adds a new MediaStorage to this MediaCollector
         It is ordered accordingly the language by the control.orderby
         _____________________________________________________________
         input:
-                media_storage    MediaStorage    the MediaStorage to add
+                mediaStorage    MediaStorage    the MediaStorage to add
         """
         
-        assert issubclass(media_storage.__class__, MediaStorage) 
+        assert issubclass(mediaStorage.__class__, MediaStorage) 
+
+        mediaStorage.setParentCollector(self)
 
         # Add the MediaStorage
-        self.media_storage_list.append(media_storage)
+        self.media_storage_list.append(mediaStorage)
         
         # Sort the list
         self.sortMediaStorage()
     
     def getPathsCollector(self):
-        return self.paths_collector
+        return self.pathsCollector
         
     def getMediaStorageList(self):
         return self.media_storage_list
@@ -107,8 +119,7 @@ class MediaCollector(MediaBase):
            = folder
            = series
         """
-#        self.media_container_list.sort(key=lambda arg: arg.getTitle() if arg.control.getOrderBy() == 'title' else arg.container_paths.getNameOfFolder() if arg.control.getOrderBy() == 'folder' else arg.container_paths.getNameOfFolder())
-        self.media_collector_list.sort(key=lambda arg: MediaBase.sort_key(arg))
+        self.media_collector_list.sort(key=lambda arg: MediaCollector.sort_key(arg))
         
     def sortMediaStorage(self):
         """
@@ -117,8 +128,7 @@ class MediaCollector(MediaBase):
            = folder
            = series
         """
-        #self.media_content_list.sort(key=lambda arg: arg.getTitle() if arg.control.getOrderBy() == 'title' else arg.container_paths.getNameOfFolder() if arg.control.getOrderBy() == 'folder' else arg.container_paths.getNameOfFolder())
-        self.media_storage_list.sort(key=lambda arg: MediaBase.sort_key(arg))
+        self.media_storage_list.sort(key=lambda arg: MediaStorage.sort_key(arg))
 
                 
     def getHierarchyTitle(self, space):
@@ -133,13 +143,26 @@ class MediaCollector(MediaBase):
 
     def addWidgetGeneralInfoStoryline(self, parent, sizeRate, grid_layout, row, title_id, value):
         if value:
+            grid_layout.addWidget(QHLine(), row, 0, 1, 2)
+            row = row + 1
+            
             widget_value = QPlainTextEdit(parent)
+            
+            #widget_value.setLineWrapMode( QPlainTextEdit.WidgetWidth )
+            widget_value.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+            
             widget_value.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Normal))
-            widget_value.insertPlainText(value)
             widget_value.setReadOnly(True)
             widget_value.setMinimumHeight( (PANEL_FONT_SIZE + 3) * sizeRate )
+
+            [ widget_value.appendPlainText(line) for line in value.split('\\n')]
+            #widget_value.insertPlainText(value)
+            #widget_value.appendPlainText("hello")
+
             widget_value.moveCursor(QTextCursor.Start)
-            
+            # - eliminate the padding from the top - #            
+            widget_value.document().setDocumentMargin(0)
+            widget_value.setStyleSheet("QPlainTextEdit {padding-left:5px; padding-top:0px; border:0px;}")
             
             grid_layout.addWidget( widget_value, row, 1)        
             row = row + 1

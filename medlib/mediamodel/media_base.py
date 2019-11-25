@@ -12,6 +12,8 @@ from medlib.mediamodel.ini_rating import IniRating
 from medlib.mediamodel.ini_titles import IniTitles
 from medlib.mediamodel.ini_control import IniControl
 
+from medlib.mediamodel.media_appendix import MediaAppendix
+
 from medlib.mediamodel.extra import QHLine, FlowLayout
 
 from PyQt5.QtWidgets import QGridLayout, QSpinBox
@@ -42,17 +44,17 @@ class MediaBase(object):
     def sort_key(arg):
         """
         """
-        return locale.strxfrm(arg.getTranslatedTitle()) if arg.control.getOrderBy() == 'title' else arg.container_paths.getNameOfFolder() if arg.control.getOrderBy() == 'folder' else arg.container_paths.getNameOfFolder() 
+        return locale.strxfrm(arg.getTranslatedTitle()) if arg.control.getOrderBy() == 'title' else arg.getNameOfFolder() if arg.control.getOrderBy() == 'folder' else arg.getNameOfFolder() 
     
     def __init__(self, titles, control, general=None, rating=None):
         """
         This is the constructor of the MediaCollector
         ________________________________________
         input:
-                titles            IniTitles         represents the [titles] section
-                control           IniControl        represents the [control] section
-                general           IniGeneral        represents the [general] section
-                rating            IniRating         represents the [rating] section
+                titles             IniTitles         represents the [titles] section
+                control            IniControl        represents the [control] section
+                general            IniGeneral        represents the [general] section
+                rating             IniRating         represents the [rating] section
         """
         super().__init__()
         
@@ -62,11 +64,22 @@ class MediaBase(object):
         assert issubclass(general.__class__, (IniGeneral, NoneType)), general.__class__
         assert issubclass(rating.__class__, (IniRating, NoneType)), rating.__class__
         
+        self.parentCollector = None
+        self.mediaAppendixList = []
         self.titles = titles
         self.control = control
         self.general = general if general else IniGeneral()
         self.rating = rating if rating else IniRating()
-    
+
+    def getParentCollector(self):
+        return self.parentCollector
+        
+    def setParentCollector(self, parentCollector):
+        self.parentCollector = parentCollector
+        
+    def getNameOfFolder(self):
+        raise NotImplementedError
+        
     def getPathOfImage(self):
         raise NotImplementedError
 
@@ -127,6 +140,26 @@ class MediaBase(object):
                 general       IniRating
         """
         return self.rating
+
+    def addMediaAppendix(self, mediaAppendix):
+        """
+        Adds a new MediaAppendix to this MediaStorage
+        It is ordered accordingly the language by the control.orderby
+        _____________________________________________________________
+        input:
+                mediaAppendix    MediaAppendix    the MediaAppendix to add
+        """
+        
+        assert issubclass(mediaAppendix.__class__, MediaAppendix), mediaAppendix.__class__
+
+        # Add the MediaStorage
+        self.mediaAppendixList.append(mediaAppendix)
+        
+        # Sort the list
+        #self.sortMediaStorage()        
+
+    def getMediaAppendixList(self):
+        return self.mediaAppendixList
         
     # --------------------------------------------
     # --------------- Image ---------------------
@@ -144,6 +177,7 @@ class MediaBase(object):
         
         widget = QLabel()
         widget.setStyleSheet('background: black')
+        widget.setAlignment(Qt.AlignCenter)
         widget.setLayout(image_layout)
 
         pixmap = QPixmap( self.getPathOfImage( ) )
@@ -157,7 +191,8 @@ class MediaBase(object):
             smaller_pixmap = pixmap.scaledToWidth(PANEL_HEIGHT * sizeRate)
         else:
             smaller_pixmap = pixmap.scaledToHeight(PANEL_HEIGHT * sizeRate)
-   
+
+        widget.setMinimumWidth(PANEL_HEIGHT * sizeRate)
         widget.setPixmap(smaller_pixmap)
         
         return widget         
@@ -173,6 +208,8 @@ class MediaBase(object):
             |_________________________________________|       
             |  General Info                           |
             |_________________________________________|
+            |  Media Appendix                         |
+            |_________________________________________|            
         """
         
         # layout of this widget => three columns
@@ -197,8 +234,39 @@ class MediaBase(object):
         
         # --- GENERAL INFO ---
         cardinfo_layout.addWidget(self.getWidgetGeneralInfo(sizeRate))
+
+        # --- MEDIA APPENDIX ---        
+        cardinfo_layout.addWidget(self.getWidgetMediaAppendix(sizeRate))
+        
+        # --- Stretch ---
+        cardinfo_layout.addStretch(1)
+        label = QLabel()
+        label.setMinimumHeight(0)
+        label.setFixedHeight(0)
+        cardinfo_layout.addWidget(label)        
         
         return widget
+
+    def getWidgetMediaAppendix(self, sizeRate):
+        """
+            Media Appendix
+        """
+        layout = QVBoxLayout()
+        layout.setAlignment(Qt.AlignTop)
+        layout.setSpacing(0)
+        layout.setContentsMargins(0, 0, 0, 0)
+
+        widget = QWidget()
+        widget.setLayout(layout)
+        
+        if self.getMediaAppendixList():
+            layout.addWidget(QHLine())
+
+        for media_appendix in self.getMediaAppendixList():
+            layout.addWidget(media_appendix.getWidget(sizeRate))
+        
+        return widget
+
 
     # --------------------------------------------
     # ---------------- Title ---------------------
@@ -368,7 +436,6 @@ class MediaBase(object):
             value_label = QLabel(sound_list)
             value_label.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Bold))
             layout.addWidget(value_label)
-        
         return widget
         
     def getHtmlOneLineInfoSubs(self, sizeRate):
@@ -390,7 +457,6 @@ class MediaBase(object):
             value_label = QLabel(sub_list)
             value_label.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Bold))
             layout.addWidget(value_label)
-        
         return widget
  
     # --------------------------------------------

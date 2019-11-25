@@ -68,50 +68,50 @@ class IniGeneral(object):
     def setYear(self, year):
         self.year = year
         
-    def setDirectors(self, directors):
-        self.directors = directors
+    def setDirectors(self, directorList):
+        self.directors = directorList
 
     def setMakers(self, makers):
         self.makers = makers
 
-    def setWriters(self, writers):
-        self.writers = writers
+    def setWriters(self, writerList):
+        self.writers = writerList
 
-    def setAuthors(self, authors):
-        self.authors = authors
+    def setAuthors(self, authorList):
+        self.authors = authorList
 
-    def setActors(self, actors):
-        self.actors = actors
+    def setActors(self, actorList):
+        self.actors = actorList
 
-    def setPerformers(self, performers):
-        self.performers = performers
+    def setPerformers(self, performerList):
+        self.performers = performerList
 
-    def setLecturers(self, lecturer):
-        self.lecturer = lecturer
+    def setLecturers(self, lecturerList):
+        self.lecturer = lecturerList
         
-    def setContributors(self, contributor):
-        self.contributor = contributor
+    def setContributors(self, contributorList):
+        self.contributor = contributorList
     
-    def setVoices(self, voice):
-        self.voice = voice
+    def setVoices(self, voiceList):
+        self.voice = voiceList
         
     def setLength(self, length):
         self.length = length
     
-    def setSounds(self, sounds):
-        self.sounds = sounds
+    def setSounds(self, soundList):
+        self.sounds = soundList
 
-    def setSubs(self, subs):
-        self.subs = subs
+    def setSubs(self, subList):
+        self.subs = subList
 
-    def setGenres(self, genres):
-        self.genres = genres
+    def setGenres(self, genreList):
+        self.genres = genreList
 
-    def setThemes(self, themes):
-        self.themes = themes
+    def setThemes(self, themeList):
+        self.themes = themeList
 
-    def setCountries(self, countries):
-        self.countries = countries
+    def setCountries(self, countrieList):
+        self.countries = countrieList
         
     def setStoryline(self, storyline):
         self.storyline = storyline

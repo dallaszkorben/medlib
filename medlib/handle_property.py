@@ -56,19 +56,19 @@ class Property(object):
         return result
 
     def getBoolean(self, section, key, default_value, writable=None):
-        
+
         # if not existing file and we want to create it
         if not os.path.exists(self.file) and self.should_write(writable) :
             self.parser[section]={key: default_value}
             self.__write_file()
-            
+
         # read the file
         self.parser.read(self.file, encoding='utf-8')
 
         # try to read the key
         try:
             result=self.parser.getboolean(section, key)
-        
+
         # if does not exist the key
         except (configparser.NoSectionError, configparser.NoOptionError):
 
@@ -93,10 +93,10 @@ class Property(object):
 
         # if the file exists
         else:
-            
+
             # read the file
             self.parser.read(self.file, encoding='utf-8')
-            
+
             # try to set the value
             try:
                 # if no section -> NoSectionError | if no key -> Create it
@@ -346,6 +346,6 @@ def _(word):
 #            - you can refer to the contents like: "config_ini('language')"
 #
 # -----------------------------------------------------------------------------------------------------
-config_ini = {}    
+config_ini = {}
 reReadConfigIni()
 

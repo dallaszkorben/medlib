@@ -22,7 +22,7 @@ class IniStorylines(object):
     def getTranslatedStoryline(self):
         """
         Returns back the storyline in the respective language.
-        If the title does not exists on the specific language, then the 'original' title will be returned
+        If the storyline does not exists on the specific language, then the 'original' title will be returned
         _________________________________________________________________________________________________
         input:
         """
