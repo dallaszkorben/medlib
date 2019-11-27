@@ -18,9 +18,6 @@ from medlib.mediamodel.ini_rating import IniRating
 from medlib.card_ini import CardIni
 from medlib.handle_property import config_ini 
 
-#def getPatternCard():
-#    return re.compile('^card.ini$')
-
 def getPatternImage():
     return re.compile( '^image[.](jp(eg|g)|png)$' )
 
@@ -110,7 +107,6 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
         for file_name in file_list:
              
             # find the Media (video or audio or odt or pdf)
-            #if getPatternAudio().match(file_name) or getPatternVideo().match(file_name) or getPatternOdt().match(file_name) or getPatternPdf().match(file_name):
             if CardIni.getMediaFilePatternByMedia(con_media).match(file_name):                
                 media_path = os.path.join(actualDir, file_name)
                 media_name = file_name
@@ -350,7 +346,7 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
         
         rating = None
         if rating_dict:
-            rat_rate = None
+            rat_rate = 0
             rat_favorite = False
             rat_new = False
        
@@ -380,8 +376,6 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
             else:
                 parentMediaCollector = nextParent
 
-            #nextParent = childCollector
-        
         #
         # If MediaStorage - Under MediaCollector
         #
@@ -398,8 +392,6 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
             nextParent = MediaAppendix(pathAppendix, titles)
             parentMediaCollector.addMediaAppendix(nextParent)
             
-            #nextParent = appendix
-        
     # ####################################
     #
     # Go through all SUB-FOLDERS in the 
@@ -409,7 +401,6 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
     # ####################################    
     for name in dir_list:
         subfolder_path_os = os.path.join(actualDir, name)
-        #collectCardsFromFileSystem( subfolder_path_os, parentMediaCollector if isMediaStorage is None else childCollector if not isMediaStorage else childCollector )
         collectCardsFromFileSystem( subfolder_path_os, nextParent )        
 
     # and finaly returns
@@ -417,18 +408,6 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
         
         
         
-        
-        
-    # ----------------------------------
-    #
-    # MEDIA COLLECTOR directory
-    #
-    # There is:     -cardPath 
-    #               -at least one Directory
-    # there is NO:  -mediaPath
-    #  
-    # ----------------------------------
-#    if card_path and not media_path and dir_list:
         
 
 
