@@ -2,38 +2,24 @@ import os
 import re
 import configparser
 
-from medlib.mediamodel.paths_collector import PathsCollector
 from medlib.mediamodel.media_collector import MediaCollector
+from medlib.mediamodel.media_storage import MediaStorage
+from medlib.mediamodel.media_appendix import MediaAppendix
+from medlib.mediamodel.paths_collector import PathsCollector
 from medlib.mediamodel.paths_storage import PathsStorage
+from medlib.mediamodel.paths_appendix import PathsAppendix
 from medlib.mediamodel.ini_titles import IniTitles 
 from medlib.mediamodel.ini_control import IniControl
 from medlib.mediamodel.ini_storylines import IniStorylines
 from medlib.mediamodel.ini_general import IniGeneral
 from medlib.mediamodel.ini_rating import IniRating
 
-from medlib.mediamodel.media_storage import MediaStorage
 
 from medlib.card_ini import CardIni
 from medlib.handle_property import config_ini 
 
-def getPatternCard():
-    return re.compile('^card.ini$')
-
-def getPatternAudio():
-    ptrn = '|'.join( config_ini['media_player_audio_ext'].split(",") )
-    return re.compile( '^.+[.](' + ptrn + ')$' )
-
-def getPatternVideo():
-    ptrn = '|'.join( config_ini['media_player_video_ext'].split(",") )
-    return re.compile( '^.+[.](' + ptrn + ')$' )    
-
-def getPatternOdt():
-    ptrn = '|'.join( config_ini['media_player_odt_ext'].split(",") )
-    return re.compile( '^.+[.](' + ptrn + ')$' )    
-
-def getPatternPdf():
-    ptrn = '|'.join( config_ini['media_player_pdf_ext'].split(",") )
-    return re.compile( '^.+[.](' + ptrn + ')$' )
+#def getPatternCard():
+#    return re.compile('^card.ini$')
 
 def getPatternImage():
     return re.compile( '^image[.](jp(eg|g)|png)$' )
@@ -50,17 +36,19 @@ def getPatternNumber():
 def getPatternLength():
     return re.compile('^\d{1,3}[:]\d{1,2}$')
 
-def collectCardsFromFileSystem(actualDir, parentMediaCollector):
+def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
     """
         Recursive analysis on the the file system for the mediaCollectors
         _________________________________________________________________
         input:
-                actualDir         The actual directory where the analysis is in process
-                parentMediaCollector    The actual parentMediaCollector
+                actualDir             The actual directory where the analysis is in process
+                parentMediaCollector  The actual parentMediaCollector
     """
     NoneType = type(None)
-    assert issubclass(parentMediaCollector.__class__, (MediaCollector, NoneType))
-    
+    assert issubclass(parentMediaCollector.__class__, (MediaCollector, MediaStorage, NoneType))
+
+    nextParent = parentMediaCollector
+        
     # Collect files and and dirs in the current directory
     file_list = [f for f in os.listdir(actualDir) if os.path.isfile(os.path.join(actualDir, f))] if os.path.exists(actualDir) else []
     dir_list = [d for d in os.listdir(actualDir) if os.path.isdir(os.path.join(actualDir, d))] if os.path.exists(actualDir) else []
@@ -70,8 +58,6 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector):
     image_path = None
     media_name = None
     
-    isMediaStorage = None
-
     # ####################################
     #
     # Go through all FILES in the folder
@@ -81,17 +67,17 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector):
     for file_name in file_list:
         
         # find the Card
-        if getPatternCard().match( file_name ):
+        if file_name == "card.ini":
             card_path = os.path.join(actualDir, file_name)
-            
-        # find the Media (video or audio or odt or pdf)
-        if getPatternAudio().match(file_name) or getPatternVideo().match(file_name) or getPatternOdt().match(file_name) or getPatternPdf().match(file_name):
-            media_path = os.path.join(actualDir, file_name)
-            media_name = file_name
             
         # find the Image
         if getPatternImage().match( file_name ):
             image_path = os.path.join(actualDir, file_name)
+
+#        # find the Media (video or audio or odt or pdf)
+#        if getPatternAudio().match(file_name) or getPatternVideo().match(file_name) or getPatternOdt().match(file_name) or getPatternPdf().match(file_name):
+#            media_path = os.path.join(actualDir, file_name)
+#            media_name = file_name
 
     # If there is Card.ini (could be MediaCollector/MediaStorage
     if card_path:
@@ -100,6 +86,35 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector):
         parser = configparser.RawConfigParser()
         parser.read(card_path, encoding='utf-8')
         
+        # --- CONTROL --- #
+        try:
+            con_orderby = parser.get("control", "orderby")
+            con_orderby = con_orderby if con_orderby in CardIni.getOrderByList() else ""
+        except (configparser.NoSectionError, configparser.NoOptionError):
+            con_orderby = ""        
+
+        try:
+            con_media = parser.get("control", "media")
+            con_media = con_media if con_media in CardIni.getMediaList() else ""
+        except (configparser.NoSectionError, configparser.NoOptionError):
+            con_media = ""
+        
+        try:
+            con_category = parser.get("control", "category")
+            con_category = con_category if con_category in CardIni.getCategoryListByMedia(con_media) else ""
+        except (configparser.NoSectionError, configparser.NoOptionError):
+            con_category = ""
+        
+        control = IniControl(con_orderby, con_media, con_category) 
+ 
+        for file_name in file_list:
+             
+            # find the Media (video or audio or odt or pdf)
+            #if getPatternAudio().match(file_name) or getPatternVideo().match(file_name) or getPatternOdt().match(file_name) or getPatternPdf().match(file_name):
+            if CardIni.getMediaFilePatternByMedia(con_media).match(file_name):                
+                media_path = os.path.join(actualDir, file_name)
+                media_name = file_name
+         
         # --- TITLE --- #
         try:
             titles_dict=dict(parser.items("titles"))
@@ -118,28 +133,6 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector):
                 titles_lang_dict[hit.group(1)] = value
             
         titles = IniTitles(title_orig, titles_lang_dict)
-
-        # --- CONTROL --- #
-        try:
-            con_orderby = parser.get("control", "orderby")
-            con_orderby = con_orderby if con_orderby in CardIni.getOrderByList() else ""
-        except (configparser.NoSectionError, configparser.NoOptionError):
-            con_orderby = ""        
-
-        try:
-            con_media = parser.get("control", "media")
-            con_media = con_media if con_media in CardIni.getMediaList() else ""
-        except (configparser.NoSectionError, configparser.NoOptionError):
-            con_media = ""
-        
-        try:
-            con_category = parser.get("control", "category")
-            con_category = con_category if con_category in CardIni.getCategoryList(con_media) else ""
-        except (configparser.NoSectionError, configparser.NoOptionError):
-            con_category = ""
-        
-        control = IniControl(con_orderby, con_media, con_category)
-        
 
         #--- STORYLINE --- #
         try:
@@ -370,27 +363,42 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector):
                     rat_new = True if value == 'y' else False
                    
             rating = IniRating(rat_rate, rat_favorite, rat_new) 
-          
-        # If MediaCollector      
-        if card_path and not media_path and dir_list:
+
+        # -------------------- MediaCollector/MediaStorage/MediaAppendix construction ------------
+        #                                                    V 
+
+        #          
+        # If MediaCollector - under MediaCollector or Root
+        #      
+        if card_path and not media_path and dir_list and issubclass(parentMediaCollector.__class__, (MediaCollector, NoneType)):
             pathCollector = PathsCollector(os.path.dirname(card_path), card_path, image_path)            
-            childCollector = MediaCollector(pathCollector, titles, control, general, rating)
+            nextParent = MediaCollector(pathCollector, titles, control, general, rating)
             
             # If it has parent -> add it to parent, otherwise it will be the parent
             if parentMediaCollector:
-                parentMediaCollector.addMediaCollector(childCollector)
+                parentMediaCollector.addMediaCollector(nextParent)
             else:
-                parentMediaCollector = childCollector
+                parentMediaCollector = nextParent
 
-            isMediaStorage = False
+            #nextParent = childCollector
         
-        # If MediaStorage
-        elif card_path and media_path:
+        #
+        # If MediaStorage - Under MediaCollector
+        #
+        elif card_path and media_path and issubclass(parentMediaCollector.__class__, MediaCollector):
             pathStorage = PathsStorage(os.path.dirname(card_path), card_path, image_path, media_path)            
-            storage = MediaStorage(pathStorage, titles, control, general, rating)
-            parentMediaCollector.addMediaStorage(storage)
-            isMediaStorage = True
-        
+            nextParent = MediaStorage(pathStorage, titles, control, general, rating)
+            parentMediaCollector.addMediaStorage(nextParent)
+            
+        #
+        # If MediaAppendix - Under MediaCollector or MediaStorage
+        #
+        elif card_path and media_path and con_category == 'appendix' and issubclass(parentMediaCollector.__class__, MediaStorage):
+            pathAppendix = PathsAppendix(os.path.dirname(card_path), card_path, image_path, media_path)
+            nextParent = MediaAppendix(pathAppendix, titles)
+            parentMediaCollector.addMediaAppendix(nextParent)
+            
+            #nextParent = appendix
         
     # ####################################
     #
@@ -401,7 +409,8 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector):
     # ####################################    
     for name in dir_list:
         subfolder_path_os = os.path.join(actualDir, name)
-        collectCardsFromFileSystem( subfolder_path_os, parentMediaCollector if isMediaStorage is None else childCollector if not isMediaStorage else childCollector )
+        #collectCardsFromFileSystem( subfolder_path_os, parentMediaCollector if isMediaStorage is None else childCollector if not isMediaStorage else childCollector )
+        collectCardsFromFileSystem( subfolder_path_os, nextParent )        
 
     # and finaly returns
     return parentMediaCollector
