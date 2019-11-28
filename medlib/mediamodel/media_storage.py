@@ -1,3 +1,7 @@
+import os
+import subprocess
+import platform
+
 from medlib.constants import *
 from medlib.handle_property import _
 
@@ -7,12 +11,13 @@ from medlib.mediamodel.extra import QHLine
 
 from PyQt5.QtCore import Qt
 
-from PyQt5.QtWidgets import QLabel, QScrollBar
+from PyQt5.QtWidgets import QLabel, QScrollBar, QApplication
 from PyQt5.QtWidgets import QPlainTextEdit
 
 from PyQt5.QtGui import QTextCursor
 from PyQt5.QtGui import QFont
 from PyQt5.uic.Compiler.qtproxies import QtWidgets
+
 
 class MediaStorage(MediaBase):
     """
@@ -45,6 +50,9 @@ class MediaStorage(MediaBase):
     def getPathOfImage(self):
         return self.pathsStorage.getPathOfImage()
 
+    def getPathOfMedia(self):
+        return self.pathsStorage.getPathOfMedia()
+
     def getBackgroundColor(self):
         return STORAGE_BACKGROUND_COLOR
 
@@ -68,50 +76,9 @@ class MediaStorage(MediaBase):
 
         self.media_container_list.sort(key=lambda arg: arg.getTitle())
         
-#    def addMediaAppendix(self, media_appendix):
-#        """
-#        Adds a new MediaAppendix to this MediaStorage
-#        It is ordered accordingly the language by the control.orderby
-#        _____________________________________________________________
-#        input:
-#                media_appendix    MediaAppendix    the MediaAppendix to add
-#        """
-#        
-#        assert issubclass(media_appendix.__class__, MediaAppendix), media_appendix.__class__
-#
-#        # Add the MediaStorage
-#        self.media_appendix_list.append(media_appendix)
-#        
-#        # Sort the list
-#        #self.sortMediaStorage()        
-#
-#    def getMediaAppendixList(self):
-#        return self.media_appendix_list
-        
-#    def getWidgetCardInformationText(self, sizeRate):
-#        """
-#            Appends the Links of MediaAppendixes to the bottom of the InformationText
-#        """
-#        super_widget = super().getWidgetCardInformationText(sizeRate)
-#        
-#        if self.getMediaAppendixList():
-#            layout = QVBoxLayout()
-#            layout.setAlignment(Qt.AlignTop)
-#            layout.setSpacing(0)
-#            layout.setContentsMargins(0, 0, 0, 0)
-#        
-#            widget = QWidget()
-#            widget.setLayout(layout)
-#
-#            layout.addWidget(super_widget)        
-#            layout.addWidget(QHLine())
-#
-#            for media_appendix in self.getMediaAppendixList():
-#                layout.addWidget(media_appendix.getWidget(sizeRate))
-#       
-#            return widget
-#        else:
-#            return super_widget
+#    def getWidgetTitle(self, sizeRate):
+#        widget = super().getWidgetTitle(sizeRate)        
+#        return widget
 
     def addWidgetGeneralInfoStoryline(self, parent, sizeRate, grid_layout, row, title_id, value):
         if value:
@@ -145,5 +112,16 @@ class MediaStorage(MediaBase):
             row = row + 1
             
         return row   
+
+    def doOnClickImage(self):
+        
+        if platform.system() == 'Darwin':           # macOS
+            subprocess.call(('open', self.getPathOfMedia()))
+        elif platform.system() == 'Windows':        # Windows
+            os.startfile(filepath)
+        elif platform.system() == 'Linux':          # Linux:
+            subprocess.call(('xdg-open', self.getPathOfMedia()))
+        else:                                       # linux 
+            subprocess.call(('xdg-open', self.getPathOfMedia()))
 
         

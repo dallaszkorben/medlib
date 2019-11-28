@@ -177,12 +177,21 @@ class App(QWidget):
         widget_list = mainCollector.getMediaCollectorList()     #Video
         widget_list = widget_list[0].getMediaCollectorList()    #Movie
         widget_list = widget_list[0].getMediaCollectorList()    #Films
-#        widget_list = widget_list[0].getMediaStorageList()
+        widget_list = widget_list[0].getMediaStorageList()
         widget = widget_list[0].getWidget(1)
 
 
         layout.addWidget(widget)
         self.show()
+
+
+
+
+        
+#        from medlib import handle_property 
+#        ci = handle_property.get_config_ini()
+#        par = ci.getMediaPlayerWithParameters('text', 'epub')
+#        print(par)
 
 
         

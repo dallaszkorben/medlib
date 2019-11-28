@@ -3,7 +3,7 @@ from medlib.mediamodel.media_base import MediaBase
 from medlib.mediamodel.media_storage import MediaStorage
 from medlib.mediamodel.paths_collector import PathsCollector
 
-from PyQt5.QtWidgets import QPlainTextEdit
+from PyQt5.QtWidgets import QPlainTextEdit, QLabel, QApplication
 from PyQt5.QtGui import QTextCursor
 from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt
@@ -167,6 +167,13 @@ class MediaCollector(MediaBase):
             grid_layout.addWidget( widget_value, row, 1)        
             row = row + 1
             
-        return row   
+        return row
+
+#    def getBackgroundQLabelOfImage(self):
+#        widget = BackgroundQLabelOfImage(self)
+#        return widget
    
+    def doOnClickImage(self):
+        pass
+        
         

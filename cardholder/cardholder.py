@@ -202,7 +202,7 @@ class CardHolder( QWidget ):
 
         self.start_spinner()
 
-        self.cc = CollectCardsThread.get_instance( self, self.get_collected_cards_method, parameters )
+        self.cc = CollectCardsThread.getInstance( self, self.get_collected_cards_method, parameters )
         if self.cc:
             self.cc.cards_collected.connect(self.refresh)
             self.cc.start()   
@@ -361,7 +361,7 @@ class CardHolder( QWidget ):
         else:
             loop = self.MAX_CARD_ROLLING_RATE
             
-        self.animate = AnimateRolling.get_instance(int(loop), 1, sleep)
+        self.animate = AnimateRolling.getInstance(int(loop), 1, sleep)
         if self.animate:
             self.animate.positionChanged.connect(self.rolling)
             self.animate.start()
@@ -381,7 +381,7 @@ class CardHolder( QWidget ):
         else:
             loop = self.MAX_CARD_ROLLING_RATE
             
-        self.animate = AnimateRolling.get_instance(int(loop), -1, sleep)
+        self.animate = AnimateRolling.getInstance(int(loop), -1, sleep)
         if self.animate:
             self.animate.positionChanged.connect(self.rolling)
             self.animate.start()
@@ -429,7 +429,7 @@ class CardHolder( QWidget ):
                 #    value = 1
                 #    loop = -rate
                 
-            self.animate = AnimateRolling.get_instance(int(loop), value, 0.02)
+            self.animate = AnimateRolling.getInstance(int(loop), value, 0.02)
             if self.animate:
                 self.animate.positionChanged.connect(self.rolling)
                 self.animate.start()
@@ -440,7 +440,7 @@ class CardHolder( QWidget ):
     #
     # ------------------------------------------------
     def animated_move_to(self, relative_position, sleep=0.01):
-        self.animate = AnimateRolling.get_instance(relative_position * self.MAX_CARD_ROLLING_RATE, 1, sleep)
+        self.animate = AnimateRolling.getInstance(relative_position * self.MAX_CARD_ROLLING_RATE, 1, sleep)
         if self.animate:
             self.animate.positionChanged.connect(self.rolling)
             self.animate.start()
@@ -1108,7 +1108,7 @@ class CollectCardsThread(QtCore.QThread):
         return cls.__instance    
 
     @classmethod
-    def get_instance(cls, parent, collect_cards_method, paths=None):
+    def getInstance(cls, parent, collect_cards_method, paths=None):
         if not cls.__run:
             inst = cls.__new__(cls)
             cls.__init__(cls.__instance, parent, collect_cards_method, paths) 
@@ -1154,7 +1154,7 @@ class AnimateRolling(QThread):
         return cls.__instance    
     
     @classmethod
-    def get_instance(cls, loop, value, sleep=0.01):
+    def getInstance(cls, loop, value, sleep=0.01):
         if not cls.__run:
             inst = cls.__new__(cls)
             cls.__init__(cls.__instance, loop, value, sleep) 

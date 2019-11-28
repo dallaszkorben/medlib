@@ -110,15 +110,15 @@ class Property(object):
         # update
         self.__write_file()
         
-    def remove_section(self, section):
+    def removeAection(self, section):
         self.parser.remove_section(section)
 
-    def remove_option(self, section, option):
+    def removeOption(self, section, option):
         self.parser.read(self.file, encoding='utf-8')
         self.parser.remove_option(section, option)
         self.__write_file()
         
-    def get_options(self, section):
+    def getOptions(self, section):
         return self.parser.items(section)
     
     def should_write(self, writable):
@@ -146,7 +146,7 @@ class Dict( Property ):
         return cls.__instance
 
     @classmethod
-    def get_instance(cls, lng):
+    def getInstance(cls, lng):
         inst = cls.__new__(cls)
         cls.__init__(cls.__instance, lng)     
         return inst
@@ -202,7 +202,7 @@ class ConfigIni( Property ):
         return cls.__instance
 
     @classmethod
-    def get_instance(cls):
+    def getInstance(cls):
         inst = cls.__new__(cls)
         cls.__init__(cls.__instance)
         return inst
@@ -212,14 +212,46 @@ class ConfigIni( Property ):
         file = os.path.join(folder, ConfigIni.INI_FILE_NAME)
         super().__init__( file, True, folder )
 
-    def get_language(self):
+    def getLanguage(self):
         return self.get(self.DEFAULT_LANGUAGE[0], self.DEFAULT_LANGUAGE[1], self.DEFAULT_LANGUAGE[2])
 
-    def get_show_original_title(self):
+    def getShowOriginalTitle(self):
         return self.get(self.DEFAULT_SHOW_ORIGINAL_TITLE[0], self.DEFAULT_SHOW_ORIGINAL_TITLE[1], self.DEFAULT_SHOW_ORIGINAL_TITLE[2])
+
+
+
 
     def get_media_path(self):
         return self.get(self.DEFAULT_MEDIA_PATH[0], self.DEFAULT_MEDIA_PATH[1], self.DEFAULT_MEDIA_PATH[2])
+
+
+
+
+    def getMediaPlayerWithParameters(self, media, extension):
+        """
+            Returns a tuple with the player name and the necessary parameters
+            according to the 'media' and the file's extension
+            
+            This method assumes that config.ini file exist for the user
+            If it does not then the file will be created.
+            If the section or the key does not
+        """
+
+        default_player = self.get('player', media, None)
+        specific_player = self.get('player', media + "-" + extension, None)
+        
+        # if not the general neither the specific player does not exists
+        if specific_player is None and default_player is None:
+            return None
+                
+        if specific_player is not None:
+            result=specific_player.split(",")
+        else:
+            result=default_player.split(",")
+
+        return (result[0], result[1] if len(result) > 1 else None)
+            
+
 
     def get_media_player_video(self):
         return self.get(self.DEFAULT_MEDIA_PLAYER_VIDEO[0], self.DEFAULT_MEDIA_PLAYER_VIDEO[1], self.DEFAULT_MEDIA_PLAYER_VIDEO[2])
@@ -288,7 +320,7 @@ class ConfigIni( Property ):
 
 
 def get_config_ini():
-    return ConfigIni.get_instance()
+    return ConfigIni.getInstance()
 
 def reReadConfigIni():
     global config_ini
@@ -297,8 +329,8 @@ def reReadConfigIni():
     ci = get_config_ini()
     
     # Read config.ini    
-    config_ini['language'] = ci.get_language()
-    config_ini['show_original_title'] = ci.get_show_original_title()
+    config_ini['language'] = ci.getLanguage()
+    config_ini['show_original_title'] = ci.getShowOriginalTitle()
     config_ini['media_path'] = ci.get_media_path()
     config_ini['media_player_video'] = ci.get_media_player_video()
     config_ini['media_player_video_param'] = ci.get_media_player_video_param()
@@ -316,7 +348,7 @@ def reReadConfigIni():
     config_ini['media_player_pdf_ext'] = ci.get_media_player_pdf_ext()
 
     # Get the dictionary
-    dic = Dict.get_instance( config_ini['language'] )
+    dic = Dict.getInstance( config_ini['language'] )
 
 # --------------------------------------------------------
 # --------------------------------------------------------

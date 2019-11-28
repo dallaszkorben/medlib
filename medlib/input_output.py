@@ -361,9 +361,38 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
             rating = IniRating(rat_rate, rat_favorite, rat_new) 
 
         # -------------------- MediaCollector/MediaStorage/MediaAppendix construction ------------
-        #                                                    V 
-
-        #          
+        #                                                    V
+        #  ┌────────────────┐                         ┌────────────────┐
+        #  │     NONE       │                         │     FOLDER     │
+        #  └───────┬────────┘                         └───────┬────────┘  
+        #          │           ┌────────────────┐             │           ┌────────────────┐
+        #          ├───────────┤ MediaCollector |             ├───────────┤ MediaCollector |
+        #          │           └────────────────┘             │           └────────────────┘
+        #          │                                          │
+        #          │           ┌────────────────┐             │           ┌────────────────┐
+        #          └───────────┤    FOLDER      |             ├───────────┤ MediaAppendix  | 
+        #                      └────────────────┘             |           └────────────────┘
+        #                                                     │
+        #                                                     │           ┌────────────────┐ 
+        #                                                     └───────────┤    FOLDER      |   
+        #                                                                 └────────────────┘
+        #         
+        #  ┌────────────────┐                         ┌────────────────┐
+        #  │ MediaCollector │                         │  MediaStorage  │
+        #  └───────┬────────┘                         └───────┬────────┘  
+        #          │           ┌────────────────┐             │           ┌────────────────┐
+        #          ├───────────┤ MediaCollector |             ├───────────┤ MediaAppendix  |
+        #          │           └────────────────┘             │           └────────────────┘
+        #          │                                          │
+        #          │           ┌────────────────┐             │           ┌────────────────┐
+        #          ├───────────┤  MediaStorage  |             └───────────┤     FOLDER     | 
+        #          │           └────────────────┘                         └────────────────┘
+        #          │
+        #          │           ┌────────────────┐ 
+        #          └───────────┤    FOLDER      |   
+        #                      └────────────────┘ 
+        #        
+        
         # If MediaCollector - under MediaCollector or Root
         #      
         if card_path and not media_path and dir_list and issubclass(parentMediaCollector.__class__, (MediaCollector, NoneType)):
@@ -385,9 +414,10 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
             parentMediaCollector.addMediaStorage(nextParent)
             
         #
-        # If MediaAppendix - Under MediaCollector or MediaStorage
+        # If MediaAppendix - MediaStorage
         #
-        elif card_path and media_path and con_category == 'appendix' and issubclass(parentMediaCollector.__class__, MediaStorage):
+        #elif card_path and media_path and con_category == 'appendix' and issubclass(parentMediaCollector.__class__, MediaStorage):
+        elif card_path and media_path and issubclass(parentMediaCollector.__class__, MediaStorage):
             pathAppendix = PathsAppendix(os.path.dirname(card_path), card_path, image_path, media_path)
             nextParent = MediaAppendix(pathAppendix, titles)
             parentMediaCollector.addMediaAppendix(nextParent)

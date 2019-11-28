@@ -20,3 +20,5 @@ class PathsStorage(PathsCollector):
         
     def getPathOfMedia(self):
         return self.pathMedia
+
+    
