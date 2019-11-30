@@ -115,24 +115,24 @@ class MediaStorage(MediaBase):
         return row   
 
     def getQLabelToKeepImage(self):
-        return QLabelWithLinkToMedia(self.isSelected, self.getPathOfMedia())
+        return MediaStorage.QLabelWithLinkToMedia(self.isSelected, self.getPathOfMedia())
 
 
-class QLabelWithLinkToMedia( QLabelToLinkOnClick ):
+    class QLabelWithLinkToMedia( QLabelToLinkOnClick ):
 
-    def __init__(self, funcIsSelected, pathOfMedia):
-        super().__init__(None, funcIsSelected)
-        self.pathOfMedia = pathOfMedia
+        def __init__(self, funcIsSelected, pathOfMedia):
+            super().__init__(None, funcIsSelected)
+            self.pathOfMedia = pathOfMedia
 
-    def toDoOnClick(self):
+        def toDoOnClick(self):
         
-        if platform.system() == 'Darwin':                   # macOS
-            subprocess.call(('open', self.pathOfMedia))
-        elif platform.system() == 'Windows':                # Windows
-            os.startfile(filepath)
-        elif platform.system() == 'Linux':                  # Linux:
-            subprocess.call(('xdg-open', self.pathOfMedia))
-        else:                                               # linux 
-            subprocess.call(('xdg-open', self.pathOfMedia))
+            if platform.system() == 'Darwin':                   # macOS
+                subprocess.call(('open', self.pathOfMedia))
+            elif platform.system() == 'Windows':                # Windows
+                os.startfile(filepath)
+            elif platform.system() == 'Linux':                  # Linux:
+                subprocess.call(('xdg-open', self.pathOfMedia))
+            else:                                               # linux 
+                subprocess.call(('xdg-open', self.pathOfMedia))
         
         

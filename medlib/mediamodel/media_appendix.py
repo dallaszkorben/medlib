@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import QLabel
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtWidgets import QApplication
 
-from PyQt5.QtGui import QFont
+from PyQt5.QtGui import QFont, QPalette
 
 from PyQt5.QtCore import Qt
 
@@ -23,52 +23,6 @@ from medlib.mediamodel.paths_appendix import PathsAppendix
 from medlib.mediamodel.qlabel_to_link_on_cllick import QLabelToLinkOnClick
 
 class MediaAppendix(object):
-
-    class LinkWidget(QWidget):     
-        def __init__(self, parent, sizeRate):
-            super().__init__()
-            
-            layout = QHBoxLayout()
-            layout.setAlignment(Qt.AlignLeft)
-        
-            layout.setSpacing(1)        
-            layout.setContentsMargins(0, 0, 0, 0)
-        
-            self.setLayout(layout)
-
-        #
-        # Icon
-        #
-#        iconFileName = TITLE_ICON_PREFIX + "-" + self.getFolderType() + "-" + self.control.getMedia() + "-" + self.control.getCategory() + "." + TITLE_ICON_EXTENSION
-#        pathToFile = resource_filename(__name__, os.path.join(TITLE_ICON_FOLDER, iconFileName))       
-#        pixmap = QPixmap( pathToFile )
-#
-#        if pixmap.isNull():            
-#            smaller_pixmap = QPixmap(TITLE_ICON_HEIGHT * sizeRate, TITLE_ICON_HEIGHT * sizeRate)
-#            smaller_pixmap.fill(QColor(self.getBackgroundColor()))
-#        else:
-#            smaller_pixmap = pixmap.scaledToWidth(TITLE_ICON_HEIGHT * sizeRate)
-#   
-#        iconWidget = QLabel()
-#        iconWidget.setPixmap(smaller_pixmap)
-#
-#        title_layout.addWidget(iconWidget)
-
-            #
-            # Title
-            #
-            titleWidget = QLabelWithLinkToAppendixMedia(parent.titles.getTranslatedTitle(), True, )
-            titleWidget.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Bold))
-
-            layout.addWidget(titleWidget)
-
-        def enterEvent(self, event):
-            self.update()
-            QApplication.setOverrideCursor(Qt.PointingHandCursor)
-            
-        def leaveEvent(self, event):
-            self.update()
-            QApplication.restoreOverrideCursor()
             
     """
     This object represents the MediaAppendix
@@ -115,7 +69,7 @@ class MediaAppendix(object):
             |______|__________________________________|
         """
         #widget = MediaAppendix.LinkWidget(self, sizeRate)
-        widget = QLabelWithLinkToAppendixMedia(self.titles.getTranslatedTitle(), self.isSelected, self.getPathOfMedia())
+        widget = MediaAppendix.QLabelWithLinkToAppendixMedia(self.titles.getTranslatedTitle(), self.isSelected, self.getPathOfMedia(), sizeRate)
         return widget
     
     def getPathOfMedia(self):
@@ -124,22 +78,46 @@ class MediaAppendix(object):
     def isSelected(self):
         return True
 
+    class QLabelWithLinkToAppendixMedia( QLabelToLinkOnClick ):
 
-class QLabelWithLinkToAppendixMedia( QLabelToLinkOnClick ):
+        def __init__(self, text, funcIsSelected, pathOfMedia, sizeRate):
+            super().__init__(text, funcIsSelected)        
+            self.pathOfMedia = pathOfMedia
+            self.sizeRate = sizeRate
+            self.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Bold))
 
-    def __init__(self, text, funcIsSelected, pathOfMedia):
-        super().__init__(text, funcIsSelected)        
-        self.pathOfMedia = pathOfMedia
-
-    def toDoOnClick(self):
+        def toDoOnClick(self):
         
-        if platform.system() == 'Darwin':                   # macOS
-            subprocess.call(('open', self.pathOfMedia))
-        elif platform.system() == 'Windows':                # Windows
-            os.startfile(filepath)
-        elif platform.system() == 'Linux':                  # Linux:
-            subprocess.call(('xdg-open', self.pathOfMedia))
-        else:                                               # linux 
-            subprocess.call(('xdg-open', self.pathOfMedia))
+            if platform.system() == 'Darwin':                   # macOS
+                subprocess.call(('open', self.pathOfMedia))
+            elif platform.system() == 'Windows':                # Windows
+                os.startfile(filepath)
+            elif platform.system() == 'Linux':                  # Linux:
+                subprocess.call(('xdg-open', self.pathOfMedia))
+            else:                                               # linux 
+                subprocess.call(('xdg-open', self.pathOfMedia))
+
+        def enterEvent(self, event):
+            super().enterEvent(event)
+            font = self.font()
+            font.setUnderline(True)
+            self.setFont(font)
+
+            self.origPalette = self.palette()
+            palette = QPalette()
+            palette.setColor(QPalette.Foreground,Qt.blue)
+            
+            self.setPalette(palette)
+            
+            
+        def leaveEvent(self, event):
+            super().leaveEvent(event)
+            font = self.font()
+            font.setUnderline(False)
+            self.setFont(font)
+            
+            self.setPalette(self.origPalette)
+
+
 
     

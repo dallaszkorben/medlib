@@ -172,16 +172,16 @@ class MediaCollector(MediaBase):
         return row
 
     def getQLabelToKeepImage(self):
-        return QLabelWithLinkToNextLevel(self.isSelected())
+        return MediaCollector.QLabelWithLinkToNextLevel(self.isSelected())
 
 
-class QLabelWithLinkToNextLevel( QLabelToLinkOnClick ):
+    class QLabelWithLinkToNextLevel( QLabelToLinkOnClick ):
 
-    def __init__(self, funcIsSelected, pathOfMedia):
-        super().__init__(None, funcIsSelected)
-        self.pathOfMedia = pathOfMedia
+        def __init__(self, funcIsSelected, pathOfMedia):
+            super().__init__(None, funcIsSelected)
+            self.pathOfMedia = pathOfMedia
 
-    def toDoOnClick(self):        
-        pass
+        def toDoOnClick(self):        
+            pass
 
         
