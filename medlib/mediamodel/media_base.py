@@ -172,7 +172,7 @@ class MediaBase(object):
         # margin around the widget
         image_layout.setContentsMargins(0, 0, 0, 0)
         
-        widget = BackgroundQLabelOfImage(self)
+        widget = self.getQLabelToKeepImage()
         widget.setStyleSheet('background: black')
         widget.setAlignment(Qt.AlignCenter)
         widget.setLayout(image_layout)
@@ -807,6 +807,9 @@ class MediaBase(object):
     
     def getMediaAppendixList(self):
         return self.mediaAppendixList
+
+    def getQLabelToKeepImage(self):
+        raise NotImplementedError
     
     # TODO    
     def isSelected(self):
@@ -816,54 +819,5 @@ class MediaBase(object):
             Practically it means that the media is a Card, and the Card is in the foreground
         """
         return True   
-
-    def getBackgroundQLabelOfImage(self):
-        raise NotImplementedError
-
-    def doOnClickImage(self):
-        raise NotImplementedError
     
-class BackgroundQLabelOfImage(QLabel):
-
-    def __init__(self, media):
-        super().__init__()
-        self.media = media
-        self.mouse_pressed_for_click = False
     
-    def enterEvent(self, event):
-        self.update()
-        QApplication.setOverrideCursor(Qt.PointingHandCursor)
-        self.setStyleSheet('background: gray')
-        event.ignore()
-        
-    def leaveEvent(self, event):
-        self.update()
-        QApplication.restoreOverrideCursor()
-        self.setStyleSheet('background:black')
-        event.ignore()
-        
-    def mousePressEvent(self, event):
-        if event.buttons() == Qt.LeftButton and self.media.isSelected():
-            self.mouse_pressed_for_click = True
-            event.accept()
-        else:
-            event.ignore()
-            
-    def mouseMoveEvent(self, event):
-        if event.buttons() == Qt.LeftButton:
-            self.mouse_pressed_for_click = False
-            event.accept()
-        else:
-            event.ignore()
-            
-    def mouseReleaseEvent(self, event):
-        if event.button() != Qt.LeftButton or not self.mouse_pressed_for_click:
-            self.mouse_pressed_for_click = False
-            event.ignore()
-            return 
-        
-        self.mouse_already_pressed = False
-        
-        self.media.doOnClickImage()
-        
-        event.accept()    

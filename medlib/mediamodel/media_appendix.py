@@ -1,5 +1,7 @@
 import locale
 import os
+import subprocess
+import platform
 
 from medlib.constants import *
 from medlib.handle_property import _
@@ -17,6 +19,8 @@ from PyQt5.QtCore import Qt
 from medlib.mediamodel.ini_titles import IniTitles
 
 from medlib.mediamodel.paths_appendix import PathsAppendix
+
+from medlib.mediamodel.qlabel_to_link_on_cllick import QLabelToLinkOnClick
 
 class MediaAppendix(object):
 
@@ -53,7 +57,7 @@ class MediaAppendix(object):
             #
             # Title
             #
-            titleWidget = QLabel(parent.titles.getTranslatedTitle())
+            titleWidget = QLabelWithLinkToAppendixMedia(parent.titles.getTranslatedTitle(), True, )
             titleWidget.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Bold))
 
             layout.addWidget(titleWidget)
@@ -76,20 +80,20 @@ class MediaAppendix(object):
         """
         return locale.strxfrm(arg.getTranslatedTitle()) if arg.control.getOrderBy() == 'title' else arg.container_paths.getNameOfFolder() if arg.control.getOrderBy() == 'folder' else arg.container_paths.getNameOfFolder() 
     
-    def __init__(self, paths_storage, titles):
+    def __init__(self, pathsAppendix, titles):
         """
         This is the constructor of the MediaAppendix
         ________________________________________
         input:
-                paths_storage     PathsAppendix     paths to the media content (card.ini, image.jpg, media)
-                titles            IniTitles         represents the [titles] section
+                pathsAppendix    PathsAppendix     paths to the media content (card.ini, image.jpg, media)
+                titles           IniTitles         represents the [titles] section
         """
         super().__init__()
         
-        assert issubclass(paths_storage.__class__, PathsAppendix), paths_storage.__class__
+        assert issubclass(pathsAppendix.__class__, PathsAppendix), pathsAppendix.__class__
         assert issubclass(titles.__class__, IniTitles), titles.__class__
         
-        self.paths_storage = paths_storage
+        self.pathsAppendix = pathsAppendix
         self.titles = titles
 
     def getTitles(self):
@@ -110,9 +114,32 @@ class MediaAppendix(object):
             | Icon | Title                            |
             |______|__________________________________|
         """
-        widget = MediaAppendix.LinkWidget(self, sizeRate)
+        #widget = MediaAppendix.LinkWidget(self, sizeRate)
+        widget = QLabelWithLinkToAppendixMedia(self.titles.getTranslatedTitle(), self.isSelected, self.getPathOfMedia())
         return widget
+    
+    def getPathOfMedia(self):
+        return self.pathsAppendix.getPathOfMedia()
+    
+    def isSelected(self):
+        return True
 
 
+class QLabelWithLinkToAppendixMedia( QLabelToLinkOnClick ):
+
+    def __init__(self, text, funcIsSelected, pathOfMedia):
+        super().__init__(text, funcIsSelected)        
+        self.pathOfMedia = pathOfMedia
+
+    def toDoOnClick(self):
+        
+        if platform.system() == 'Darwin':                   # macOS
+            subprocess.call(('open', self.pathOfMedia))
+        elif platform.system() == 'Windows':                # Windows
+            os.startfile(filepath)
+        elif platform.system() == 'Linux':                  # Linux:
+            subprocess.call(('xdg-open', self.pathOfMedia))
+        else:                                               # linux 
+            subprocess.call(('xdg-open', self.pathOfMedia))
 
     

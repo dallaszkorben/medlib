@@ -17,6 +17,7 @@ from PyQt5.QtWidgets import QPlainTextEdit
 from PyQt5.QtGui import QTextCursor
 from PyQt5.QtGui import QFont
 from PyQt5.uic.Compiler.qtproxies import QtWidgets
+from medlib.mediamodel.qlabel_to_link_on_cllick import QLabelToLinkOnClick
 
 
 class MediaStorage(MediaBase):
@@ -30,7 +31,7 @@ class MediaStorage(MediaBase):
         This is the constructor of the MediaStorage
         ___________________________________________
         input:
-                pathsStorage    PathsStorage      paths to the media content (card.ini, image.jpg, media)
+                pathsAppendix    PathsStorage      paths to the media content (card.ini, image.jpg, media)
 
                 titles          IniTitles         represents the [titles] section
                 control         IniControl        represents the [control] section
@@ -41,17 +42,17 @@ class MediaStorage(MediaBase):
         
         assert issubclass(pathsStorage.__class__, PathsStorage)
         
-        self.pathsStorage = pathsStorage
+        self.pathsAppendix = pathsStorage
         self.media_appendix_list = []
 
     def getNameOfFolder(self):
-        return self.pathsStorage.getNameOfFolder()
+        return self.pathsAppendix.getNameOfFolder()
     
     def getPathOfImage(self):
-        return self.pathsStorage.getPathOfImage()
+        return self.pathsAppendix.getPathOfImage()
 
     def getPathOfMedia(self):
-        return self.pathsStorage.getPathOfMedia()
+        return self.pathsAppendix.getPathOfMedia()
 
     def getBackgroundColor(self):
         return STORAGE_BACKGROUND_COLOR
@@ -113,15 +114,25 @@ class MediaStorage(MediaBase):
             
         return row   
 
-    def doOnClickImage(self):
-        
-        if platform.system() == 'Darwin':           # macOS
-            subprocess.call(('open', self.getPathOfMedia()))
-        elif platform.system() == 'Windows':        # Windows
-            os.startfile(filepath)
-        elif platform.system() == 'Linux':          # Linux:
-            subprocess.call(('xdg-open', self.getPathOfMedia()))
-        else:                                       # linux 
-            subprocess.call(('xdg-open', self.getPathOfMedia()))
+    def getQLabelToKeepImage(self):
+        return QLabelWithLinkToMedia(self.isSelected, self.getPathOfMedia())
 
+
+class QLabelWithLinkToMedia( QLabelToLinkOnClick ):
+
+    def __init__(self, funcIsSelected, pathOfMedia):
+        super().__init__(None, funcIsSelected)
+        self.pathOfMedia = pathOfMedia
+
+    def toDoOnClick(self):
+        
+        if platform.system() == 'Darwin':                   # macOS
+            subprocess.call(('open', self.pathOfMedia))
+        elif platform.system() == 'Windows':                # Windows
+            os.startfile(filepath)
+        elif platform.system() == 'Linux':                  # Linux:
+            subprocess.call(('xdg-open', self.pathOfMedia))
+        else:                                               # linux 
+            subprocess.call(('xdg-open', self.pathOfMedia))
+        
         

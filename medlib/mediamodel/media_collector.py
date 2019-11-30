@@ -10,6 +10,8 @@ from PyQt5.QtCore import Qt
 
 from medlib.mediamodel.extra import QHLine
 
+from medlib.mediamodel.qlabel_to_link_on_cllick import QLabelToLinkOnClick
+
 class MediaCollector(MediaBase):
     """
     This object represents the MediaCollector
@@ -169,11 +171,17 @@ class MediaCollector(MediaBase):
             
         return row
 
-#    def getBackgroundQLabelOfImage(self):
-#        widget = BackgroundQLabelOfImage(self)
-#        return widget
-   
-    def doOnClickImage(self):
+    def getQLabelToKeepImage(self):
+        return QLabelWithLinkToNextLevel(self.isSelected())
+
+
+class QLabelWithLinkToNextLevel( QLabelToLinkOnClick ):
+
+    def __init__(self, funcIsSelected, pathOfMedia):
+        super().__init__(None, funcIsSelected)
+        self.pathOfMedia = pathOfMedia
+
+    def toDoOnClick(self):        
         pass
-        
+
         
