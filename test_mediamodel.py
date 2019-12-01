@@ -30,15 +30,15 @@ class App(QWidget):
         self.initUI()
 
     def initUI(self):
-        layout = QHBoxLayout()
+        self.layout = QHBoxLayout()
         
-        layout.setContentsMargins(0, 0, 0, 0)
+        self.layout.setContentsMargins(0, 0, 0, 0)
         
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height) 
         self.setStyleSheet('background: white')
                 
-        self.setLayout(layout)        
+        self.setLayout(self.layout)        
         
         #global dic
         path_collector_A = PathsCollector('A_folder_name', "/path/to/ini", "/path/to/jpeg")
@@ -174,18 +174,19 @@ class App(QWidget):
         from medlib import input_output
         mainCollector = input_output.collectCardsFromFileSystem("/home/akoel/tmp/media") 
 
-        widget_list = mainCollector.getMediaCollectorList()     #Video
-        widget_list = widget_list[0].getMediaCollectorList()    #Movie
-        widget_list = widget_list[0].getMediaCollectorList()    #Films
-        widget_list = widget_list[0].getMediaStorageList()
-        widget = widget_list[0].getWidget(1)
+        media_list = mainCollector.getMediaCollectorList()     #Video
+#        media_list = media_list[0].getMediaCollectorList()    #Movie
+#        media_list = media_list[0].getMediaCollectorList()    #Films
+#        media_list = media_list[0].getMediaStorageList()
+        
+        mediaToShow = media_list[0]
+        mediaToShow.setNextLevelListener(self.goesDeeper)
+        self.widget = mediaToShow.getWidget(1)       
 
 
-        layout.addWidget(widget)
+        self.layout.addWidget(self.widget)
         self.show()
-
-
-
+      
 
         
 #        from medlib import handle_property 
@@ -193,7 +194,24 @@ class App(QWidget):
 #        par = ci.getMediaPlayerWithParameters('text', 'epub')
 #        print(par)
 
-
+    def goesDeeper(self, mediaCollector):
+        
+        mcl = mediaCollector.getMediaCollectorList()
+        msl = mediaCollector.getMediaStorageList()
+        
+        if mcl:
+            self.layout.removeWidget(self.widget);
+            mts = mcl[0]
+            mts.setNextLevelListener(self.goesDeeper)
+            self.widget = mts.getWidget(1)
+            self.layout.addWidget(self.widget)
+        elif msl:
+            self.layout.removeWidget(self.widget);
+            msl = msl[0]
+            self.widget = msl.getWidget(1)
+            self.layout.addWidget(self.widget)
+            
+        
         
 #    collector_A.setLanguage("hu")
 

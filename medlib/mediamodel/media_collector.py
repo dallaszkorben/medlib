@@ -39,6 +39,8 @@ class MediaCollector(MediaBase):
         self.pathsCollector = pathsCollector
         self.media_collector_list = []
         self.media_storage_list = []
+        
+        self.nextLevelListener = None
   
     def getNameOfFolder(self):
         return self.pathsCollector.getNameOfFolder()
@@ -171,17 +173,34 @@ class MediaCollector(MediaBase):
             
         return row
 
+    def setNextLevelListener(self, nextLevelListener):
+        """
+            Fron outside, it is needed to provide a METHOD as the nextLevelListener parameter, 
+            which will handle the selection of the actual MediaCollector - goes one level deeper 
+            ________________________________________
+            input:
+                    nextLevelListener    Function    handles the selection of this mediaCollector
+
+        """
+        self.nextLevelListener = nextLevelListener
+        
     def getQLabelToKeepImage(self):
-        return MediaCollector.QLabelWithLinkToNextLevel(self.isSelected())
+        """
+            Gives back a class extending QLabel which will keep the image.
+            This class has to implement the 'toDoOnClick' method which
+            handles the selection of this MediaCollector
+        """
+        return MediaCollector.QLabelWithLinkToNextLevel(self)
 
 
     class QLabelWithLinkToNextLevel( QLabelToLinkOnClick ):
 
-        def __init__(self, funcIsSelected, pathOfMedia):
-            super().__init__(None, funcIsSelected)
-            self.pathOfMedia = pathOfMedia
+        def __init__(self, collector):
+            super().__init__(None, collector.isSelected)
+            self.collector = collector
 
-        def toDoOnClick(self):        
-            pass
+        def toDoOnClick(self):                 
+            if self.collector.nextLevelListener is not None:
+                self.collector.nextLevelListener(self.collector)
 
         
