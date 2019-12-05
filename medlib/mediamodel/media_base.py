@@ -16,6 +16,8 @@ from medlib.mediamodel.media_appendix import MediaAppendix
 
 from medlib.mediamodel.extra import QHLine, FlowLayout
 
+from medlib.mediamodel.qlabel_to_link_on_cllick import QLabelToLinkOnClick
+
 from PyQt5.QtWidgets import QGridLayout, QSpinBox
 from PyQt5.QtWidgets import QHBoxLayout, QVBoxLayout
 from PyQt5.QtWidgets import QLabel
@@ -26,7 +28,7 @@ from PyQt5.QtWidgets import QApplication
 from PyQt5.QtWidgets import QPushButton
 
 from PyQt5.QtGui import QColor
-from PyQt5.QtGui import QFont
+from PyQt5.QtGui import QFont, QPalette
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtGui import QTextCursor
 from PyQt5.QtGui import QCursor
@@ -70,6 +72,19 @@ class MediaBase(object):
         self.control = control
         self.general = general if general else IniGeneral()
         self.rating = rating if rating else IniRating()
+        
+        self.searchFunction = None
+
+    def setSearchFunction(self, searchFunction ):
+        """
+            searchFunction( forWho, byWhat )    - A search function when you click on a link on the card.
+                                                  For example on a Director or Actor ...
+                                                  It has two parameters:
+                                                  -forWho is the text you clicked on
+                                                  -byWhat is the title_id of the group. for example for the
+                                                   directors: title_director or actors: title_actor ...
+        """
+        self.searchFunction = searchFunction
 
     def getParentCollector(self):
         return self.parentCollector
@@ -566,7 +581,7 @@ class MediaBase(object):
             for d in value:
                 if not first:
                     layout.addWidget( QLabel(", ") )
-                label = QLabel(d)
+                label = MediaBase.QLabelWithLinkToSearch(self.isSelected, d, title_id, sizeRate)
                 layout.addWidget(label)
                 first = False
 
@@ -575,6 +590,41 @@ class MediaBase(object):
             row = row + 1
             
         return row   
+
+    class QLabelWithLinkToSearch( QLabelToLinkOnClick ):
+
+        def __init__(self, funcIsSelected, text, title_id, sizeRate):
+            super().__init__(text, funcIsSelected)
+            self.text = text
+            self.title_id = title_id
+            self.sizeRate = sizeRate
+            self.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Normal))
+
+        def toDoOnClick(self):
+            if self.searchFunction is not None:
+                self.searchFunction( self.text, self.title_id)
+            print("Search for " + self.text + " by " + self.title_id)
+            
+        def enterEvent(self, event):
+            super().enterEvent(event)
+            font = self.font()
+            font.setUnderline(True)
+            self.setFont(font)
+
+            self.origPalette = self.palette()
+            palette = QPalette()
+            palette.setColor(QPalette.Foreground,Qt.blue)
+            
+            self.setPalette(palette)            
+            
+        def leaveEvent(self, event):
+            super().leaveEvent(event)
+            font = self.font()
+            font.setUnderline(False)
+            self.setFont(font)
+            
+            self.setPalette(self.origPalette)           
+   
 
     # ###########################
     # String List - Genre/Theme #
