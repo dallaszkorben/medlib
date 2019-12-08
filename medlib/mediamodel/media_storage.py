@@ -31,7 +31,7 @@ class MediaStorage(MediaBase):
         This is the constructor of the MediaStorage
         ___________________________________________
         input:
-                pathsAppendix    PathsStorage      paths to the media content (card.ini, image.jpg, media)
+                pathsStorage    PathsStorage      paths to the media content (card.ini, image.jpg, media)
 
                 titles          IniTitles         represents the [titles] section
                 control         IniControl        represents the [control] section
@@ -42,17 +42,17 @@ class MediaStorage(MediaBase):
         
         assert issubclass(pathsStorage.__class__, PathsStorage)
         
-        self.pathsAppendix = pathsStorage
+        self.pathsStorage = pathsStorage
         self.media_appendix_list = []
 
     def getNameOfFolder(self):
-        return self.pathsAppendix.getNameOfFolder()
+        return self.pathsStorage.getNameOfFolder()
     
     def getPathOfImage(self):
-        return self.pathsAppendix.getPathOfImage()
+        return self.pathsStorage.getPathOfImage()
 
     def getPathOfMedia(self):
-        return self.pathsAppendix.getPathOfMedia()
+        return self.pathsStorage.getPathOfMedia()
 
     def getBackgroundColor(self):
         return STORAGE_BACKGROUND_COLOR
@@ -117,7 +117,9 @@ class MediaStorage(MediaBase):
     def getQLabelToKeepImage(self):
         return MediaStorage.QLabelWithLinkToMedia(self.isSelected, self.getPathOfMedia())
 
-
+    def setNextLevelListener(self, nextLevelListener):
+        pass
+    
     class QLabelWithLinkToMedia( QLabelToLinkOnClick ):
 
         def __init__(self, funcIsSelected, pathOfMedia):
@@ -135,4 +137,11 @@ class MediaStorage(MediaBase):
             else:                                               # linux 
                 subprocess.call(('xdg-open', self.pathOfMedia))
         
+    def getJson(self):
+        json = super().getJson();
+        
+        json['paths-storage'] = self.pathsStorage.getJson()
+                
+        return json
+
         

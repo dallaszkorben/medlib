@@ -97,11 +97,11 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
             con_media = ""
         
         try:
-            con_category = parser.get("control", "category")
+            con_category = parser.get("control", "category")            
             con_category = con_category if con_category in CardIni.getCategoryListByMedia(con_media) else ""
         except (configparser.NoSectionError, configparser.NoOptionError):
             con_category = ""
-        
+                    
         control = IniControl(con_orderby, con_media, con_category) 
  
         for file_name in file_list:
@@ -115,16 +115,19 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
         try:
             titles_dict=dict(parser.items("titles"))
         except (configparser.NoSectionError, configparser.NoOptionError):
-            titles_dict={"title_orig": ""}       
+#            titles_dict={"title_orig": ""}       
+            titles_dict={"orig": ""}            
         
         try:
-            title_orig=parser.get("titles", "title_orig")
+#            title_orig=parser.get("titles", "title_orig")
+            title_orig=parser.get("titles", "orig")
         except (configparser.NoSectionError, configparser.NoOptionError):
             title_orig=""        
         
         titles_lang_dict = {}
         for key, value in titles_dict.items():
-            hit = re.compile( '^title_(.{2})$' ).match(key)
+#            hit = re.compile( '^title_(.{2})$' ).match(key)
+            hit = re.compile( '^(.{2})$' ).match(key)
             if hit is not None:
                 titles_lang_dict[hit.group(1)] = value
             
@@ -140,10 +143,12 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
             storyline_lang_dict = {}
             storyline_orig=""            
             for key, value in storyline_dict.items():
-                hit_lang = re.compile( '^storyline_(.{2})$' ).match(key)                
+#                hit_lang = re.compile( '^storyline_(.{2})$' ).match(key)                
+                hit_lang = re.compile( '^(.{2})$' ).match(key)                
                 if hit_lang is not None:
                     storyline_lang_dict[hit_lang.group(1)] = value
-                elif key == "storyline_orig":
+#                elif key == "storyline_orig":
+                elif key == "orig":
                     storyline_orig = value
                     
             storyline = IniStorylines(storyline_orig, storyline_lang_dict)
@@ -160,10 +165,11 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
             topic_lang_dict = {}
             topic_orig=""            
             for key, value in topic_dict.items():
-                hit_lang = re.compile( '^topic_(.{2})$' ).match(key)
+#                hit_lang = re.compile( '^topic_(.{2})$' ).match(key)
+                hit_lang = re.compile( '^(.{2})$' ).match(key)                
                 if hit_lang is not None:
                     topic_lang_dict[hit_lang.group(1)] = value
-                elif key == "topic_orig":
+                elif key == "orig":
                     topic_orig = value
             
             topic = IniStorylines(topic_orig, topic_lang_dict)
@@ -180,10 +186,11 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
             lyrics_lang_dict = {}
             lyrics_orig = ""            
             for key, value in lyrics_dict.items():
-                hit_lang = re.compile( '^lyrics_(.{2})$' ).match(key)                
+#                hit_lang = re.compile( '^lyrics_(.{2})$' ).match(key)                
+                hit_lang = re.compile( '^(.{2})$' ).match(key)                
                 if hit_lang is not None:
                     lyrics_lang_dict[hit_lang.group(1)] = value
-                elif key == "lyrics_orig":
+                elif key == "orig":
                     lyrics_orig = value
             
             lyrics = IniStorylines(lyrics_orig, lyrics_lang_dict)
@@ -199,6 +206,7 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
             else:
                 general_dict=None       
         
+        general = None
         if general_dict is not None:
             general = IniGeneral()    
             for key, value in general_dict.items():
@@ -360,6 +368,13 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
                    
             rating = IniRating(rat_rate, rat_favorite, rat_new) 
 
+        # --- MEDIA --- #
+        try:
+            media_path = parser.get("media", "link")
+        except (configparser.NoSectionError, configparser.NoOptionError):
+            pass
+
+
         # -------------------- MediaCollector/MediaStorage/MediaAppendix construction ------------
         #                                                    V
         #  ┌────────────────┐                         ┌────────────────┐
@@ -416,19 +431,18 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
         #
         # If MediaAppendix - MediaStorage
         #
-        #elif card_path and media_path and con_category == 'appendix' and issubclass(parentMediaCollector.__class__, MediaStorage):
-        elif card_path and media_path and issubclass(parentMediaCollector.__class__, MediaStorage):
+        elif card_path and media_path and issubclass(parentMediaCollector.__class__, MediaStorage) and con_category == 'appendix':
             pathAppendix = PathsAppendix(os.path.dirname(card_path), card_path, image_path, media_path)
             nextParent = MediaAppendix(pathAppendix, titles)
             parentMediaCollector.addMediaAppendix(nextParent)
-            
-    # ####################################
-    #
-    # Go through all SUB-FOLDERS in the 
-    # folder and collect the files which 
-    # matters
-    #
-    # ####################################    
+
+    # ################################## #
+    #                                    #
+    # Go through all SUB-FOLDERS in the  #
+    # folder and collect the files which #
+    # matters                            #
+    #                                    #
+    # ################################## #    
     for name in dir_list:
         subfolder_path_os = os.path.join(actualDir, name)
         collectCardsFromFileSystem( subfolder_path_os, nextParent )        

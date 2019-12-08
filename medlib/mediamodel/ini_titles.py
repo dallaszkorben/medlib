@@ -31,3 +31,10 @@ class IniTitles(object):
             title=self.getOrigTitle()
         return title
     
+    def getJson(self):
+        json = {}
+        json.update({} if self.orig_title is None or not self.orig_title else {"orig": self.orig_title})
+        
+        json.update({key: value for key, value in self.title_list_by_language.items()})
+       
+        return json

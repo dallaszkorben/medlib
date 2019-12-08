@@ -31,3 +31,10 @@ class IniStorylines(object):
             storyline=self.getOrigStoryline()
         return storyline
     
+    def getJson(self):
+        json = {}
+        json.update({} if self.orig_storyline is None or not self.orig_storyline else {"orig": self.orig_storyline})        
+        json.update({key: value for key, value in self.storyline_list_by_language.items()})
+        
+        return json
+    

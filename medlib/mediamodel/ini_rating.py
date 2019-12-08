@@ -36,3 +36,11 @@ class IniRating(object):
 
     def setNew(self, new):
         self.new = new
+        
+    def getJson(self):        
+        json = {}
+        json.update({} if self.rate is None else {'rate': self.rate})
+        json.update({} if self.favorite is None else {'favorite' : "y" if self.favorite else "n"})
+        json.update({} if self.new is None else {'new': "y" if self.new else "n"})
+        
+        return json

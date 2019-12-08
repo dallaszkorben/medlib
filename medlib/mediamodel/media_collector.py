@@ -175,7 +175,7 @@ class MediaCollector(MediaBase):
 
     def setNextLevelListener(self, nextLevelListener):
         """
-            Fron outside, it is needed to provide a METHOD as the nextLevelListener parameter, 
+            From outside, it is needed to provide a METHOD as the nextLevelListener parameter, 
             which will handle the selection of the actual MediaCollector - goes one level deeper 
             ________________________________________
             input:
@@ -203,4 +203,12 @@ class MediaCollector(MediaBase):
             if self.collector.nextLevelListener is not None:
                 self.collector.nextLevelListener(self.collector)
 
+    def getJson(self):
+        json = super().getJson();
+        
+        json['paths-collector'] = self.getPathsCollector().getJson()
+                
+        json['collectors'] = [c.getJson() for c in self.media_collector_list]
+        json['storages'] = [c.getJson() for c in self.media_storage_list]
+        return json
         

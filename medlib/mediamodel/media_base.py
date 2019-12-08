@@ -302,7 +302,7 @@ class MediaBase(object):
         #
         # Icon
         #
-        iconFileName = TITLE_ICON_PREFIX + "-" + self.getFolderType() + "-" + self.control.getMedia() + "-" + self.control.getCategory() + "." + TITLE_ICON_EXTENSION
+        iconFileName = TITLE_ICON_PREFIX + "-" + self.getFolderType() + ( "-" + self.control.getMedia() if self.control.getMedia() else "" ) + ( "-" + self.control.getCategory() if self.control.getCategory() else "" ) + "." + TITLE_ICON_EXTENSION
         pathToFile = resource_filename(__name__, os.path.join(TITLE_ICON_FOLDER, iconFileName))       
         pixmap = QPixmap( pathToFile )
 
@@ -509,41 +509,42 @@ class MediaBase(object):
  
         # ---
         # --- DIRECTORS ---
-        row = self.addWidgetGeneralInfoLinkList(sizeRate, grid_layout, row, 'title_director', self.general.getDirectors)
+        row = self.addNameListToQLinkLabel(sizeRate, grid_layout, row, 'title_director', self.general.getDirectors)
 
         # --- MAKER ---       
-        row = self.addWidgetGeneralInfoLinkList(sizeRate, grid_layout, row, 'title_maker', self.general.getMakers)
+        row = self.addNameListToQLinkLabel(sizeRate, grid_layout, row, 'title_maker', self.general.getMakers)
 
         # ---
         # --- WRITERS ---
-        row = self.addWidgetGeneralInfoLinkList(sizeRate, grid_layout, row, 'title_writer', self.general.getWriters)
+        row = self.addNameListToQLinkLabel(sizeRate, grid_layout, row, 'title_writer', self.general.getWriters)
 
         # --- AUTHORS ---
-        row = self.addWidgetGeneralInfoLinkList(sizeRate, grid_layout, row, 'title_author', self.general.getAuthors)
+        row = self.addNameListToQLinkLabel(sizeRate, grid_layout, row, 'title_author', self.general.getAuthors)
 
         # ---
         # --- ACTORS ---       
-        row = self.addWidgetGeneralInfoLinkList(sizeRate, grid_layout, row, 'title_actor', self.general.getActors)
+        row = self.addNameListToQLinkLabel(sizeRate, grid_layout, row, 'title_actor', self.general.getActors)
 
         # --- PERFORMER ---       
-        row = self.addWidgetGeneralInfoLinkList(sizeRate, grid_layout, row, 'title_performer', self.general.getPerformers)
+        row = self.addNameListToQLinkLabel(sizeRate, grid_layout, row, 'title_performer', self.general.getPerformers)
 
         # --- LECTURER ---       
-        row = self.addWidgetGeneralInfoLinkList(sizeRate, grid_layout, row, 'title_lecturer', self.general.getLecturers)
+        row = self.addNameListToQLinkLabel(sizeRate, grid_layout, row, 'title_lecturer', self.general.getLecturers)
 
         # --- CONTRIBUTOR ---       
-        row = self.addWidgetGeneralInfoLinkList(sizeRate, grid_layout, row, 'title_contributor', self.general.getContributors)
+        row = self.addNameListToQLinkLabel(sizeRate, grid_layout, row, 'title_contributor', self.general.getContributors)
 
         # --- VOICE ---       
-        row = self.addWidgetGeneralInfoLinkList(sizeRate, grid_layout, row, 'title_voice', self.general.getVoices)
+        row = self.addNameListToQLinkLabel(sizeRate, grid_layout, row, 'title_voice', self.general.getVoices)
 
         # ---
         # --- GEMRE ---       
-        row = self.addWidgetGeneralInfoStringList(sizeRate, grid_layout, row, 'title_genre', self.getTranslatedGenreList)
+        row = self.addTranslatedListToQLinkLabel(sizeRate, grid_layout, row, 'title_genre', self.getTranslatedGenreList())
+#        row = self.addTranslatedListToQLinkLabel(sizeRate, grid_layout, row, 'title_genre', self.general.getGenres)
 
         # ---
         # --- THEME ---       
-        row = self.addWidgetGeneralInfoStringList(sizeRate, grid_layout, row, 'title_theme', self.getTranslatedThemeList)
+        row = self.addTranslatedListToQLinkLabel(sizeRate, grid_layout, row, 'title_theme', self.getTranslatedThemeList())
         
         # ---
         # --- STORILINES ---
@@ -560,7 +561,7 @@ class MediaBase(object):
     # #####################################################################################
     # Link List - Director/Maker/Writer/Author/Actor/Performer/Lecturer/Contributor/Voice #
     # #####################################################################################
-    def addWidgetGeneralInfoLinkList(self, sizeRate, grid_layout, row, title_id, value_method):
+    def addNameListToQLinkLabel(self, sizeRate, grid_layout, row, title_id, value_method):
         value = value_method()
 
         if value:
@@ -581,7 +582,7 @@ class MediaBase(object):
             for d in value:
                 if not first:
                     layout.addWidget( QLabel(", ") )
-                label = MediaBase.QLabelWithLinkToSearch(self.isSelected, d, title_id, sizeRate)
+                label = MediaBase.QLinkLabelToSearch(self, d, d, title_id, sizeRate)
                 layout.addWidget(label)
                 first = False
 
@@ -591,19 +592,51 @@ class MediaBase(object):
             
         return row   
 
-    class QLabelWithLinkToSearch( QLabelToLinkOnClick ):
+    # ###########################
+    # String List - Genre/Theme #
+    # ###########################
+    def addTranslatedListToQLinkLabel(self, sizeRate, grid_layout, row, title_id, element_list):
+       
+        if element_list:
+            widget_key = QLabel(_(title_id) + ":", )
+            widget_key.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Bold))
+        
+            layout_genres = QHBoxLayout()
+            layout_genres.setAlignment(Qt.AlignLeft)
+            layout_genres.setSpacing(1)        
+            layout_genres.setContentsMargins(0, 0, 0, 0)
 
-        def __init__(self, funcIsSelected, text, title_id, sizeRate):
-            super().__init__(text, funcIsSelected)
-            self.text = text
+            widget_value = QWidget()
+            widget_value.setLayout( layout_genres )
+            widget_value.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Normal))
+            first = True
+            for d, e in element_list:
+                if not first:
+                    layout_genres.addWidget( QLabel(", ") )
+                label = MediaBase.QLinkLabelToSearch(self, d, e, title_id, sizeRate)                
+                layout_genres.addWidget(label)
+                first = False
+        
+            grid_layout.addWidget(widget_key, row, 0)
+            grid_layout.addWidget(widget_value, row, 1)
+            row = row + 1
+            
+        return row
+     
+    class QLinkLabelToSearch( QLabelToLinkOnClick ):
+
+        def __init__(self, media, translatedText, rawText, title_id, sizeRate):
+            super().__init__(translatedText, media.isSelected)
+            self.media = media
+            self.rawText = rawText
             self.title_id = title_id
             self.sizeRate = sizeRate
             self.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Normal))
 
         def toDoOnClick(self):
-            if self.searchFunction is not None:
-                self.searchFunction( self.text, self.title_id)
-            print("Search for " + self.text + " by " + self.title_id)
+            if self.media.searchFunction is not None:
+                self.media.searchFunction( self.rawText, self.title_id)
+            print("Search for " + self.rawText + " by " + self.title_id)
             
         def enterEvent(self, event):
             super().enterEvent(event)
@@ -624,40 +657,7 @@ class MediaBase(object):
             self.setFont(font)
             
             self.setPalette(self.origPalette)           
-   
-
-    # ###########################
-    # String List - Genre/Theme #
-    # ###########################
-    def addWidgetGeneralInfoStringList(self, sizeRate, grid_layout, row, title_id, value_method):
-       
-        element_list = value_method()
-        
-        if element_list:
-            widget_key = QLabel(_(title_id) + ":", )
-            widget_key.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Bold))
-        
-            layout_genres = QHBoxLayout()
-            layout_genres.setAlignment(Qt.AlignLeft)
-            layout_genres.setSpacing(1)        
-            layout_genres.setContentsMargins(0, 0, 0, 0)
-
-            widget_value = QWidget()
-            widget_value.setLayout( layout_genres )
-            widget_value.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Normal))
-            first = True
-            for d in element_list:
-                if not first:
-                    layout_genres.addWidget( QLabel(", ") )
-                label = QLabel(d)
-                layout_genres.addWidget(label)
-                first = False
-        
-            grid_layout.addWidget(widget_key, row, 0)
-            grid_layout.addWidget(widget_value, row, 1)
-            row = row + 1
-            
-        return row
+     
      
     # #########
     # Storyline
@@ -861,6 +861,9 @@ class MediaBase(object):
     def getQLabelToKeepImage(self):
         raise NotImplementedError
     
+    def setNextLevelListener(self, nextLevelListener):
+        raise NotImplementedError
+    
     # TODO    
     def isSelected(self):
         """
@@ -868,6 +871,21 @@ class MediaBase(object):
             be controlled by mouse.
             Practically it means that the media is a Card, and the Card is in the foreground
         """
-        return True   
+        return True
+    
+    def getJson(self):
+        json = {}
+        
+        json.update({'titles': self.titles.getJson()} if self.titles.getJson() else {})
+        json.update({'general': self.general.getJson()} if self.general.getJson() else {})
+
+        json.update({'storyline': self.general.getStoryline().getJson()} if self.general.getStoryline().getJson() else {})
+        json.update({'topic': self.general.getTopic().getJson()} if self.general.getTopic().getJson() else {})
+        json.update({'lyrics': self.general.getLyrics().getJson()} if self.general.getLyrics().getJson() else {})
+
+        json.update({'rating': self.rating.getJson()} if self.rating.getJson() else {})
+        json.update({'control': self.control.getJson()} if self.control.getJson() else {})
+        
+        return json
     
     

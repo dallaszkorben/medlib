@@ -24,3 +24,13 @@ class PathsCollector(object):
     
     def getPathOfImage(self):
         return self.pathImage 
+
+    def getJson(self):
+        json = {}
+        
+        json['name-of-folder'] = self.getNameOfFolder()
+        json['path-of-card'] = self.getPathOfCard()
+        json['path-of-image'] = self.getPathOfImage()
+        
+        return json
+        

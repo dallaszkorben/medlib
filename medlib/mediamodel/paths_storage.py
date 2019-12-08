@@ -22,3 +22,10 @@ class PathsStorage(PathsCollector):
         return self.pathMedia
 
     
+    def getJson(self):
+        json = super().getJson()
+        
+        json['path-of-media'] = self.getPathOfMedia()
+        
+        return json
+    

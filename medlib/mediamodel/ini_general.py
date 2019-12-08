@@ -127,19 +127,25 @@ class IniGeneral(object):
 
     def setEpisode(self, episode):
         self.episode = episode
-        
-    def getTranslatedGenreList(self, category=None):
+   
+    # ---
+    
+    def getTranslatedGenreList(self, category, rawGenreList=None):
         """
         Returns back the Genres list in the respective language.
         _________________________________________________________________________________________________
         input:
-                category:    movie, music, show, presentation, alternative, miscellaneous, radioplay, audiobook 
+                category:    movie, music, show, presentation, alternative, miscellaneous, radioplay, audiobook
+        output:
+                [(translated, raw), (translated, raw), ... ]
         """
         pre = "genre" + ("_" + category if category is not None and category == "music" else "" ) + "_"
-        genres = [ _(pre+g) for g in self.getGenres() ]
+        genres = [ (_(pre+g), g) for g in self.getGenres() ]
         
         return genres
 
+    # ---
+    
     def getTranslatedThemeList(self, category=None):
         """
         Returns back the Theme list in the respective language.
@@ -147,10 +153,12 @@ class IniGeneral(object):
         input:
         """
         pre = "theme_"
-        themes = [ _(pre+t) for t in self.getThemes() ]
+        themes = [ (_(pre+t), t) for t in self.getThemes() ]
         
         return themes
 
+    # ---
+    
     def getTranslatedSoundStringList(self, category=None):
         """
         Returns back the Sounds list in the respective language.
@@ -224,4 +232,32 @@ class IniGeneral(object):
     def getEpisode(self):
         return self.episode
 
-    
+    def getJson(self):        
+        json = {}
+        json.update({} if self.year is None or not self.year else {'year': self.year})
+        json.update({} if self.length is None or not self.length else {'length': self.length})
+        
+        json.update({} if self.directors is None or not self.directors else {'director': self.directors})
+        json.update({} if self.makers is None or not self.makers else {'maker': self.makers})
+        json.update({} if self.writers is None or not self.writers else {'writer': self.writers})
+        json.update({} if self.authors is None or not self.authors else {'author': self.authors})
+        json.update({} if self.actors is None or not self.actors else {'actor': self.actors})
+        json.update({} if self.performers is None or not self.performers else {'performer': self.performers})
+        json.update({} if self.lecturer is None or not self.lecturer else {'lecturer': self.lecturer})
+        json.update({} if self.contributor is None or not self.contributor else {'contributor': self.contributor})
+        json.update({} if self.voice is None or not self.voice else {'voice': self.voice})
+        
+        json.update({} if self.sounds is None or not self.sounds else {'sound': self.sounds})
+        json.update({} if self.subs is None or not self.subs else {'sub': self.subs})
+        json.update({} if self.countries is None or not self.countries else {'country': self.countries})
+        
+        json.update({} if self.genres is None or not self.genres else {'genre': self.genres})
+        json.update({} if self.themes is None or not self.themes else {'theme': self.themes})
+        
+        json.update({} if self.series is None or not self.series else {'series': self.series})
+        json.update({} if self.episode is None or not self.episode else {'episode': self.episode})        
+        
+        return json
+        
+        
+        

@@ -184,6 +184,10 @@ class App(QWidget):
         self.widget = mediaToShow.getWidget(1)       
 
 
+        from pprint import pprint
+        print(mediaToShow.getJson())
+
+
         self.layout.addWidget(self.widget)
         self.show()
       

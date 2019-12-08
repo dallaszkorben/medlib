@@ -39,7 +39,7 @@ class MediaAppendix(object):
         This is the constructor of the MediaAppendix
         ________________________________________
         input:
-                pathsAppendix    PathsAppendix     paths to the media content (card.ini, image.jpg, media)
+                pathsStorage    PathsAppendix     paths to the media content (card.ini, image.jpg, media)
                 titles           IniTitles         represents the [titles] section
         """
         super().__init__()
@@ -47,7 +47,7 @@ class MediaAppendix(object):
         assert issubclass(pathsAppendix.__class__, PathsAppendix), pathsAppendix.__class__
         assert issubclass(titles.__class__, IniTitles), titles.__class__
         
-        self.pathsAppendix = pathsAppendix
+        self.pathsStorage = pathsAppendix
         self.titles = titles
 
     def getTitles(self):
@@ -69,16 +69,16 @@ class MediaAppendix(object):
             |______|__________________________________|
         """
         #widget = MediaAppendix.LinkWidget(self, sizeRate)
-        widget = MediaAppendix.QLabelWithLinkToAppendixMedia(self.titles.getTranslatedTitle(), self.isSelected, self.getPathOfMedia(), sizeRate)
+        widget = MediaAppendix.QLinkLabelToAppendixMedia(self.titles.getTranslatedTitle(), self.isSelected, self.getPathOfMedia(), sizeRate)
         return widget
     
     def getPathOfMedia(self):
-        return self.pathsAppendix.getPathOfMedia()
+        return self.pathsStorage.getPathOfMedia()
     
     def isSelected(self):
         return True
 
-    class QLabelWithLinkToAppendixMedia( QLabelToLinkOnClick ):
+    class QLinkLabelToAppendixMedia( QLabelToLinkOnClick ):
 
         def __init__(self, text, funcIsSelected, pathOfMedia, sizeRate):
             super().__init__(text, funcIsSelected)        
