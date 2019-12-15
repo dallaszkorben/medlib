@@ -39,15 +39,15 @@ class MediaAppendix(object):
         This is the constructor of the MediaAppendix
         ________________________________________
         input:
-                pathsStorage    PathsAppendix     paths to the media content (card.ini, image.jpg, media)
-                titles           IniTitles         represents the [titles] section
+                pathsAppendix   PathsAppendix     paths to the media content (card.ini, image.jpg, media)
+                titles          IniTitles         represents the [titles] section
         """
         super().__init__()
         
         assert issubclass(pathsAppendix.__class__, PathsAppendix), pathsAppendix.__class__
         assert issubclass(titles.__class__, IniTitles), titles.__class__
         
-        self.pathsStorage = pathsAppendix
+        self.pathsAppendix = pathsAppendix
         self.titles = titles
 
     def getTitles(self):
@@ -73,7 +73,7 @@ class MediaAppendix(object):
         return widget
     
     def getPathOfMedia(self):
-        return self.pathsStorage.getPathOfMedia()
+        return self.pathsAppendix.getPathOfMedia()
     
     def isSelected(self):
         return True
@@ -118,6 +118,13 @@ class MediaAppendix(object):
             
             self.setPalette(self.origPalette)
 
-
+    def getJson(self):
+        #json = super().getJson();
+        json = {}
+        
+        json.update({'titles': self.titles.getJson()} if self.titles.getJson() else {})
+        json['paths-appendix'] = self.pathsAppendix.getJson()
+        
+        return json
 
     

@@ -1,5 +1,6 @@
 import os
 import re
+import json
 import configparser
 
 from medlib.mediamodel.media_collector import MediaCollector
@@ -14,9 +15,11 @@ from medlib.mediamodel.ini_storylines import IniStorylines
 from medlib.mediamodel.ini_general import IniGeneral
 from medlib.mediamodel.ini_rating import IniRating
 
+from medlib.constants import PATH_FOLDER_CONFIG
 
 from medlib.card_ini import CardIni
 from medlib.handle_property import config_ini 
+from medlib.mediamodel import ini_general, ini_storylines
 
 def getPatternImage():
     return re.compile( '^image[.](jp(eg|g)|png)$' )
@@ -44,7 +47,7 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
     NoneType = type(None)
     assert issubclass(parentMediaCollector.__class__, (MediaCollector, MediaStorage, NoneType))
 
-    nextParent = parentMediaCollector
+    recentMedia = parentMediaCollector
         
     # Collect files and and dirs in the current directory
     file_list = [f for f in os.listdir(actualDir) if os.path.isfile(os.path.join(actualDir, f))] if os.path.exists(actualDir) else []
@@ -412,29 +415,29 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
         #      
         if card_path and not media_path and dir_list and issubclass(parentMediaCollector.__class__, (MediaCollector, NoneType)):
             pathCollector = PathsCollector(os.path.dirname(card_path), card_path, image_path)            
-            nextParent = MediaCollector(pathCollector, titles, control, general, rating)
+            recentMedia = MediaCollector(pathCollector, titles, control, general, rating)
             
             # If it has parent -> add it to parent, otherwise it will be the parent
             if parentMediaCollector:
-                parentMediaCollector.addMediaCollector(nextParent)
+                parentMediaCollector.addMediaCollector(recentMedia)
             else:
-                parentMediaCollector = nextParent
+                parentMediaCollector = recentMedia
 
         #
         # If MediaStorage - Under MediaCollector
         #
         elif card_path and media_path and issubclass(parentMediaCollector.__class__, MediaCollector):
             pathStorage = PathsStorage(os.path.dirname(card_path), card_path, image_path, media_path)            
-            nextParent = MediaStorage(pathStorage, titles, control, general, rating)
-            parentMediaCollector.addMediaStorage(nextParent)
+            recentMedia = MediaStorage(pathStorage, titles, control, general, rating)
+            parentMediaCollector.addMediaStorage(recentMedia)
             
         #
         # If MediaAppendix - MediaStorage
         #
         elif card_path and media_path and issubclass(parentMediaCollector.__class__, MediaStorage) and con_category == 'appendix':
             pathAppendix = PathsAppendix(os.path.dirname(card_path), card_path, image_path, media_path)
-            nextParent = MediaAppendix(pathAppendix, titles)
-            parentMediaCollector.addMediaAppendix(nextParent)
+            recentMedia = MediaAppendix(pathAppendix, titles)
+            parentMediaCollector.addMediaAppendix(recentMedia)
 
     # ################################## #
     #                                    #
@@ -445,13 +448,290 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
     # ################################## #    
     for name in dir_list:
         subfolder_path_os = os.path.join(actualDir, name)
-        collectCardsFromFileSystem( subfolder_path_os, nextParent )        
+        collectCardsFromFileSystem( subfolder_path_os, recentMedia )        
 
     # and finaly returns
     return parentMediaCollector
+  
+  
+def collectCardsFromJson(jsonForm, parentMediaCollector = None):
+    """
+        Recursively go through the jsonForm and fill up the MediaCollector
+        _________________________________________________________________
+        input:
+                jsonForm            media cards collected in json form to
+                                    make MediaCollector
+        output:
+                MediaCollector
+    """
+    NoneType = type(None)
+    assert issubclass(parentMediaCollector.__class__, (MediaCollector, MediaStorage, NoneType))
+
+    nextParent = parentMediaCollector
+    
+    # --- TITLE --- #
+    titles = jsonForm.get('titles')
+    ini_titles = None
+    if titles:        
+        titles_dict = {}
+        titles_orig = None
+        for key, value in titles.items():
+            hit = re.compile( '^(.{2})$' ).match(key)
+            if hit is not None:
+                titles_dict[key] = value
+            elif key == 'orig':
+                titles_orig = value
+        ini_titles =  IniTitles(titles_orig, titles_dict)
         
+    #--- STORYLINE --- #
+    storyline = jsonForm.get('storyline')
+    ini_storyline = None
+    if storyline:
+        storyline_dict = {}
+        storyline_orig = None
+        for key, value in storyline.items():
+            hit = re.compile( '^(.{2})$' ).match(key)                
+            if hit is not None:
+                storyline_dict[key] = value
+            elif key == 'orig':
+                storyline_orig = value
+        ini_storyline = IniStorylines(storyline_orig, storyline_dict)                
+                
+    #--- TOPIC --- #
+    topic = jsonForm.get('topic')
+    ini_topic = None
+    if topic:
+        topic_dict = {}
+        topic_orig = None
+        for key, value in topic.items():
+            hit = re.compile( '^(.{2})$' ).match(key)                
+            if hit is not None:
+                topic_dict[key] = value
+            elif key == 'orig':
+                topic_orig = value
+        ini_topic = IniStorylines(topic_orig, topic_dict)                
+            
+    #--- LYRICS --- #
+    lyrics = jsonForm.get('lyrics')
+    ini_lyrics = None
+    if lyrics:
+        lyrics_dict = {}
+        lyrics_orig = None
+        for key, value in lyrics.items():
+            hit = re.compile( '^(.{2})$' ).match(key)                
+            if hit is not None:
+                lyrics_dict[key] = value
+            elif key == 'orig':
+                lyrics_orig = value
+        ini_topic = IniStorylines(topic_orig, lyrics_dict)
+
+    ini_general = IniGeneral()            
+    if ini_lyrics or ini_storylines or ini_topic:
+        if ini_storyline:
+            ini_general.setStoryline(ini_storyline);
+        if ini_topic:
+            ini_general.setTopic(ini_topic)
+        if ini_lyrics:
+            ini_general.setLyrics(ini_lyrics)
+#    else:
+#        ini_general = None
         
+    #--- GENERAL --- #
+    general = jsonForm.get('general')
+    if general:
+        year = general.get('year')
+        length = general.get('length')
+        director = general.get('director')
+        maker = general.get('maker')
+        author = general.get('author')
+        actor = general.get('actor')
+        performer = general.get('performer')
+        lecturer = general.get('lecturer')
+        contributor = general.get('contributor')
+        voice = general.get('voice')
+        genre = general.get('genre')
+        theme = general.get('theme')
+        sub = general.get('sub')
+        sound = general.get('sound')
+        country = general.get('country')
+        series = general.get('series')
+        episode = general.get('episode')
+
+#        if year or length or director or maker or author or actor or performer or lecturer or contributor or voice or genre or theme or sub or sound or country or series or episode:
+#            ini_general = IniGeneral()
+            
+        if year:
+            ini_general.setYear(year)
+        if length:
+            ini_general.setLength(length)
+        if director:
+            ini_general.setDirectors(director)
+        if maker:
+            ini_general.setMakers(maker)
+        if author:
+            ini_general.setAuthors(author)
+        if actor:
+            ini_general.setActors(actor)
+        if performer:
+            ini_general.setPerformers(performer)
+        if lecturer:
+            ini_general.setLecturers(lecturer)
+        if contributor:
+            ini_general.setContributors(contributor)
+        if voice:
+            ini_general.setVoices(voice)
+        if genre:
+            ini_general.setGenres(genre)
+        if theme:
+            ini_general.setThemes(theme)
+        if sub:
+            ini_general.setSubs(sub)
+        if sound:
+            ini_general.setSounds(sound)
+        if country:
+            ini_general.setCountries(country)
+        if series:
+            ini_general.setSeries(series)
+        if episode:
+            ini_general.setEpisode(episode)
+
+    #--- RATING --- #
+    rating = jsonForm.get('rating')
+    ini_rating = None
+    if rating:
+
+        rat_rate = rating.get('rate')
+        rat_favorite = rating.get('favorite')
+        rat_new = rating.get('new')        
         
+        rat_rate = rat_rate if getPatternRate().match(str(rat_rate)) else 0            
+        rat_favorite = True if rat_favorite == 'y' else False        
+        rat_new = True if rat_new == 'y' else False      
+                   
+        ini_rating = IniRating(rat_rate, rat_favorite, rat_new) 
+
+    # --- CONTROL --- #
+    control = jsonForm.get('control')
+    ini_control = None
+    if control:
+        con_orderby = control.get('orderby')
+        con_media = control.get('media')
+        con_category = control.get('category')
+        ini_control = IniControl(con_orderby, con_media, con_category) 
+ 
+    # --- MEDIA --- #
+    
         
+    # --- MEDIA-COLLECTOR --- #        
+    path_collector = jsonForm.get('paths-collector')
+    
+    # --- MEDIA-STORAGE --- #        
+    path_storage = jsonForm.get('paths-storage')
+    
+    
+    #
+    # If MediaCollector - under MediaCollector or Root
+    #
+    if path_collector:
+        name_of_folder = path_collector.get('name-of-folder')
+        path_of_card = path_collector.get('path-of-card')
+        path_of_image = path_collector.get('path-of-image')
+        
+        ini_path_collector = PathsCollector(name_of_folder, path_of_card, path_of_image)
+        nextParent = MediaCollector(ini_path_collector, ini_titles, ini_control, ini_general, ini_rating)
+    
+        if parentMediaCollector:
+            parentMediaCollector.addMediaCollector(nextParent)
+        else:
+            parentMediaCollector = nextParent
+    #
+    # If MediaStorage - Under MediaCollector
+    #
+    elif path_storage:
+        name_of_folder = path_storage.get('name-of-folder')
+        path_of_card = path_storage.get('path-of-card')
+        path_of_image = path_storage.get('path-of-image')
+        path_of_media = path_storage.get('path-of-media')
+    
+        ini_path_storage = PathsStorage(name_of_folder, path_of_card, path_of_image, path_of_media)
+        nextParent = MediaStorage(ini_path_storage, ini_titles, ini_control, ini_general, ini_rating)
+        parentMediaCollector.addMediaStorage(nextParent)
+    #
+    # If MediaAppendix - MediaStorage
+    #
+    else:
+        ini_path_appendix = PathsAppendix(name_of_folder, path_of_card, path_of_image, path_of_media)
+        nextParent = MediaAppendix(ini_path_appendix, ini_titles)
+        parentMediaCollector.addMediaAppendix(nextParent)
+
+    # ################################## #
+    #                                    #
+    # Go through all SUB-FOLDERS in the  #
+    # folder and collect the files which #
+    # matters                            #
+    #                                    #
+    # ################################## #    
+    
+    # --- COLLECTORS --- #        
+    collectors_list = jsonForm.get('collectors')    
+    for childJson in collectors_list if collectors_list else {}:
+        collectCardsFromJson( childJson, nextParent )        
+ 
+    # --- STORAGES --- #        
+    storages_list = jsonForm.get('storages')
+    for childJson in storages_list if storages_list else {}:
+        collectCardsFromJson( childJson, nextParent )        
+
+    return parentMediaCollector
 
 
+
+
+
+
+# =====================
+#
+# Handle card.list.json
+#
+# =====================
+class CardListJson():
+    FILE_NAME = 'card.list.json'
+
+    __instance = None    
+
+    def __new__(cls):
+        if cls.__instance == None:
+            cls.__instance = super().__new__(cls)
+        return cls.__instance
+
+    @classmethod
+    def getInstance(cls):
+        inst = cls.__new__(cls)
+        cls.__init__(cls.__instance)
+        return inst
+        
+    def __init__(self):        
+        self.file = os.path.join(PATH_FOLDER_CONFIG, CardListJson.FILE_NAME)
+        
+    def write(self, jsonContent):
+        with open(self.file, 'w') as outfile:
+            json.dump(jsonContent, outfile)
+
+    def read(self):
+#        path=config_ini['media_path']
+                
+        content = self.inner_read()
+        return content
+#        if content['path'] == path:
+#            return content['cards']
+#        else:
+#            return None
+        
+    def inner_read(self):
+        try:
+            with open(self.file) as infile:
+                data = json.load(infile)
+        except:
+            data = {}
+        return data
+        

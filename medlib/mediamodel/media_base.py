@@ -886,6 +886,8 @@ class MediaBase(object):
         json.update({'rating': self.rating.getJson()} if self.rating.getJson() else {})
         json.update({'control': self.control.getJson()} if self.control.getJson() else {})
         
+        json.update({'appendixes' : [c.getJson() for c in self.mediaAppendixList]} if self.mediaAppendixList else {}) 
+        
         return json
     
     

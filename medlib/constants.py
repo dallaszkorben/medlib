@@ -1,3 +1,6 @@
+import os
+from pathlib import Path
+
 PANEL_HEIGHT  = 250
 PANEL_WIDTH = 500
 PANEL_FONT_SIZE = 10
@@ -25,3 +28,9 @@ RATE_BACKGROUND_COLOR = "#f7bb07"
 
 ON = "on"
 OFF = "off"
+
+FOLDER_CONFIG = '.medlib'
+PATH_HOME = str(Path.home())
+PATH_FOLDER_CONFIG = os.path.join(PATH_HOME, FOLDER_CONFIG)
+
+

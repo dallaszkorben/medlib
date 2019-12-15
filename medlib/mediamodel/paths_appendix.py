@@ -16,3 +16,13 @@ class PathsAppendix(PathsStorage):
             path_media         string        path to the media file - to play/show
         """
         super().__init__(name_folder, path_ini, path_jpeg, path_media)
+
+    def getPathOfMedia(self):
+        return self.pathMedia
+    
+    def getJson(self):
+        json = super().getJson()
+        
+        json['path-of-media'] = self.getPathOfMedia()
+        
+        return json
