@@ -36,6 +36,23 @@ def getPatternNumber():
 def getPatternLength():
     return re.compile('^\d{1,3}[:]\d{1,2}$')
 
+def collectCards():
+    """
+        Reads the Cards. First try to read from the json file.
+        If there is no json file then it reads it from the file system and
+        then save it to the json file 
+    """
+    jsonForm = CardListJson.getInstance().read()
+
+    if not jsonForm:            
+        mainCollector = collectCardsFromFileSystem("/home/akoel/tmp/media")
+        jsonForm = mainCollector.getJson()
+        CardListJson.getInstance().write(jsonForm)
+    else:
+        mainCollector = collectCardsFromJson(jsonForm)
+
+    return mainCollector
+
 def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
     """
         Recursive analysis on the the file system for the mediaCollectors
@@ -430,7 +447,7 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
             pathStorage = PathsStorage(os.path.dirname(card_path), card_path, image_path, media_path)            
             recentMedia = MediaStorage(pathStorage, titles, control, general, rating)
             parentMediaCollector.addMediaStorage(recentMedia)
-            
+
         #
         # If MediaAppendix - MediaStorage
         #
@@ -449,6 +466,10 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
     for name in dir_list:
         subfolder_path_os = os.path.join(actualDir, name)
         collectCardsFromFileSystem( subfolder_path_os, recentMedia )        
+
+    # If no media found at all #
+    if parentMediaCollector is None:
+        parentMediaCollector = MediaCollector(PathsCollector("", "", ""), IniTitles("", {'orig':''}), IniControl("", "", ""), None, None)
 
     # and finaly returns
     return parentMediaCollector
@@ -481,7 +502,7 @@ def collectCardsFromJson(jsonForm, parentMediaCollector = None):
                 titles_dict[key] = value
             elif key == 'orig':
                 titles_orig = value
-        ini_titles =  IniTitles(titles_orig, titles_dict)
+        ini_titles = IniTitles(titles_orig, titles_dict)
         
     #--- STORYLINE --- #
     storyline = jsonForm.get('storyline')
@@ -612,12 +633,15 @@ def collectCardsFromJson(jsonForm, parentMediaCollector = None):
 
     # --- CONTROL --- #
     control = jsonForm.get('control')
-    ini_control = None
+    #ini_control = None
+    con_orderby = ""
+    con_media = ""
+    con_category = ""
     if control:
         con_orderby = control.get('orderby')
         con_media = control.get('media')
         con_category = control.get('category')
-        ini_control = IniControl(con_orderby, con_media, con_category) 
+    ini_control = IniControl(con_orderby, con_media, con_category) 
  
     # --- MEDIA --- #
     
@@ -628,6 +652,8 @@ def collectCardsFromJson(jsonForm, parentMediaCollector = None):
     # --- MEDIA-STORAGE --- #        
     path_storage = jsonForm.get('paths-storage')
     
+    # --- MEDIA-APPENDIX --- #
+    path_appendix = jsonForm.get('paths-appendix')
     
     #
     # If MediaCollector - under MediaCollector or Root
@@ -644,6 +670,7 @@ def collectCardsFromJson(jsonForm, parentMediaCollector = None):
             parentMediaCollector.addMediaCollector(nextParent)
         else:
             parentMediaCollector = nextParent
+            
     #
     # If MediaStorage - Under MediaCollector
     #
@@ -656,10 +683,16 @@ def collectCardsFromJson(jsonForm, parentMediaCollector = None):
         ini_path_storage = PathsStorage(name_of_folder, path_of_card, path_of_image, path_of_media)
         nextParent = MediaStorage(ini_path_storage, ini_titles, ini_control, ini_general, ini_rating)
         parentMediaCollector.addMediaStorage(nextParent)
+        
     #
     # If MediaAppendix - MediaStorage
     #
-    else:
+    elif path_appendix:
+        name_of_folder = path_appendix.get('name-of-folder')
+        path_of_card = path_appendix.get('path-of-card')
+        path_of_image = path_appendix.get('path-of-image')
+        path_of_media = path_appendix.get('path-of-media')
+        
         ini_path_appendix = PathsAppendix(name_of_folder, path_of_card, path_of_image, path_of_media)
         nextParent = MediaAppendix(ini_path_appendix, ini_titles)
         parentMediaCollector.addMediaAppendix(nextParent)
@@ -680,7 +713,12 @@ def collectCardsFromJson(jsonForm, parentMediaCollector = None):
     # --- STORAGES --- #        
     storages_list = jsonForm.get('storages')
     for childJson in storages_list if storages_list else {}:
-        collectCardsFromJson( childJson, nextParent )        
+        collectCardsFromJson( childJson, nextParent )
+        
+    # --- APPENDIXES --- #        
+    appendixes_list = jsonForm.get('appendixes')
+    for childJson in appendixes_list if appendixes_list else []:
+        collectCardsFromJson( childJson, nextParent )    
 
     return parentMediaCollector
 

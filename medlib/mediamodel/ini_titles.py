@@ -14,7 +14,7 @@ class IniTitles(object):
             title_list_by_language    dictionary    {"hu":"Magyar cim", "en":"English title"}
         """
         self.orig_title = orig_title
-        self.title_list_by_language = title_list_by_language if title_list_by_language else []
+        self.title_list_by_language = title_list_by_language if title_list_by_language else {}
     
     def getOrigTitle(self):
         return self.orig_title
@@ -35,6 +35,8 @@ class IniTitles(object):
         json = {}
         json.update({} if self.orig_title is None or not self.orig_title else {"orig": self.orig_title})
         
-        json.update({key: value for key, value in self.title_list_by_language.items()})
+        json.update(
+            {key: value for key, value in self.title_list_by_language.items()} if self.title_list_by_language else {}
+            )
        
         return json

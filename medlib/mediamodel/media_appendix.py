@@ -107,8 +107,7 @@ class MediaAppendix(object):
             palette = QPalette()
             palette.setColor(QPalette.Foreground,Qt.blue)
             
-            self.setPalette(palette)
-            
+            self.setPalette(palette)            
             
         def leaveEvent(self, event):
             super().leaveEvent(event)

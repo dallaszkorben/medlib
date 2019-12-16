@@ -30,7 +30,7 @@ class IniControl(object):
 
     def getJson(self):        
         json = {}
-        json.update({} if self.media is None else {'media': self.media})
+        json.update({} if self.media is None or not self.media else {'media': self.media})
         json.update({} if self.orderby is None or not self.orderby else {'orderby': self.orderby})
         json.update({} if self.category is None or not self.category else {'category':self.category})
         
