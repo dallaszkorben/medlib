@@ -1,5 +1,23 @@
 from medlib.handle_property import config_ini
 
+from pkg_resources import resource_filename
+
+from medlib.constants import *
+from medlib.handle_property import _
+from builtins import object
+
+from PyQt5.QtWidgets import QHBoxLayout
+from PyQt5.QtWidgets import QLabel
+from PyQt5.QtWidgets import QWidget
+
+
+from PyQt5.QtGui import QColor
+from PyQt5.QtGui import QFont
+from PyQt5.QtGui import QPixmap
+
+from PyQt5.QtCore import Qt
+
+
 class IniTitles(object):
     """
     This class represents the [titles] section in the card.ini file
@@ -40,3 +58,58 @@ class IniTitles(object):
             )
        
         return json
+    
+    
+    def getWidget(self, parent, scale):
+        """  _________________________________________
+            | Icon | Title                            |
+            |______|__________________________________|
+        """
+        title_layout = QHBoxLayout()
+        title_layout.setAlignment(Qt.AlignLeft)
+        
+        # space between the three grids
+        title_layout.setSpacing(10)
+        
+        # margin around the widget
+        title_layout.setContentsMargins(0, 0, 0, 0)
+        
+        widget = QWidget()
+        widget.setLayout(title_layout)
+
+        #
+        # Icon
+        #
+        iconFileName = TITLE_ICON_PREFIX + "-" + parent.getFolderType() + ( "-" + parent.control.getMedia() if parent.control.getMedia() else "" ) + ( "-" + parent.control.getCategory() if parent.control.getCategory() else "" ) + "." + TITLE_ICON_EXTENSION
+        pathToFile = resource_filename(__name__, os.path.join(TITLE_ICON_FOLDER, iconFileName))       
+        pixmap = QPixmap( pathToFile )
+
+        if pixmap.isNull():            
+            smaller_pixmap = QPixmap(TITLE_ICON_HEIGHT * scale, TITLE_ICON_HEIGHT * scale)
+            smaller_pixmap.fill(QColor(parent.getBackgroundColor()))
+        else:
+            smaller_pixmap = pixmap.scaledToWidth(TITLE_ICON_HEIGHT * scale)
+   
+        iconWidget = QLabel()
+        iconWidget.setPixmap(smaller_pixmap)
+
+        title_layout.addWidget(iconWidget)
+
+        #
+        # Title
+        #
+        
+        series = parent.general.getSeries()
+        episode = parent.general.getEpisode()
+        titleWidget = QLabel(
+            ("S" + series + "E" + episode + "-" if episode is not None and series is not None else "") + 
+            self.getTranslatedTitle() + 
+            ("-"+_("title_part").format(episode) if episode is not None and series is None else "") )
+        titleWidget.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * scale * 1.8, weight=QFont.Bold))
+
+        title_layout.addWidget(titleWidget)
+        return widget
+    
+    
+    
+    
