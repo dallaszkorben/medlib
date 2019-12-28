@@ -19,7 +19,9 @@ from medlib.constants import PATH_FOLDER_CONFIG
 
 from medlib.card_ini import CardIni
 from medlib.handle_property import config_ini 
+
 from medlib.mediamodel import ini_general, ini_storylines
+from posix import write
 
 def getPatternImage():
     return re.compile( '^image[.](jp(eg|g)|png)$' )
@@ -42,16 +44,24 @@ def collectCards():
         If there is no json file then it reads it from the file system and
         then save it to the json file 
     """
+    
+    media_path = config_ini['media_path']
+    
     jsonForm = CardListJson.getInstance().read()
 
     if not jsonForm:            
-        mainCollector = collectCardsFromFileSystem("/home/akoel/tmp/media")
-        jsonForm = mainCollector.getJson()
-        CardListJson.getInstance().write(jsonForm)
-    else:
+        mainCollector = collectCardsFromFileSystem(media_path)
+        #jsonForm = mainCollector.getJson()
+        #CardListJson.getInstance().write(jsonForm)
+        saveJson(mainCollector)
+    else: 
         mainCollector = collectCardsFromJson(jsonForm)
 
     return mainCollector
+
+def saveJson(mediaCollector):
+    jsonForm = mediaCollector.getJson()
+    CardListJson.getInstance().write(jsonForm)
 
 def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
     """

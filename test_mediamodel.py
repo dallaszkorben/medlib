@@ -176,11 +176,11 @@ class App(QWidget):
         mainCollector = collectCards()
         
         mediaToShow = mainCollector
-#        media_list = mainCollector.getMediaCollectorList()    #Video
-#        media_list = media_list[0].getMediaCollectorList()    #Movie
-#        media_list = media_list[0].getMediaCollectorList()    #Films
-#        media_list = media_list[0].getMediaStorageList()
         
+#        media_list = mainCollector.getMediaCollectorList()    #Video
+#        media_list = media_list[0].getMediaCollectorList()    #Video
+#        media_list = media_list[0].getMediaCollectorList()    #Movie
+#        media_list = media_list[0].getMediaStorageList()
 #        mediaToShow = media_list[0]
         self.sizeRate = 1
         self.setGeometry(self.left, self.top, self.width, self.height * self.sizeRate)
@@ -193,7 +193,7 @@ class App(QWidget):
         self.layout.addWidget(self.widget)
         self.show()
       
-
+        
         
 #        from medlib import handle_property 
 #        ci = handle_property.get_config_ini()

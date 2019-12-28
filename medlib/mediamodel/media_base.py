@@ -75,6 +75,18 @@ class MediaBase(object):
         
         self.searchFunction = None
 
+    def getRoot(self):
+        """
+            Gives back the root of the media hierarchy
+            Basically it is a MediaCollector
+        """
+        pc = self.getParentCollector()
+        if pc:
+            return pc.getRoot()
+        else:
+            return self
+        
+        
     def setSearchFunction(self, searchFunction ):
         """
             searchFunction( forWho, byWhat )    - A search function when you click on a link on the card.
@@ -692,13 +704,16 @@ class MediaBase(object):
         widget.setLayout(rating_layout)
         
         # --- RATE ---
-        rating_layout.addWidget(self.getWidgetRatingInfoRate(sizeRate))
+        widgetRate = self.getWidgetRatingInfoRate(sizeRate)
+        rating_layout.addWidget(widgetRate)
         
         # --- FAVORITE ---
-        rating_layout.addWidget(self.getWidgetRatingInfoFavorite(sizeRate)) 
+        widgetFavorite=self.getWidgetRatingInfoFavorite(sizeRate)
+        rating_layout.addWidget(widgetFavorite) 
 
         # --- NEW ---
-        rating_layout.addWidget(self.getWidgetRatingInfoNew(sizeRate)) 
+        widgetNew=self.getWidgetRatingInfoNew(sizeRate)
+        rating_layout.addWidget(widgetNew) 
         
         return widget
 
