@@ -63,13 +63,13 @@ class MediaAppendix(object):
     # --------------------------------------------
     # ---------------- Widget --------------------
     # --------------------------------------------
-    def getWidget(self, sizeRate):
+    def getWidget(self, scale):
         """  _________________________________________
             | Icon | Title                            |
             |______|__________________________________|
         """
-        #widget = MediaAppendix.LinkWidget(self, sizeRate)
-        widget = MediaAppendix.QLinkLabelToAppendixMedia(self.titles.getTranslatedTitle(), self.isSelected, self.getPathOfMedia(), sizeRate)
+        #widget = MediaAppendix.LinkWidget(self, scale)
+        widget = MediaAppendix.QLinkLabelToAppendixMedia(self.titles.getTranslatedTitle(), self.isSelected, self.getPathOfMedia(), scale)
         return widget
     
     def getPathOfMedia(self):
@@ -83,7 +83,7 @@ class MediaAppendix(object):
         def __init__(self, text, funcIsSelected, pathOfMedia, sizeRate):
             super().__init__(text, funcIsSelected)        
             self.pathOfMedia = pathOfMedia
-            self.sizeRate = sizeRate
+            self.scale = sizeRate
             self.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Bold))
 
         def toDoOnClick(self):

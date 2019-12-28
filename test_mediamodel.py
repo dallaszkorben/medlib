@@ -4,6 +4,8 @@ from PyQt5.QtWidgets import QHBoxLayout
 
 import sys
 
+from medlib.handle_property import config_ini 
+
 from medlib.input_output import collectCards
 
 from medlib.mediamodel.ini_titles import IniTitles
@@ -182,11 +184,11 @@ class App(QWidget):
 #        media_list = media_list[0].getMediaCollectorList()    #Movie
 #        media_list = media_list[0].getMediaStorageList()
 #        mediaToShow = media_list[0]
-        self.sizeRate = 1
-        self.setGeometry(self.left, self.top, self.width, self.height * self.sizeRate)
+        self.scale = float(config_ini['scale'])
+        self.setGeometry(self.left, self.top, self.width, self.height * self.scale)
         
         mediaToShow.setNextLevelListener(self.goesDeeper)
-        self.widget = mediaToShow.getWidget(self.sizeRate)
+        self.widget = mediaToShow.getWidget(self.scale)
         
         print(mediaToShow.getJson())
 
@@ -208,12 +210,12 @@ class App(QWidget):
             self.layout.removeWidget(self.widget);
             mts = mcl[0]
             mts.setNextLevelListener(self.goesDeeper)
-            self.widget = mts.getWidget(self.sizeRate)
+            self.widget = mts.getWidget(self.scale)
             self.layout.addWidget(self.widget)
         elif msl:
             self.layout.removeWidget(self.widget);
             msl = msl[0]
-            self.widget = msl.getWidget(self.sizeRate)
+            self.widget = msl.getWidget(self.scale)
             self.layout.addWidget(self.widget)
             
         

@@ -188,7 +188,7 @@ class MediaBase(object):
     # --------------------------------------------
     # --------------- Image ---------------------
     # --------------------------------------------
-    def getWidgetImage(self, sizeRate):
+    def getWidgetImage(self, scale):
 
         # layout of this widget => three columns
         image_layout = QHBoxLayout()
@@ -209,14 +209,14 @@ class MediaBase(object):
         # if card image was not found
         if pixmap.isNull():            
             # then a blanc image appears
-            smaller_pixmap = QPixmap(PANEL_HEIGHT * sizeRate, PANEL_HEIGHT * sizeRate)
+            smaller_pixmap = QPixmap(PANEL_HEIGHT * scale, PANEL_HEIGHT * scale)
             smaller_pixmap.fill(QColor('gray'))
         elif pixmap.width() >= pixmap.height():
-            smaller_pixmap = pixmap.scaledToWidth(PANEL_HEIGHT * sizeRate)
+            smaller_pixmap = pixmap.scaledToWidth(PANEL_HEIGHT * scale)
         else:
-            smaller_pixmap = pixmap.scaledToHeight(PANEL_HEIGHT * sizeRate)
+            smaller_pixmap = pixmap.scaledToHeight(PANEL_HEIGHT * scale)
 
-        widget.setMinimumWidth(PANEL_HEIGHT * sizeRate)
+        widget.setMinimumWidth(PANEL_HEIGHT * scale)
         widget.setPixmap(smaller_pixmap)
         
         return widget         
@@ -224,7 +224,7 @@ class MediaBase(object):
     # --------------------------------------------
     # ------------- Middle - Text part -----------
     # --------------------------------------------
-    def getWidgetCardInformationText(self, sizeRate):
+    def getWidgetCardInformationText(self, scale):
         """  _________________________________________
             |  Title                                  |
             |_________________________________________|       
@@ -250,17 +250,17 @@ class MediaBase(object):
         widget.setLayout(cardinfo_layout)
 
         # --- TITLE ---
-        cardinfo_layout.addWidget(self.getWidgetTitle(sizeRate))
+        cardinfo_layout.addWidget(self.getWidgetTitle(scale))
         cardinfo_layout.addWidget(QHLine())
         
         # --- ONLINE INFO ---"
-        cardinfo_layout.addWidget(self.getWidgetOneLineInfo(sizeRate))
+        cardinfo_layout.addWidget(self.getWidgetOneLineInfo(scale))
         
         # --- GENERAL INFO ---
-        cardinfo_layout.addWidget(self.getWidgetGeneralInfo(sizeRate))
+        cardinfo_layout.addWidget(self.getWidgetGeneralInfo(scale))
 
         # --- MEDIA APPENDIX ---        
-        cardinfo_layout.addWidget(self.getWidgetMediaAppendix(sizeRate))
+        cardinfo_layout.addWidget(self.getWidgetMediaAppendix(scale))
         
         # --- Stretch ---
         cardinfo_layout.addStretch(1)
@@ -294,7 +294,7 @@ class MediaBase(object):
     # --------------------------------------------
     # ---------------- Title ---------------------
     # --------------------------------------------
-    def getWidgetTitle(self, sizeRate):
+    def getWidgetTitle(self, scale):
         """  _________________________________________
             | Icon | Title                            |
             |______|__________________________________|
@@ -319,10 +319,10 @@ class MediaBase(object):
         pixmap = QPixmap( pathToFile )
 
         if pixmap.isNull():            
-            smaller_pixmap = QPixmap(TITLE_ICON_HEIGHT * sizeRate, TITLE_ICON_HEIGHT * sizeRate)
+            smaller_pixmap = QPixmap(TITLE_ICON_HEIGHT * scale, TITLE_ICON_HEIGHT * scale)
             smaller_pixmap.fill(QColor(self.getBackgroundColor()))
         else:
-            smaller_pixmap = pixmap.scaledToWidth(TITLE_ICON_HEIGHT * sizeRate)
+            smaller_pixmap = pixmap.scaledToWidth(TITLE_ICON_HEIGHT * scale)
    
         iconWidget = QLabel()
         iconWidget.setPixmap(smaller_pixmap)
@@ -339,7 +339,7 @@ class MediaBase(object):
             ("S" + series + "E" + episode + "-" if episode is not None and series is not None else "") + 
             self.titles.getTranslatedTitle() + 
             ("-"+_("title_part").format(episode) if episode is not None and series is None else "") )
-        titleWidget.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate * 1.8, weight=QFont.Bold))
+        titleWidget.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * scale * 1.8, weight=QFont.Bold))
 
         title_layout.addWidget(titleWidget)
         return widget
@@ -347,7 +347,7 @@ class MediaBase(object):
     # --------------------------------------------
     # ----------- OneLineInfo -----------------
     # --------------------------------------------
-    def getWidgetOneLineInfo(self, sizeRate):
+    def getWidgetOneLineInfo(self, scale):
         """  _________________________________________
             | Year: Length: Country: Sound: Sutitle:  |
             |_________________________________________|
@@ -361,24 +361,24 @@ class MediaBase(object):
         widget = QWidget()
         #widget.setStyleSheet('background: ' + self.getBackgroundColor())
         widget.setLayout(layout)
-        widget.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Normal))
+        widget.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * scale, weight=QFont.Normal))
 
-        layout.addWidget(self.getWidgetOneLineInfoYear(sizeRate), 0, 0)
+        layout.addWidget(self.getWidgetOneLineInfoYear(scale), 0, 0)
 
-        layout.addWidget(self.getWidgetOneLineInfoLength(sizeRate), 0, 1)
+        layout.addWidget(self.getWidgetOneLineInfoLength(scale), 0, 1)
         
-        layout.addWidget(self.getWidgetOneLineInfoCountries(sizeRate), 0, 2)
+        layout.addWidget(self.getWidgetOneLineInfoCountries(scale), 0, 2)
         
-        layout.addWidget(self.getWidgetOneLineInfoSounds(sizeRate), 0, 3)
+        layout.addWidget(self.getWidgetOneLineInfoSounds(scale), 0, 3)
         
-        layout.addWidget(self.getHtmlOneLineInfoSubs(sizeRate), 0, 4)
+        layout.addWidget(self.getHtmlOneLineInfoSubs(scale), 0, 4)
         
         if layout.sizeHint().height() > 0:
             layout.addWidget(QHLine(), 1, 0, 1, 5)
 
         return widget
     
-    def getWidgetOneLineInfoYear(self, sizeRate):
+    def getWidgetOneLineInfoYear(self, scale):
         layout = QHBoxLayout()
         layout.setAlignment(Qt.AlignLeft)        
         layout.setSpacing(1)        
@@ -393,12 +393,12 @@ class MediaBase(object):
             layout.addWidget(key_label)
         
             value_label = QLabel(self.general.getYear())
-            value_label.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Bold))
+            value_label.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * scale, weight=QFont.Bold))
             layout.addWidget(value_label)
         
         return widget
         
-    def getWidgetOneLineInfoLength(self, sizeRate):
+    def getWidgetOneLineInfoLength(self, scale):
         layout = QHBoxLayout()
         layout.setAlignment(Qt.AlignLeft)        
         layout.setSpacing(1)        
@@ -413,13 +413,13 @@ class MediaBase(object):
             layout.addWidget(key_label)
         
             value_label = QLabel(self.general.getLength())
-            value_label.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Bold))
+            value_label.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * scale, weight=QFont.Bold))
             layout.addWidget(value_label)
         
         return widget
     
         
-    def getWidgetOneLineInfoCountries(self, sizeRate):
+    def getWidgetOneLineInfoCountries(self, scale):
         country_list = ", ".join( [ _("country_" + c) for c in self.general.getCountries()])
         
         layout = QHBoxLayout()
@@ -436,12 +436,12 @@ class MediaBase(object):
             layout.addWidget(key_label)
         
             value_label = QLabel(country_list)
-            value_label.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Bold))
+            value_label.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * scale, weight=QFont.Bold))
             layout.addWidget(value_label)
         
         return widget
         
-    def getWidgetOneLineInfoSounds(self, sizeRate):
+    def getWidgetOneLineInfoSounds(self, scale):
         sound_list = self.general.getTranslatedSoundStringList()
         layout = QHBoxLayout()
         layout.setAlignment(Qt.AlignLeft)        
@@ -457,7 +457,7 @@ class MediaBase(object):
             layout.addWidget(key_label)
         
             value_label = QLabel(sound_list)
-            value_label.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Bold))
+            value_label.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * scale, weight=QFont.Bold))
             layout.addWidget(value_label)
         return widget
         
@@ -485,7 +485,7 @@ class MediaBase(object):
     # --------------------------------------------
     # ------------GENERAL INFORMATION ------------
     # --------------------------------------------
-    def getWidgetGeneralInfo(self, sizeRate):
+    def getWidgetGeneralInfo(self, scale):
         """  ___________________________________________________________________________
             | Director/Maker:                             |                             |
             |                                             |                             |
@@ -521,65 +521,65 @@ class MediaBase(object):
  
         # ---
         # --- DIRECTORS ---
-        row = self.addNameListToQLinkLabel(sizeRate, grid_layout, row, 'title_director', self.general.getDirectors)
+        row = self.addNameListToQLinkLabel(scale, grid_layout, row, 'title_director', self.general.getDirectors)
 
         # --- MAKER ---       
-        row = self.addNameListToQLinkLabel(sizeRate, grid_layout, row, 'title_maker', self.general.getMakers)
+        row = self.addNameListToQLinkLabel(scale, grid_layout, row, 'title_maker', self.general.getMakers)
 
         # ---
         # --- WRITERS ---
-        row = self.addNameListToQLinkLabel(sizeRate, grid_layout, row, 'title_writer', self.general.getWriters)
+        row = self.addNameListToQLinkLabel(scale, grid_layout, row, 'title_writer', self.general.getWriters)
 
         # --- AUTHORS ---
-        row = self.addNameListToQLinkLabel(sizeRate, grid_layout, row, 'title_author', self.general.getAuthors)
+        row = self.addNameListToQLinkLabel(scale, grid_layout, row, 'title_author', self.general.getAuthors)
 
         # ---
         # --- ACTORS ---       
-        row = self.addNameListToQLinkLabel(sizeRate, grid_layout, row, 'title_actor', self.general.getActors)
+        row = self.addNameListToQLinkLabel(scale, grid_layout, row, 'title_actor', self.general.getActors)
 
         # --- PERFORMER ---       
-        row = self.addNameListToQLinkLabel(sizeRate, grid_layout, row, 'title_performer', self.general.getPerformers)
+        row = self.addNameListToQLinkLabel(scale, grid_layout, row, 'title_performer', self.general.getPerformers)
 
         # --- LECTURER ---       
-        row = self.addNameListToQLinkLabel(sizeRate, grid_layout, row, 'title_lecturer', self.general.getLecturers)
+        row = self.addNameListToQLinkLabel(scale, grid_layout, row, 'title_lecturer', self.general.getLecturers)
 
         # --- CONTRIBUTOR ---       
-        row = self.addNameListToQLinkLabel(sizeRate, grid_layout, row, 'title_contributor', self.general.getContributors)
+        row = self.addNameListToQLinkLabel(scale, grid_layout, row, 'title_contributor', self.general.getContributors)
 
         # --- VOICE ---       
-        row = self.addNameListToQLinkLabel(sizeRate, grid_layout, row, 'title_voice', self.general.getVoices)
+        row = self.addNameListToQLinkLabel(scale, grid_layout, row, 'title_voice', self.general.getVoices)
 
         # ---
         # --- GEMRE ---       
-        row = self.addTranslatedListToQLinkLabel(sizeRate, grid_layout, row, 'title_genre', self.getTranslatedGenreList())
-#        row = self.addTranslatedListToQLinkLabel(sizeRate, grid_layout, row, 'title_genre', self.general.getGenres)
+        row = self.addTranslatedListToQLinkLabel(scale, grid_layout, row, 'title_genre', self.getTranslatedGenreList())
+#        row = self.addTranslatedListToQLinkLabel(scale, grid_layout, row, 'title_genre', self.general.getGenres)
 
         # ---
         # --- THEME ---       
-        row = self.addTranslatedListToQLinkLabel(sizeRate, grid_layout, row, 'title_theme', self.getTranslatedThemeList())
+        row = self.addTranslatedListToQLinkLabel(scale, grid_layout, row, 'title_theme', self.getTranslatedThemeList())
         
         # ---
         # --- STORILINES ---
-        row = self.addWidgetGeneralInfoStoryline(widget, sizeRate, grid_layout, row, 'title_storyline', self.getTranslatedStoryline(self.general.getStoryline()))
+        row = self.addWidgetGeneralInfoStoryline(widget, scale, grid_layout, row, 'title_storyline', self.getTranslatedStoryline(self.general.getStoryline()))
 
         # --- TOPIC ---
-        row = self.addWidgetGeneralInfoStoryline(widget, sizeRate, grid_layout, row, 'title_topic', self.getTranslatedStoryline(self.general.getTopic()))
+        row = self.addWidgetGeneralInfoStoryline(widget, scale, grid_layout, row, 'title_topic', self.getTranslatedStoryline(self.general.getTopic()))
 
         # --- LYRICS ---
-        row = self.addWidgetGeneralInfoStoryline(widget, sizeRate, grid_layout, row, 'title_lyrics', self.getTranslatedStoryline(self.general.getLyrics()))
+        row = self.addWidgetGeneralInfoStoryline(widget, scale, grid_layout, row, 'title_lyrics', self.getTranslatedStoryline(self.general.getLyrics()))
                 
         return widget
 
     # #####################################################################################
     # Link List - Director/Maker/Writer/Author/Actor/Performer/Lecturer/Contributor/Voice #
     # #####################################################################################
-    def addNameListToQLinkLabel(self, sizeRate, grid_layout, row, title_id, value_method):
+    def addNameListToQLinkLabel(self, scale, grid_layout, row, title_id, value_method):
         value = value_method()
 
         if value:
         
             widget_key = QLabel(_(title_id) + ":", )
-            widget_key.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Bold))
+            widget_key.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * scale, weight=QFont.Bold))
             widget_key.setAlignment(Qt.AlignTop)
         
             layout = FlowLayout()
@@ -589,12 +589,12 @@ class MediaBase(object):
 
             widget_value = QWidget()
             widget_value.setLayout( layout )
-            widget_value.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Normal))        
+            widget_value.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * scale, weight=QFont.Normal))        
             first = True
             for d in value:
                 if not first:
                     layout.addWidget( QLabel(", ") )
-                label = MediaBase.QLinkLabelToSearch(self, d, d, title_id, sizeRate)
+                label = MediaBase.QLinkLabelToSearch(self, d, d, title_id, scale)
                 layout.addWidget(label)
                 first = False
 
@@ -607,11 +607,11 @@ class MediaBase(object):
     # ###########################
     # String List - Genre/Theme #
     # ###########################
-    def addTranslatedListToQLinkLabel(self, sizeRate, grid_layout, row, title_id, element_list):
+    def addTranslatedListToQLinkLabel(self, scale, grid_layout, row, title_id, element_list):
        
         if element_list:
             widget_key = QLabel(_(title_id) + ":", )
-            widget_key.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Bold))
+            widget_key.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * scale, weight=QFont.Bold))
         
             layout_genres = QHBoxLayout()
             layout_genres.setAlignment(Qt.AlignLeft)
@@ -620,12 +620,12 @@ class MediaBase(object):
 
             widget_value = QWidget()
             widget_value.setLayout( layout_genres )
-            widget_value.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Normal))
+            widget_value.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * scale, weight=QFont.Normal))
             first = True
             for d, e in element_list:
                 if not first:
                     layout_genres.addWidget( QLabel(", ") )
-                label = MediaBase.QLinkLabelToSearch(self, d, e, title_id, sizeRate)                
+                label = MediaBase.QLinkLabelToSearch(self, d, e, title_id, scale)                
                 layout_genres.addWidget(label)
                 first = False
         
@@ -642,7 +642,7 @@ class MediaBase(object):
             self.media = media
             self.rawText = rawText
             self.title_id = title_id
-            self.sizeRate = sizeRate
+            self.scale = sizeRate
             self.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Normal))
 
         def toDoOnClick(self):
@@ -681,7 +681,7 @@ class MediaBase(object):
     # --------------------------------------------
     # ----------------- Rating -------------------
     # --------------------------------------------
-    def getWidgetRatingInfo(self, sizeRate):
+    def getWidgetRatingInfo(self, scale):
         """   __________
              | Rate     |
              |__________|
@@ -695,7 +695,7 @@ class MediaBase(object):
         rating_layout.setAlignment(Qt.AlignTop)
         
         # space between the three grids
-        rating_layout.setSpacing(20 * sizeRate)
+        rating_layout.setSpacing(20 * scale)
         
         # margin around the widget
         rating_layout.setContentsMargins(0, 5, 5, 5)
@@ -704,15 +704,15 @@ class MediaBase(object):
         widget.setLayout(rating_layout)
         
         # --- RATE ---
-        widgetRate = self.getWidgetRatingInfoRate(sizeRate)
+        widgetRate = self.getWidgetRatingInfoRate(scale)
         rating_layout.addWidget(widgetRate)
         
         # --- FAVORITE ---
-        widgetFavorite=self.getWidgetRatingInfoFavorite(sizeRate)
+        widgetFavorite=self.getWidgetRatingInfoFavorite(scale)
         rating_layout.addWidget(widgetFavorite) 
 
         # --- NEW ---
-        widgetNew=self.getWidgetRatingInfoNew(sizeRate)
+        widgetNew=self.getWidgetRatingInfoNew(scale)
         rating_layout.addWidget(widgetNew) 
         
         return widget
@@ -720,11 +720,11 @@ class MediaBase(object):
     #             #
     # Rating Rate #
     #             #
-    def getWidgetRatingInfoRate( self, sizeRate ):
+    def getWidgetRatingInfoRate( self, scale ):
         
         class MySpinBox(QSpinBox):
             #def __init__(self, card_panel):
-            def __init__(self, parent, sizeRate):
+            def __init__(self, parent, scale):
                 super().__init__()
                 self.parent = parent
         
@@ -735,7 +735,7 @@ class MediaBase(object):
                     self.setMaximum(10)
                     self.setFocusPolicy(Qt.NoFocus)
                     self.lineEdit().setReadOnly(True)
-                    self.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Normal))
+                    self.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * scale, weight=QFont.Normal))
                     self.lineEdit().setStyleSheet( "QLineEdit{color:black}")
                     self.setStyleSheet( "QSpinBox{background:'" + RATE_BACKGROUND_COLOR + "'}")
                     self.setValue(self.parent.rating.getRate())
@@ -768,15 +768,15 @@ class MediaBase(object):
 #                self.card_panel.get_card_holder().setFocus()
                 event.ignore()
 
-        widget = MySpinBox(self, sizeRate)        
+        widget = MySpinBox(self, scale)        
         return widget
         
     #                 #
     # Rating Favorite #
     #                 #
-    def getWidgetRatingInfoFavorite(self, sizeRate):
+    def getWidgetRatingInfoFavorite(self, scale):
         class FavoriteButton(QPushButton):
-            def __init__(self, parent, sizeRate):
+            def __init__(self, parent, scale):
                 QPushButton.__init__(self)
                 self.parent = parent
         
@@ -788,7 +788,7 @@ class MediaBase(object):
                     icon.addPixmap(QPixmap( resource_filename(__name__, os.path.join(RATING_ICON_FOLDER, RATING_ICON_PREFIX + "-" + RATING_ICON_FAVORITE_TAG + "-" + ON + "." + RATING_ICON_EXTENSION)) ), QIcon.Normal, QIcon.On)
                     icon.addPixmap(QPixmap( resource_filename(__name__, os.path.join(RATING_ICON_FOLDER, RATING_ICON_PREFIX + "-" + RATING_ICON_FAVORITE_TAG + "-" + OFF + "." + RATING_ICON_EXTENSION)) ), QIcon.Normal, QIcon.Off)
                     self.setIcon(icon)
-                    self.setIconSize(QSize(RATING_ICON_SIZE * sizeRate, RATING_ICON_SIZE * sizeRate))
+                    self.setIconSize(QSize(RATING_ICON_SIZE * scale, RATING_ICON_SIZE * scale))
                     self.setCursor(QCursor(Qt.PointingHandCursor))
                     self.setStyleSheet("background:transparent; border:none")
                     self.setChecked(self.parent.rating.getFavorite())
@@ -797,15 +797,15 @@ class MediaBase(object):
             def ratingFavoriteButtonOnClick(self):
                 self.parent.rating.setFavorite(self.isChecked())        
         
-        button = FavoriteButton(self, sizeRate)
+        button = FavoriteButton(self, scale)
         return button
 
     #            #
     # Rating New #
     #            #
-    def getWidgetRatingInfoNew(self, sizeRate):
+    def getWidgetRatingInfoNew(self, scale):
         class NewButton(QPushButton):
-            def __init__(self, parent, sizeRate):
+            def __init__(self, parent, scale):
                 QPushButton.__init__(self)    
                 self.parent = parent
 
@@ -817,7 +817,7 @@ class MediaBase(object):
                     icon.addPixmap(QPixmap(resource_filename(__name__, os.path.join(RATING_ICON_FOLDER, RATING_ICON_PREFIX + "-" + RATING_ICON_NEW_TAG + "-" + ON + "." + RATING_ICON_EXTENSION))), QIcon.Normal, QIcon.On)
                     icon.addPixmap(QPixmap(resource_filename(__name__, os.path.join(RATING_ICON_FOLDER, RATING_ICON_PREFIX + "-" + RATING_ICON_NEW_TAG + "-" + OFF + "." + RATING_ICON_EXTENSION))), QIcon.Normal, QIcon.Off)
                     self.setIcon(icon)
-                    self.setIconSize(QSize(RATING_ICON_SIZE * sizeRate, RATING_ICON_SIZE * sizeRate))
+                    self.setIconSize(QSize(RATING_ICON_SIZE * scale, RATING_ICON_SIZE * scale))
                     self.setCursor(QCursor(Qt.PointingHandCursor))
                     self.setStyleSheet("background:transparent; border:none")
                     self.setChecked(parent.rating.getNew())
@@ -826,7 +826,7 @@ class MediaBase(object):
             def ratingNewButtonOnClick(self):
                 self.parent.rating.setNew(self.isChecked())
         
-        button = NewButton(self, sizeRate)
+        button = NewButton(self, scale)
         return button
     
     # --------------------------------------------
@@ -834,7 +834,7 @@ class MediaBase(object):
     # --------------- WIDGET -------------------
     # --------------------------------------------
     # --------------------------------------------
-    def getWidget(self, sizeRate):
+    def getWidget(self, scale):
         """  ___________________________________________
             |         |                        |        |
             |         |                        |        |
@@ -860,13 +860,13 @@ class MediaBase(object):
         widget.setLayout(grid_layout)
         
         # --- Image ---
-        grid_layout.addWidget(self.getWidgetImage(sizeRate), 0, 0)
+        grid_layout.addWidget(self.getWidgetImage(scale), 0, 0)
         
         # --- Card Information ---
-        grid_layout.addWidget(self.getWidgetCardInformationText(sizeRate), 0, 1)
+        grid_layout.addWidget(self.getWidgetCardInformationText(scale), 0, 1)
         
         # --- Rating ---
-        grid_layout.addWidget(self.getWidgetRatingInfo(sizeRate), 0, 2)
+        grid_layout.addWidget(self.getWidgetRatingInfo(scale), 0, 2)
         
         return widget
     

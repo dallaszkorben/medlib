@@ -178,7 +178,12 @@ class ConfigIni( Property ):
     # (section, key, default)
     DEFAULT_LANGUAGE = ("general", "language", "hu")
     DEFAULT_SHOW_ORIGINAL_TITLE = ("general", "show-original-title", "n")
+    DEFAULT_SCALE = ("general", "scale", 1)
+
     DEFAULT_MEDIA_PATH = ("media", "media-path", ".")
+    
+    
+    
     DEFAULT_MEDIA_PLAYER_VIDEO = ("media", "player-video", "mplayer")
     DEFAULT_MEDIA_PLAYER_VIDEO_PARAM = ("media", "player-video-param", "-zoom -fs -framedrop")
     DEFAULT_MEDIA_PLAYER_VIDEO_EXT = ("media", "player-video-ext", "flv,divx,mkv,avi,mp4,webm")
@@ -218,11 +223,12 @@ class ConfigIni( Property ):
     def getShowOriginalTitle(self):
         return self.get(self.DEFAULT_SHOW_ORIGINAL_TITLE[0], self.DEFAULT_SHOW_ORIGINAL_TITLE[1], self.DEFAULT_SHOW_ORIGINAL_TITLE[2])
 
+    def getScale(self):
+        return self.get(self.DEFAULT_SCALE[0], self.DEFAULT_SCALE[1], self.DEFAULT_SCALE[2])
 
-
-
-    def get_media_path(self):
+    def getMediaPath(self):
         return self.get(self.DEFAULT_MEDIA_PATH[0], self.DEFAULT_MEDIA_PATH[1], self.DEFAULT_MEDIA_PATH[2])
+
 
 
 
@@ -291,14 +297,24 @@ class ConfigIni( Property ):
         return self.get(self.DEFAULT_MEDIA_PLAYER_PDF_EXT[0], self.DEFAULT_MEDIA_PLAYER_PDF_EXT[1], self.DEFAULT_MEDIA_PLAYER_PDF_EXT[2])
 
 
-    def set_language(self, lang):
+
+
+
+    def setLanguage(self, lang):
         self.update(self.DEFAULT_LANGUAGE[0], self.DEFAULT_LANGUAGE[1], lang)
 
-    def set_show_original_title(self, show):
+    def setShowOriginal_title(self, show):
         self.update(self.DEFAULT_SHOW_ORIGINAL_TITLE[0], self.DEFAULT_SHOW_ORIGINAL_TITLE[1], show)
 
-    def set_media_path(self, path):
+    def setScale(self, scale):
+        self.update(self.DEFAULT_SCALE[0], self.DEFAULT_SCALE[1], scale)
+
+    def setMediaPath(self, path):
         self.update(self.DEFAULT_MEDIA_PATH[0], self.DEFAULT_MEDIA_PATH[1], path)
+
+
+
+
 
     def set_media_player_video(self, player):
         self.update(self.DEFAULT_MEDIA_PLAYER_VIDEO[0], self.DEFAULT_MEDIA_PLAYER_VIDEO[1], player)
@@ -331,7 +347,11 @@ def reReadConfigIni():
     # Read config.ini    
     config_ini['language'] = ci.getLanguage()
     config_ini['show_original_title'] = ci.getShowOriginalTitle()
-    config_ini['media_path'] = ci.get_media_path()
+    config_ini['scale'] = ci.getScale()
+    config_ini['media_path'] = ci.getMediaPath()
+    
+    
+    
     config_ini['media_player_video'] = ci.get_media_player_video()
     config_ini['media_player_video_param'] = ci.get_media_player_video_param()
     config_ini['media_player_video_ext'] = ci.get_media_player_video_ext()
@@ -346,6 +366,8 @@ def reReadConfigIni():
     config_ini['media_player_pdf'] = ci.get_media_player_pdf()
     config_ini['media_player_pdf_param'] = ci.get_media_player_pdf_param()
     config_ini['media_player_pdf_ext'] = ci.get_media_player_pdf_ext()
+
+
 
     # Get the dictionary
     dic = Dict.getInstance( config_ini['language'] )
