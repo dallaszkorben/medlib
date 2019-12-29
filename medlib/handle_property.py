@@ -1,6 +1,7 @@
 import os
 import configparser
 from pathlib import Path
+from medlib import card_ini
 
 #from akoteka.logger import logger
 
@@ -334,6 +335,9 @@ class ConfigIni( Property ):
     def set_media_player_audio_ext(self, param):
         self.update(self.DEFAULT_MEDIA_PLAYER_AUDIO_EXT[0], self.DEFAULT_MEDIA_PLAYER_AUDIO_EXT[1], param)
 
+def updateCardIni(card_ini_path, section, key, value):
+    card_ini = Property(card_ini_path, True)
+    card_ini.update(section, key, value)
 
 def get_config_ini():
     return ConfigIni.getInstance()
@@ -402,4 +406,6 @@ def _(word):
 # -----------------------------------------------------------------------------------------------------
 config_ini = {}
 reReadConfigIni()
+
+
 

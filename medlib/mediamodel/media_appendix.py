@@ -91,7 +91,7 @@ class MediaAppendix(object):
             if platform.system() == 'Darwin':                   # macOS
                 subprocess.call(('open', self.pathOfMedia))
             elif platform.system() == 'Windows':                # Windows
-                os.startfile(filepath)
+                os.startfile(self.pathOfMedia)
             elif platform.system() == 'Linux':                  # Linux:
                 subprocess.call(('xdg-open', self.pathOfMedia))
             else:                                               # linux 

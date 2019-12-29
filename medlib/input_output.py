@@ -20,8 +20,7 @@ from medlib.constants import PATH_FOLDER_CONFIG
 from medlib.card_ini import CardIni
 from medlib.handle_property import config_ini 
 
-from medlib.mediamodel import ini_general, ini_storylines
-from posix import write
+from medlib.mediamodel import ini_storylines
 
 def getPatternImage():
     return re.compile( '^image[.](jp(eg|g)|png)$' )
@@ -782,4 +781,5 @@ class CardListJson():
         except:
             data = {}
         return data
-        
+      
+

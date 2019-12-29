@@ -11,9 +11,7 @@ from medlib.mediamodel.ini_control import IniControl
 
 from medlib.mediamodel.media_appendix import MediaAppendix
 
-from medlib.mediamodel.extra import QHLine, FlowLayout
-
-from medlib.mediamodel.qlabel_to_link_on_cllick import QLabelToLinkOnClick
+from medlib.mediamodel.extra import QHLine
 
 from PyQt5.QtWidgets import QGridLayout
 from PyQt5.QtWidgets import QHBoxLayout, QVBoxLayout
@@ -21,7 +19,6 @@ from PyQt5.QtWidgets import QLabel
 from PyQt5.QtWidgets import QWidget
 
 from PyQt5.QtGui import QColor
-from PyQt5.QtGui import QFont, QPalette
 from PyQt5.QtGui import QPixmap
 
 from PyQt5.QtCore import Qt
@@ -97,6 +94,9 @@ class MediaBase(object):
         raise NotImplementedError
         
     def getPathOfImage(self):
+        raise NotImplementedError
+    
+    def getPathOfCard(self):
         raise NotImplementedError
 
     def getBackgroundColor(self):
@@ -321,7 +321,7 @@ class MediaBase(object):
              | New      |
              |__________|
         """
-        return self.rating.getWidget(scale)
+        return self.rating.getWidget(self, scale)
     
     # --------------------------------------------
     # --------------------------------------------
