@@ -87,6 +87,8 @@ class IniTitles(object):
 
         #
         # Icon
+        # 
+        # media-{collector/storage}-{media}-{category}.png
         #
         iconFileName = TITLE_ICON_PREFIX + "-" + media.getFolderType() + ( "-" + media.control.getMedia() if media.control.getMedia() else "" ) + ( "-" + media.control.getCategory() if media.control.getCategory() else "" ) + "." + TITLE_ICON_EXTENSION
         pathToFile = resource_filename(__name__, os.path.join(TITLE_ICON_FOLDER, iconFileName))       

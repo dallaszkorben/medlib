@@ -3,6 +3,9 @@ import re
 import json
 import configparser
 
+from medlib.constants import PATH_FOLDER_CONFIG
+
+from medlib.mediamodel import ini_storylines
 from medlib.mediamodel.media_collector import MediaCollector
 from medlib.mediamodel.media_storage import MediaStorage
 from medlib.mediamodel.media_appendix import MediaAppendix
@@ -15,12 +18,11 @@ from medlib.mediamodel.ini_storylines import IniStorylines
 from medlib.mediamodel.ini_general import IniGeneral
 from medlib.mediamodel.ini_rating import IniRating
 
-from medlib.constants import PATH_FOLDER_CONFIG
-
 from medlib.card_ini import CardIni
 from medlib.handle_property import config_ini 
+from medlib.handle_property import Property 
 
-from medlib.mediamodel import ini_storylines
+
 
 def getPatternImage():
     return re.compile( '^image[.](jp(eg|g)|png)$' )
@@ -50,8 +52,6 @@ def collectCards():
 
     if not jsonForm:            
         mainCollector = collectCardsFromFileSystem(media_path)
-        #jsonForm = mainCollector.getJson()
-        #CardListJson.getInstance().write(jsonForm)
         saveJson(mainCollector)
     else: 
         mainCollector = collectCardsFromJson(jsonForm)
@@ -109,27 +109,40 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
     if card_path:
         
         # Read the Card.ini file
-        parser = configparser.RawConfigParser()
-        parser.read(card_path, encoding='utf-8')
+        card_ini = Property(card_path, True)
+#        card_ini.update(section, key, value)
+        
+        
+#        parser = configparser.RawConfigParser()
+#        parser.read(card_path, encoding='utf-8')
         
         # --- CONTROL --- #
         try:
-            con_orderby = parser.get("control", "orderby")
-            con_orderby = con_orderby if con_orderby in CardIni.getOrderByList() else ""
+            con_orderby = card_ini.get("control", "orderby", CardIni.getOrderByList().index(0), False)
+            #con_orderby = parser.get("control", "orderby")
+            #con_orderby = con_orderby if con_orderby in CardIni.getOrderByList() else ""
+            con_orderby = con_orderby if con_orderby in CardIni.getOrderByList() else CardIni.getOrderByList().index(0)
         except (configparser.NoSectionError, configparser.NoOptionError):
-            con_orderby = ""        
+            #con_orderby = ""
+            con_orderby = CardIni.getOrderByList().index(0)        
 
         try:
-            con_media = parser.get("control", "media")
-            con_media = con_media if con_media in CardIni.getMediaList() else ""
+            con_media = card_ini.get("control", "media", CardIni.getMediaList().index(0), False)
+            #con_media = parser.get("control", "media")
+            #con_media = con_media if con_media in CardIni.getMediaList() else ""
+            con_media = con_media if con_media in CardIni.getMediaList() else CardIni.getMediaList().index(0)
         except (configparser.NoSectionError, configparser.NoOptionError):
-            con_media = ""
+            #con_media = ""
+            con_media = CardIni.getMediaList().index(0)
         
         try:
-            con_category = parser.get("control", "category")            
-            con_category = con_category if con_category in CardIni.getCategoryListByMedia(con_media) else ""
+            con_category = card_ini.get("control", "category", CardIni.getCategoryListByMedia().index(0), False)
+            #con_category = parser.get("control", "category")            
+            #con_category = con_category if con_category in CardIni.getCategoryListByMedia(con_media) else ""
+            con_category = con_category if con_category in CardIni.getCategoryListByMedia(con_media) else CardIni.getCategoryListByMedia().index(0)
         except (configparser.NoSectionError, configparser.NoOptionError):
-            con_category = ""
+            #con_category = ""
+            con_category = CardIni.getCategoryListByMedia().index(0)
                     
         control = IniControl(con_orderby, con_media, con_category) 
  
@@ -139,23 +152,22 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
             if CardIni.getMediaFilePatternByMedia(con_media).match(file_name):                
                 media_path = os.path.join(actualDir, file_name)
                 media_name = file_name
-         
+
         # --- TITLE --- #
         try:
-            titles_dict=dict(parser.items("titles"))
+            titles_dict = card_ini.getOptions("titles")
+            #titles_dict=dict(parser.items("titles"))
         except (configparser.NoSectionError, configparser.NoOptionError):
-#            titles_dict={"title_orig": ""}       
-            titles_dict={"orig": ""}            
+            titles_dict = {"orig": ""}            
         
         try:
-#            title_orig=parser.get("titles", "title_orig")
-            title_orig=parser.get("titles", "orig")
+            title_orig = card_ini.get("titles", "orig", "", False) 
+            #title_orig = parser.get("titles", "orig")
         except (configparser.NoSectionError, configparser.NoOptionError):
-            title_orig=""        
+            title_orig = ""        
         
         titles_lang_dict = {}
         for key, value in titles_dict.items():
-#            hit = re.compile( '^title_(.{2})$' ).match(key)
             hit = re.compile( '^(.{2})$' ).match(key)
             if hit is not None:
                 titles_lang_dict[hit.group(1)] = value
@@ -164,19 +176,18 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
 
         #--- STORYLINE --- #
         try:
-            storyline_dict=dict(parser.items("storyline"))
+            storyline_dict = card_ini.getOptions("storyline")
+            #storyline_dict=dict(parser.items("storyline"))
         except (configparser.NoSectionError, configparser.NoOptionError):
-            storyline_dict=None       
+            storyline_dict = None       
       
         if storyline_dict:
             storyline_lang_dict = {}
             storyline_orig=""            
             for key, value in storyline_dict.items():
-#                hit_lang = re.compile( '^storyline_(.{2})$' ).match(key)                
                 hit_lang = re.compile( '^(.{2})$' ).match(key)                
                 if hit_lang is not None:
                     storyline_lang_dict[hit_lang.group(1)] = value
-#                elif key == "storyline_orig":
                 elif key == "orig":
                     storyline_orig = value
                     
@@ -186,7 +197,8 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
                 
         #--- TOPIC --- #
         try:
-            topic_dict=dict(parser.items("topic"))
+            topic_dict = card_ini.getOptions("topic")
+            #topic_dict=dict(parser.items("topic"))
         except (configparser.NoSectionError, configparser.NoOptionError):
             topic_dict=None       
         
@@ -194,7 +206,6 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
             topic_lang_dict = {}
             topic_orig=""            
             for key, value in topic_dict.items():
-#                hit_lang = re.compile( '^topic_(.{2})$' ).match(key)
                 hit_lang = re.compile( '^(.{2})$' ).match(key)                
                 if hit_lang is not None:
                     topic_lang_dict[hit_lang.group(1)] = value
@@ -207,7 +218,8 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
 
         #--- LYRICS --- #
         try:
-            lyrics_dict=dict(parser.items("lyrics"))
+            lyrics_dict = card_ini.getOptions("lyrics")
+            #lyrics_dict=dict(parser.items("lyrics"))
         except (configparser.NoSectionError, configparser.NoOptionError):
             lyrics_dict=None       
         
@@ -215,7 +227,6 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
             lyrics_lang_dict = {}
             lyrics_orig = ""            
             for key, value in lyrics_dict.items():
-#                hit_lang = re.compile( '^lyrics_(.{2})$' ).match(key)                
                 hit_lang = re.compile( '^(.{2})$' ).match(key)                
                 if hit_lang is not None:
                     lyrics_lang_dict[hit_lang.group(1)] = value
@@ -225,10 +236,11 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
             lyrics = IniStorylines(lyrics_orig, lyrics_lang_dict)
         else:
             lyrics = None        
-       
+
         #--- GENERAL --- #
         try:
-            general_dict=dict(parser.items("general"))
+            general_dict = card_ini.getOptions("general")
+            #general_dict=dict(parser.items("general"))
         except (configparser.NoSectionError, configparser.NoOptionError):
             if lyrics or topic or storyline:
                 general_dict = {}
@@ -377,7 +389,8 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
         
         #--- RATING --- #
         try:
-            rating_dict=dict(parser.items("rating"))
+            rating_dict = card_ini.getOptions("rating")
+            #rating_dict=dict(parser.items("rating"))
         except (configparser.NoSectionError, configparser.NoOptionError):
             rating_dict=None       
         
@@ -397,11 +410,14 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
                    
             rating = IniRating(rat_rate, rat_favorite, rat_new) 
 
-        # --- MEDIA --- #
-        try:
-            media_path = parser.get("media", "link")
-        except (configparser.NoSectionError, configparser.NoOptionError):
-            pass
+#        parser = configparser.RawConfigParser()
+#        parser.read(card_path, encoding='utf-8')
+#
+#        # --- MEDIA --- #
+#        try:
+#            media_path = parser.get("media", "link")
+#        except (configparser.NoSectionError, configparser.NoOptionError):
+#            pass
 
 
         # -------------------- MediaCollector/MediaStorage/MediaAppendix construction ------------
