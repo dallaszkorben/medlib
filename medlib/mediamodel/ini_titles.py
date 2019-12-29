@@ -1,8 +1,16 @@
+import os
+
 from medlib.handle_property import config_ini
 
 from pkg_resources import resource_filename
 
-from medlib.constants import *
+from medlib.constants import PANEL_FONT_TYPE
+from medlib.constants import PANEL_FONT_SIZE
+from medlib.constants import TITLE_ICON_EXTENSION
+from medlib.constants import TITLE_ICON_FOLDER
+from medlib.constants import TITLE_ICON_HEIGHT
+from medlib.constants import TITLE_ICON_PREFIX
+
 from medlib.handle_property import _
 from builtins import object
 
@@ -60,7 +68,7 @@ class IniTitles(object):
         return json
     
     
-    def getWidget(self, parent, scale):
+    def getWidget(self, media, scale):
         """  _________________________________________
             | Icon | Title                            |
             |______|__________________________________|
@@ -80,13 +88,13 @@ class IniTitles(object):
         #
         # Icon
         #
-        iconFileName = TITLE_ICON_PREFIX + "-" + parent.getFolderType() + ( "-" + parent.control.getMedia() if parent.control.getMedia() else "" ) + ( "-" + parent.control.getCategory() if parent.control.getCategory() else "" ) + "." + TITLE_ICON_EXTENSION
+        iconFileName = TITLE_ICON_PREFIX + "-" + media.getFolderType() + ( "-" + media.control.getMedia() if media.control.getMedia() else "" ) + ( "-" + media.control.getCategory() if media.control.getCategory() else "" ) + "." + TITLE_ICON_EXTENSION
         pathToFile = resource_filename(__name__, os.path.join(TITLE_ICON_FOLDER, iconFileName))       
         pixmap = QPixmap( pathToFile )
 
         if pixmap.isNull():            
             smaller_pixmap = QPixmap(TITLE_ICON_HEIGHT * scale, TITLE_ICON_HEIGHT * scale)
-            smaller_pixmap.fill(QColor(parent.getBackgroundColor()))
+            smaller_pixmap.fill(QColor(media.getBackgroundColor()))
         else:
             smaller_pixmap = pixmap.scaledToWidth(TITLE_ICON_HEIGHT * scale)
    
@@ -99,8 +107,8 @@ class IniTitles(object):
         # Title
         #
         
-        series = parent.general.getSeries()
-        episode = parent.general.getEpisode()
+        series = media.general.getSeries()
+        episode = media.general.getEpisode()
         titleWidget = QLabel(
             ("S" + series + "E" + episode + "-" if episode is not None and series is not None else "") + 
             self.getTranslatedTitle() + 

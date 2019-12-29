@@ -80,11 +80,11 @@ class MediaAppendix(object):
 
     class QLinkLabelToAppendixMedia( QLabelToLinkOnClick ):
 
-        def __init__(self, text, funcIsSelected, pathOfMedia, sizeRate):
+        def __init__(self, text, funcIsSelected, pathOfMedia, scale):
             super().__init__(text, funcIsSelected)        
             self.pathOfMedia = pathOfMedia
-            self.scale = sizeRate
-            self.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Bold))
+            self.scale = scale
+            self.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * scale, weight=QFont.Bold))
 
         def toDoOnClick(self):
         

@@ -1,7 +1,7 @@
 import locale
 
-from medlib.constants import *
-from medlib.handle_property import _
+from medlib.constants import PANEL_HEIGHT
+
 from builtins import object
 
 from medlib.mediamodel.ini_general import IniGeneral
