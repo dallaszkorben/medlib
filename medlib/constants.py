@@ -1,8 +1,8 @@
 import os
 from pathlib import Path
 
-PANEL_HEIGHT  = 250
-PANEL_WIDTH = 500
+PANEL_HEIGHT  = 300
+PANEL_WIDTH = 1200
 PANEL_FONT_SIZE = 10
 PANEL_FONT_TYPE = "Comic Sans MS"
 

@@ -21,6 +21,7 @@ from medlib.mediamodel.media_appendix import MediaAppendix
 from medlib.mediamodel.paths_collector import PathsCollector
 from medlib.mediamodel.paths_storage import PathsStorage
 from medlib.mediamodel.paths_appendix import PathsAppendix
+from medlib.constants import PANEL_HEIGHT
 
 class App(QWidget):
  
@@ -30,7 +31,7 @@ class App(QWidget):
         self.left = 10
         self.top = 10
         self.width = 1200
-        self.height = 300
+        self.height = PANEL_HEIGHT
         self.initUI()
 
     def initUI(self):

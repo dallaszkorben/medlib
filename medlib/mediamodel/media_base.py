@@ -207,7 +207,8 @@ class MediaBase(object):
 
         # if card image was not found
         if pixmap.isNull():            
-            # then a blanc image appears
+
+            # then a blank image appears
             smaller_pixmap = QPixmap(PANEL_HEIGHT * scale, PANEL_HEIGHT * scale)
             smaller_pixmap.fill(QColor('gray'))
         elif pixmap.width() >= pixmap.height():
