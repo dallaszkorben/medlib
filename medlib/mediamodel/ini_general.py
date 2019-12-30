@@ -19,6 +19,13 @@ from medlib.constants import PANEL_FONT_SIZE
 from builtins import object
 
 from medlib.mediamodel.qlabel_to_link_on_cllick import QLabelToLinkOnClick
+from medlib.card_ini import JSON_KEY_GENERAL_YEAR, JSON_KEY_GENERAL_LENGTH,\
+    JSON_KEY_GENERAL_DIRECTOR, JSON_KEY_GENERAL_MAKER, JSON_KEY_GENERAL_WRITER,\
+    JSON_KEY_GENERAL_AUTHOR, JSON_KEY_GENERAL_ACTOR, JSON_KEY_GENERAL_PERFORMER,\
+    JSON_KEY_GENERAL_LECTURER, JSON_KEY_GENERAL_CONTRIBUTOR,\
+    JSON_KEY_GENERAL_VOICE, JSON_KEY_GENERAL_SOUND, JSON_KEY_GENERAL_SUB,\
+    JSON_KEY_GENERAL_COUNTRY, JSON_KEY_GENERAL_GENRE, JSON_KEY_GENERAL_THEME,\
+    JSON_KEY_GENERAL_SERIES, JSON_KEY_GENERAL_EPISODE
 
 class IniGeneral(object):
     """
@@ -253,28 +260,28 @@ class IniGeneral(object):
 
     def getJson(self):        
         json = {}
-        json.update({} if self.year is None or not self.year else {'year': self.year})
-        json.update({} if self.length is None or not self.length else {'length': self.length})
+        json.update({} if self.year is None or not self.year else {JSON_KEY_GENERAL_YEAR: self.year})
+        json.update({} if self.length is None or not self.length else {JSON_KEY_GENERAL_LENGTH: self.length})
         
-        json.update({} if self.directors is None or not self.directors else {'director': self.directors})
-        json.update({} if self.makers is None or not self.makers else {'maker': self.makers})
-        json.update({} if self.writers is None or not self.writers else {'writer': self.writers})
-        json.update({} if self.authors is None or not self.authors else {'author': self.authors})
-        json.update({} if self.actors is None or not self.actors else {'actor': self.actors})
-        json.update({} if self.performers is None or not self.performers else {'performer': self.performers})
-        json.update({} if self.lecturer is None or not self.lecturer else {'lecturer': self.lecturer})
-        json.update({} if self.contributor is None or not self.contributor else {'contributor': self.contributor})
-        json.update({} if self.voice is None or not self.voice else {'voice': self.voice})
+        json.update({} if self.directors is None or not self.directors else {JSON_KEY_GENERAL_DIRECTOR: self.directors})
+        json.update({} if self.makers is None or not self.makers else {JSON_KEY_GENERAL_MAKER: self.makers})
+        json.update({} if self.writers is None or not self.writers else {JSON_KEY_GENERAL_WRITER: self.writers})
+        json.update({} if self.authors is None or not self.authors else {JSON_KEY_GENERAL_AUTHOR: self.authors})
+        json.update({} if self.actors is None or not self.actors else {JSON_KEY_GENERAL_ACTOR: self.actors})
+        json.update({} if self.performers is None or not self.performers else {JSON_KEY_GENERAL_PERFORMER: self.performers})
+        json.update({} if self.lecturer is None or not self.lecturer else {JSON_KEY_GENERAL_LECTURER: self.lecturer})
+        json.update({} if self.contributor is None or not self.contributor else {JSON_KEY_GENERAL_CONTRIBUTOR: self.contributor})
+        json.update({} if self.voice is None or not self.voice else {JSON_KEY_GENERAL_VOICE: self.voice})
         
-        json.update({} if self.sounds is None or not self.sounds else {'sound': self.sounds})
-        json.update({} if self.subs is None or not self.subs else {'sub': self.subs})
-        json.update({} if self.countries is None or not self.countries else {'country': self.countries})
+        json.update({} if self.sounds is None or not self.sounds else {JSON_KEY_GENERAL_SOUND: self.sounds})
+        json.update({} if self.subs is None or not self.subs else {JSON_KEY_GENERAL_SUB: self.subs})
+        json.update({} if self.countries is None or not self.countries else {JSON_KEY_GENERAL_COUNTRY: self.countries})
         
-        json.update({} if self.genres is None or not self.genres else {'genre': self.genres})
-        json.update({} if self.themes is None or not self.themes else {'theme': self.themes})
+        json.update({} if self.genres is None or not self.genres else {JSON_KEY_GENERAL_GENRE: self.genres})
+        json.update({} if self.themes is None or not self.themes else {JSON_KEY_GENERAL_THEME: self.themes})
         
-        json.update({} if self.series is None or not self.series else {'series': self.series})
-        json.update({} if self.episode is None or not self.episode else {'episode': self.episode})        
+        json.update({} if self.series is None or not self.series else {JSON_KEY_GENERAL_SERIES: self.series})
+        json.update({} if self.episode is None or not self.episode else {JSON_KEY_GENERAL_EPISODE: self.episode})        
         
         return json
     

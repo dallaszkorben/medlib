@@ -21,14 +21,91 @@ from medlib.mediamodel.ini_classification import IniClassification
 from medlib.handle_property import config_ini 
 from medlib.handle_property import Property 
 
-from medlib.card_ini import CardIni, CARD_INI_FILE_NAME, SECTION_CONTROL,\
-    SECTION_TITLES, SECTION_STORYLINE, SECTION_TOPIC, SECTION_LYRICS,\
-    SECTION_GENERAL, SECTION_MEDIA
+from medlib.card_ini import CardIni
+
+from medlib.card_ini import KEY_GENERAL_LENGTH
+from medlib.card_ini import KEY_GENERAL_YEAR
+from medlib.card_ini import KEY_GENERAL_DIRECTOR
+from medlib.card_ini import KEY_GENERAL_MAKER
+from medlib.card_ini import KEY_GENERAL_WRITER
+from medlib.card_ini import KEY_GENERAL_AUTHOR
+from medlib.card_ini import KEY_GENERAL_ACTOR
+from medlib.card_ini import KEY_GENERAL_PERFORMER
+from medlib.card_ini import KEY_GENERAL_LECTURER
+from medlib.card_ini import KEY_GENERAL_CONTRIBUTOR
+from medlib.card_ini import KEY_GENERAL_VOICE
+from medlib.card_ini import KEY_GENERAL_GENRE
+from medlib.card_ini import KEY_GENERAL_THEME
+from medlib.card_ini import KEY_GENERAL_SUB
+from medlib.card_ini import KEY_GENERAL_SOUND
+from medlib.card_ini import KEY_GENERAL_COUNTRY
+from medlib.card_ini import KEY_GENERAL_SERIES
+from medlib.card_ini import KEY_GENERAL_EPISODE
+
+from medlib.card_ini import JSON_KEY_GENERAL_YEAR
+from medlib.card_ini import JSON_KEY_GENERAL_LENGTH
+from medlib.card_ini import JSON_KEY_GENERAL_DIRECTOR
+from medlib.card_ini import JSON_KEY_GENERAL_MAKER
+from medlib.card_ini import JSON_KEY_GENERAL_AUTHOR
+from medlib.card_ini import JSON_KEY_GENERAL_ACTOR
+from medlib.card_ini import JSON_KEY_GENERAL_PERFORMER
+from medlib.card_ini import JSON_KEY_GENERAL_LECTURER
+from medlib.card_ini import JSON_KEY_GENERAL_CONTRIBUTOR
+from medlib.card_ini import JSON_KEY_GENERAL_VOICE
+from medlib.card_ini import JSON_KEY_GENERAL_GENRE
+from medlib.card_ini import JSON_KEY_GENERAL_THEME
+from medlib.card_ini import JSON_KEY_GENERAL_SUB
+from medlib.card_ini import JSON_KEY_GENERAL_SOUND
+from medlib.card_ini import JSON_KEY_GENERAL_COUNTRY
+from medlib.card_ini import JSON_KEY_GENERAL_SERIES
+from medlib.card_ini import JSON_KEY_GENERAL_EPISODE
+
+from medlib.card_ini import KEY_CONTROL_ORDERBY
+from medlib.card_ini import KEY_CONTROL_MEDIA
+from medlib.card_ini import KEY_CONTROL_CATEGORY
+
+from medlib.card_ini import JSON_SECTION_STORYLINE
+from medlib.card_ini import JSON_SECTION_TITLES
+from medlib.card_ini import JSON_SECTION_TOPIC
+from medlib.card_ini import JSON_SECTION_LYRICS
+from medlib.card_ini import JSON_SECTION_GENERAL
+from medlib.card_ini import JSON_SECTION_CLASSIFICATION
+from medlib.card_ini import JSON_SECTION_CONTROL
+
+from medlib.card_ini import JSON_NODE_PATH_COLLECTOR
+from medlib.card_ini import JSON_NODE_PATH_STORAGE
+from medlib.card_ini import JSON_NODE_PATH_APPENDIX
+from medlib.card_ini import JSON_NODE_APPENDIXES
+from medlib.card_ini import JSON_NODE_STORAGES
+from medlib.card_ini import JSON_NODE_COLLECTORS
+
+from medlib.card_ini import JSON_KEY_COLLECTOR_NAME_OF_FOLDER
+from medlib.card_ini import JSON_KEY_COLLECTOR_PATH_OF_CARD
+from medlib.card_ini import JSON_KEY_COLLECTOR_PATH_OF_IMAGE
+from medlib.card_ini import JSON_KEY_STORAGE_NAME_OF_FOLDER
+from medlib.card_ini import JSON_KEY_STORAGE_PATH_OF_CARD
+from medlib.card_ini import JSON_KEY_STORAGE_PATH_OF_IMAGE
+from medlib.card_ini import JSON_KEY_STORAGE_PATH_OF_MEDIA
+from medlib.card_ini import JSON_KEY_APPENDIX_NAME_OF_FOLDER
+from medlib.card_ini import JSON_KEY_APPENDIX_PATH_OF_CARD
+from medlib.card_ini import JSON_KEY_APPENDIX_PATH_OF_IMAGE
+from medlib.card_ini import JSON_KEY_APPENDIX_PATH_OF_MEDIA
+
+from medlib.card_ini import CARD_LIST_JSON_FILE_NAME
+from medlib.card_ini import CARD_INI_FILE_NAME
+
+from medlib.card_ini import SECTION_CONTROL
+from medlib.card_ini import SECTION_TITLES
+from medlib.card_ini import SECTION_STORYLINE
+from medlib.card_ini import SECTION_TOPIC
+from medlib.card_ini import SECTION_LYRICS
+from medlib.card_ini import SECTION_GENERAL
+from medlib.card_ini import SECTION_MEDIA
 from medlib.card_ini import SECTION_CLASSIFICATION
+
 from medlib.card_ini import KEY_CLASSIFICATION_RATE
 from medlib.card_ini import KEY_CLASSIFICATION_FAVORITE
 from medlib.card_ini import KEY_CLASSIFICATION_NEW
-
 
 def getPatternImage():
     return re.compile( '^image[.](jp(eg|g)|png)$' )
@@ -124,7 +201,7 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
         
         # --- CONTROL --- #
         try:
-            con_orderby = card_ini.get(SECTION_CONTROL, "orderby", CardIni.getOrderByList()[0], False)
+            con_orderby = card_ini.get(SECTION_CONTROL, KEY_CONTROL_ORDERBY, CardIni.getOrderByList()[0], False)
             #con_orderby = parser.get("control", "orderby")
             #con_orderby = con_orderby if con_orderby in CardIni.getOrderByList() else ""
             con_orderby = con_orderby if con_orderby in CardIni.getOrderByList() else CardIni.getOrderByList()[0]
@@ -133,7 +210,7 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
             con_orderby = CardIni.getOrderByList()[0]
 
         try:
-            con_media = card_ini.get(SECTION_CONTROL, "media", CardIni.getMediaList()[0], False)
+            con_media = card_ini.get(SECTION_CONTROL, KEY_CONTROL_MEDIA, CardIni.getMediaList()[0], False)
             #con_media = parser.get("control", "media")
             #con_media = con_media if con_media in CardIni.getMediaList() else ""
             con_media = con_media if con_media in CardIni.getMediaList() else CardIni.getMediaList()[0]
@@ -142,7 +219,7 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
             con_media = CardIni.getMediaList()[0]
         
         try:
-            con_category = card_ini.get(SECTION_CONTROL, "category", CardIni.getCategoryListByMedia(con_media)[0], False)
+            con_category = card_ini.get(SECTION_CONTROL, KEY_CONTROL_CATEGORY, CardIni.getCategoryListByMedia(con_media)[0], False)
             #con_category = parser.get("control", "category")            
             #con_category = con_category if con_category in CardIni.getCategoryListByMedia(con_media) else ""
             con_category = con_category if con_category in CardIni.getCategoryListByMedia(con_media) else CardIni.getCategoryListByMedia(con_media)[0]
@@ -259,15 +336,15 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
             for key, value in general_dict.items():
                  
                 # - length - #
-                if key == "length" and getPatternLength().match( value ):
+                if key == KEY_GENERAL_LENGTH and getPatternLength().match( value ):
                     general.setLength(value)
 
                 # - year - #
-                if key == "year" and getPatternYear().match( value ):
+                if key == KEY_GENERAL_YEAR and getPatternYear().match( value ):
                     general.setYear(value)
 
                 # - director - #
-                elif key == "director" and len(value) > 0:
+                elif key == KEY_GENERAL_DIRECTOR and len(value) > 0:
                     directors = value.split(",")
                     director_list = []            
                     for director in directors:
@@ -275,7 +352,7 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
                     general.setDirectors(director_list)
                 
                 # - maker - #
-                elif key == "maker" and len(value) > 0:
+                elif key == KEY_GENERAL_MAKER and len(value) > 0:
                     makers = value.split(",")
                     maker_list = []            
                     for maker in makers:
@@ -283,7 +360,7 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
                     general.setMakers(maker_list)
 
                 # - writer - #
-                elif key == "writer" and len(value) > 0:
+                elif key == KEY_GENERAL_WRITER and len(value) > 0:
                     writers = value.split(",")
                     writer_list = []            
                     for writer in writers:
@@ -291,7 +368,7 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
                     general.setWriters(writer_list)
                 
                 # - author - #
-                elif key == "author" and len(value) > 0:
+                elif key == KEY_GENERAL_AUTHOR and len(value) > 0:
                     authors = value.split(",")
                     author_list = []            
                     for author in authors:
@@ -299,7 +376,7 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
                     general.setAuthor(author_list)
 
                 # - actor - #
-                elif key == "actor" and len(value) > 0:
+                elif key == KEY_GENERAL_ACTOR and len(value) > 0:
                     actors = value.split(",")
                     actor_list = []            
                     for actor in actors:
@@ -307,7 +384,7 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
                     general.setActors(actor_list)
                 
                 # - performer - #
-                elif key == "performer" and len(value) > 0:
+                elif key == KEY_GENERAL_PERFORMER and len(value) > 0:
                     performers = value.split(",")
                     performer_list = []            
                     for performer in performers:
@@ -315,7 +392,7 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
                     general.setPerformers(performer_list)
                 
                 # - lecturer - #
-                elif key == "lecturer" and len(value) > 0:
+                elif key == KEY_GENERAL_LECTURER and len(value) > 0:
                     lecturers = value.split(",")
                     lecturer_list = []            
                     for lecturer in lecturers:
@@ -323,7 +400,7 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
                     general.setLecturers(lecturer_list)
                 
                 # - contributor - #
-                elif key == "contributor" and len(value) > 0:
+                elif key == KEY_GENERAL_CONTRIBUTOR and len(value) > 0:
                     contributors = value.split(",")
                     contributor_list = []            
                     for contributor in contributors:
@@ -331,7 +408,7 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
                     general.setContributors(contributor_list)
                 
                 # - voice - #
-                elif key == "voice" and len(value) > 0:
+                elif key == KEY_GENERAL_VOICE and len(value) > 0:
                     voices = value.split(",")
                     voice_list = []            
                     for voice in voices:
@@ -339,7 +416,7 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
                     general.setVoices(voice_list)
                 
                 # - genre - #
-                elif key == "genre" and len(value) > 0:
+                elif key == KEY_GENERAL_GENRE and len(value) > 0:
                     genres = value.split(",")
                     genre_list = []            
                     for genre in genres:
@@ -347,7 +424,7 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
                     general.setGenres(genre_list)
                 
                 # - theme - #
-                elif key == "theme" and len(value) > 0:
+                elif key == KEY_GENERAL_THEME and len(value) > 0:
                     themes = value.split(",")
                     theme_list = []            
                     for theme in themes:
@@ -355,7 +432,7 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
                     general.setThemes(theme_list)
                 
                 # - subtitle - #
-                elif key == "sub" and len(value) > 0:
+                elif key == KEY_GENERAL_SUB and len(value) > 0:
                     subs = value.split(",")
                     sub_list = []            
                     for sub in subs:
@@ -363,7 +440,7 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
                     general.setSubs(sub_list)
 
                 # - sound - #
-                elif key == "sound" and len(value) > 0:
+                elif key == KEY_GENERAL_SOUND and len(value) > 0:
                     sounds = value.split(",")
                     sound_list = []            
                     for sound in sounds:
@@ -371,7 +448,7 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
                     general.setSounds(sound_list)
 
                 # - country - #
-                elif key == "country" and len(value) > 0:
+                elif key == KEY_GENERAL_COUNTRY and len(value) > 0:
                     countrys = value.split(",")
                     country_list = []            
                     for country in countrys:
@@ -379,11 +456,11 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
                     general.setCountries(country_list)
                     
                 # - series - #
-                elif key == "series" and getPatternNumber().match( value ):
+                elif key == KEY_GENERAL_SERIES and getPatternNumber().match( value ):
                     general.setSeries(value)
                 
                 # - episode - #
-                elif key == "episode" and getPatternNumber().match( value ):
+                elif key == KEY_GENERAL_EPISODE and getPatternNumber().match( value ):
                     general.setEpisode(value)
             
             if storyline:
@@ -529,7 +606,7 @@ def collectCardsFromJson(jsonForm, parentMediaCollector = None):
     nextParent = parentMediaCollector
     
     # --- TITLE --- #
-    titles = jsonForm.get(SECTION_TITLES)
+    titles = jsonForm.get(JSON_SECTION_TITLES)
     ini_titles = None
     if titles:        
         titles_dict = {}
@@ -543,7 +620,7 @@ def collectCardsFromJson(jsonForm, parentMediaCollector = None):
         ini_titles = IniTitles(titles_orig, titles_dict)
         
     #--- STORYLINE --- #
-    storyline = jsonForm.get(SECTION_STORYLINE)
+    storyline = jsonForm.get(JSON_SECTION_STORYLINE)
     ini_storyline = None
     if storyline:
         storyline_dict = {}
@@ -557,7 +634,7 @@ def collectCardsFromJson(jsonForm, parentMediaCollector = None):
         ini_storyline = IniStorylines(storyline_orig, storyline_dict)                
                 
     #--- TOPIC --- #
-    topic = jsonForm.get(SECTION_TOPIC)
+    topic = jsonForm.get(JSON_SECTION_TOPIC)
     ini_topic = None
     if topic:
         topic_dict = {}
@@ -571,7 +648,7 @@ def collectCardsFromJson(jsonForm, parentMediaCollector = None):
         ini_topic = IniStorylines(topic_orig, topic_dict)                
             
     #--- LYRICS --- #
-    lyrics = jsonForm.get(SECTION_LYRICS)
+    lyrics = jsonForm.get(JSON_SECTION_LYRICS)
     ini_lyrics = None
     if lyrics:
         lyrics_dict = {}
@@ -596,25 +673,25 @@ def collectCardsFromJson(jsonForm, parentMediaCollector = None):
 #        ini_general = None
         
     #--- GENERAL --- #
-    general = jsonForm.get(SECTION_GENERAL)
+    general = jsonForm.get(JSON_SECTION_GENERAL)
     if general:
-        year = general.get('year')
-        length = general.get('length')
-        director = general.get('director')
-        maker = general.get('maker')
-        author = general.get('author')
-        actor = general.get('actor')
-        performer = general.get('performer')
-        lecturer = general.get('lecturer')
-        contributor = general.get('contributor')
-        voice = general.get('voice')
-        genre = general.get('genre')
-        theme = general.get('theme')
-        sub = general.get('sub')
-        sound = general.get('sound')
-        country = general.get('country')
-        series = general.get('series')
-        episode = general.get('episode')
+        year = general.get(JSON_KEY_GENERAL_YEAR)
+        length = general.get(JSON_KEY_GENERAL_LENGTH)
+        director = general.get(JSON_KEY_GENERAL_DIRECTOR)
+        maker = general.get(JSON_KEY_GENERAL_MAKER)
+        author = general.get(JSON_KEY_GENERAL_AUTHOR)
+        actor = general.get(JSON_KEY_GENERAL_ACTOR)
+        performer = general.get(JSON_KEY_GENERAL_PERFORMER)
+        lecturer = general.get(JSON_KEY_GENERAL_LECTURER)
+        contributor = general.get(JSON_KEY_GENERAL_CONTRIBUTOR)
+        voice = general.get(JSON_KEY_GENERAL_VOICE)
+        genre = general.get(JSON_KEY_GENERAL_GENRE)
+        theme = general.get(JSON_KEY_GENERAL_THEME)
+        sub = general.get(JSON_KEY_GENERAL_SUB)
+        sound = general.get(JSON_KEY_GENERAL_SOUND)
+        country = general.get(JSON_KEY_GENERAL_COUNTRY)
+        series = general.get(JSON_KEY_GENERAL_SERIES)
+        episode = general.get(JSON_KEY_GENERAL_EPISODE)
             
         if year:
             ini_general.setYear(year)
@@ -652,7 +729,7 @@ def collectCardsFromJson(jsonForm, parentMediaCollector = None):
             ini_general.setEpisode(episode)
 
     #--- CLASSIFICATION --- #
-    classification = jsonForm.get(SECTION_CLASSIFICATION)
+    classification = jsonForm.get(JSON_SECTION_CLASSIFICATION)
     ini_classification = None
     if classification:
 
@@ -667,36 +744,36 @@ def collectCardsFromJson(jsonForm, parentMediaCollector = None):
         ini_classification = IniClassification(rat_rate, rat_favorite, rat_new) 
 
     # --- CONTROL --- #
-    control = jsonForm.get(SECTION_CONTROL)
+    control = jsonForm.get(JSON_SECTION_CONTROL)
     #ini_control = None
     con_orderby = ""
     con_media = ""
     con_category = ""
     if control:
-        con_orderby = control.get('orderby')
-        con_media = control.get('media')
-        con_category = control.get('category')
+        con_orderby = control.get(KEY_CONTROL_ORDERBY)
+        con_media = control.get(KEY_CONTROL_MEDIA)
+        con_category = control.get(KEY_CONTROL_CATEGORY)
     ini_control = IniControl(con_orderby, con_media, con_category) 
  
     # --- MEDIA --- #
     
         
     # --- MEDIA-COLLECTOR --- #        
-    path_collector = jsonForm.get('paths-collector')
+    path_collector = jsonForm.get(JSON_NODE_PATH_COLLECTOR)
     
     # --- MEDIA-STORAGE --- #        
-    path_storage = jsonForm.get('paths-storage')
+    path_storage = jsonForm.get(JSON_NODE_PATH_STORAGE)
     
     # --- MEDIA-APPENDIX --- #
-    path_appendix = jsonForm.get('paths-appendix')
+    path_appendix = jsonForm.get(JSON_NODE_PATH_APPENDIX)
     
     #
     # If MediaCollector - under MediaCollector or Root
     #
     if path_collector:
-        name_of_folder = path_collector.get('name-of-folder')
-        path_of_card = path_collector.get('path-of-card')
-        path_of_image = path_collector.get('path-of-image')
+        name_of_folder = path_collector.get(JSON_KEY_COLLECTOR_NAME_OF_FOLDER)
+        path_of_card = path_collector.get(JSON_KEY_COLLECTOR_PATH_OF_CARD)
+        path_of_image = path_collector.get(JSON_KEY_COLLECTOR_PATH_OF_IMAGE)
         
         ini_path_collector = PathsCollector(name_of_folder, path_of_card, path_of_image)
         nextParent = MediaCollector(ini_path_collector, ini_titles, ini_control, ini_general, ini_classification)
@@ -710,10 +787,10 @@ def collectCardsFromJson(jsonForm, parentMediaCollector = None):
     # If MediaStorage - Under MediaCollector
     #
     elif path_storage:
-        name_of_folder = path_storage.get('name-of-folder')
-        path_of_card = path_storage.get('path-of-card')
-        path_of_image = path_storage.get('path-of-image')
-        path_of_media = path_storage.get('path-of-media')
+        name_of_folder = path_storage.get(JSON_KEY_STORAGE_NAME_OF_FOLDER)
+        path_of_card = path_storage.get(JSON_KEY_STORAGE_PATH_OF_CARD)
+        path_of_image = path_storage.get(JSON_KEY_STORAGE_PATH_OF_IMAGE)
+        path_of_media = path_storage.get(JSON_KEY_STORAGE_PATH_OF_MEDIA)
     
         ini_path_storage = PathsStorage(name_of_folder, path_of_card, path_of_image, path_of_media)
         nextParent = MediaStorage(ini_path_storage, ini_titles, ini_control, ini_general, ini_classification)
@@ -723,10 +800,10 @@ def collectCardsFromJson(jsonForm, parentMediaCollector = None):
     # If MediaAppendix - MediaStorage
     #
     elif path_appendix:
-        name_of_folder = path_appendix.get('name-of-folder')
-        path_of_card = path_appendix.get('path-of-card')
-        path_of_image = path_appendix.get('path-of-image')
-        path_of_media = path_appendix.get('path-of-media')
+        name_of_folder = path_appendix.get(JSON_KEY_APPENDIX_NAME_OF_FOLDER)
+        path_of_card = path_appendix.get(JSON_KEY_APPENDIX_PATH_OF_CARD)
+        path_of_image = path_appendix.get(JSON_KEY_APPENDIX_PATH_OF_IMAGE)
+        path_of_media = path_appendix.get(JSON_KEY_APPENDIX_PATH_OF_MEDIA)
         
         ini_path_appendix = PathsAppendix(name_of_folder, path_of_card, path_of_image, path_of_media)
         nextParent = MediaAppendix(ini_path_appendix, ini_titles)
@@ -741,17 +818,17 @@ def collectCardsFromJson(jsonForm, parentMediaCollector = None):
     # ################################## #    
     
     # --- COLLECTORS --- #        
-    collectors_list = jsonForm.get('collectors')    
+    collectors_list = jsonForm.get(JSON_NODE_COLLECTORS)    
     for childJson in collectors_list if collectors_list else {}:
         collectCardsFromJson( childJson, nextParent )        
  
     # --- STORAGES --- #        
-    storages_list = jsonForm.get('storages')
+    storages_list = jsonForm.get(JSON_NODE_STORAGES)
     for childJson in storages_list if storages_list else {}:
         collectCardsFromJson( childJson, nextParent )
         
     # --- APPENDIXES --- #        
-    appendixes_list = jsonForm.get('appendixes')
+    appendixes_list = jsonForm.get(JSON_NODE_APPENDIXES)
     for childJson in appendixes_list if appendixes_list else []:
         collectCardsFromJson( childJson, nextParent )    
 
@@ -768,7 +845,7 @@ def collectCardsFromJson(jsonForm, parentMediaCollector = None):
 #
 # =====================
 class CardListJson():
-    FILE_NAME = 'card.list.json'
+    FILE_NAME = CARD_LIST_JSON_FILE_NAME
 
     __instance = None    
 
@@ -791,14 +868,8 @@ class CardListJson():
             json.dump(jsonContent, outfile)
 
     def read(self):
-#        path=config_ini['media_path']
-                
         content = self.inner_read()
         return content
-#        if content['path'] == path:
-#            return content['cards']
-#        else:
-#            return None
         
     def inner_read(self):
         try:

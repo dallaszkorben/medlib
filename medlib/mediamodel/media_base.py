@@ -23,13 +23,15 @@ from PyQt5.QtGui import QPixmap
 
 from PyQt5.QtCore import Qt
 
-from medlib.card_ini import SECTION_CLASSIFICATION 
-from medlib.card_ini import SECTION_TITLES
-from medlib.card_ini import SECTION_GENERAL
-from medlib.card_ini import SECTION_STORYLINE
-from medlib.card_ini import SECTION_TOPIC
-from medlib.card_ini import SECTION_LYRICS
-from medlib.card_ini import SECTION_CONTROL
+from medlib.card_ini import JSON_SECTION_TITLES
+from medlib.card_ini import JSON_SECTION_GENERAL
+from medlib.card_ini import JSON_SECTION_CONTROL
+from medlib.card_ini import JSON_SECTION_CLASSIFICATION
+from medlib.card_ini import JSON_SECTION_LYRICS
+from medlib.card_ini import JSON_SECTION_TOPIC
+from medlib.card_ini import JSON_SECTION_STORYLINE
+
+from medlib.card_ini import JSON_NODE_APPENDIXES
 
 class MediaBase(object):
     """
@@ -396,17 +398,17 @@ class MediaBase(object):
     def getJson(self):
         json = {}
         
-        json.update({SECTION_TITLES: self.titles.getJson()} if self.titles.getJson() else {})
-        json.update({SECTION_GENERAL: self.general.getJson()} if self.general.getJson() else {})
+        json.update({JSON_SECTION_TITLES: self.titles.getJson()} if self.titles.getJson() else {})
+        json.update({JSON_SECTION_GENERAL: self.general.getJson()} if self.general.getJson() else {})
 
-        json.update({SECTION_STORYLINE: self.general.getStoryline().getJson()} if self.general.getStoryline().getJson() else {})
-        json.update({SECTION_TOPIC: self.general.getTopic().getJson()} if self.general.getTopic().getJson() else {})
-        json.update({SECTION_LYRICS: self.general.getLyrics().getJson()} if self.general.getLyrics().getJson() else {})
+        json.update({JSON_SECTION_STORYLINE: self.general.getStoryline().getJson()} if self.general.getStoryline().getJson() else {})
+        json.update({JSON_SECTION_TOPIC: self.general.getTopic().getJson()} if self.general.getTopic().getJson() else {})
+        json.update({JSON_SECTION_LYRICS: self.general.getLyrics().getJson()} if self.general.getLyrics().getJson() else {})
 
-        json.update({SECTION_CLASSIFICATION: self.classification.getJson()} if self.classification.getJson() else {})
-        json.update({SECTION_CONTROL: self.control.getJson()} if self.control.getJson() else {})
+        json.update({JSON_SECTION_CLASSIFICATION: self.classification.getJson()} if self.classification.getJson() else {})
+        json.update({JSON_SECTION_CONTROL: self.control.getJson()} if self.control.getJson() else {})
         
-        json.update({'appendixes' : [c.getJson() for c in self.mediaAppendixList]} if self.mediaAppendixList else {}) 
+        json.update({JSON_NODE_APPENDIXES : [c.getJson() for c in self.mediaAppendixList]} if self.mediaAppendixList else {}) 
         
         return json
     

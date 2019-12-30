@@ -1,3 +1,7 @@
+from medlib.card_ini import JSON_KEY_CONTROL_MEDIA
+from medlib.card_ini import JSON_KEY_CONTROL_ORDERBY
+from medlib.card_ini import JSON_KEY_CONTROL_CATEGORY
+
 class IniControl(object):
     """
     This class represents the [control] section in the card.ini file
@@ -30,9 +34,9 @@ class IniControl(object):
 
     def getJson(self):        
         json = {}
-        json.update({} if self.media is None or not self.media else {'media': self.media})
-        json.update({} if self.orderby is None or not self.orderby else {'orderby': self.orderby})
-        json.update({} if self.category is None or not self.category else {'category':self.category})
+        json.update({} if self.media is None or not self.media else {JSON_KEY_CONTROL_MEDIA: self.media})
+        json.update({} if self.orderby is None or not self.orderby else {JSON_KEY_CONTROL_ORDERBY: self.orderby})
+        json.update({} if self.category is None or not self.category else {JSON_KEY_CONTROL_CATEGORY:self.category})
         
         return json
     
