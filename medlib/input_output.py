@@ -21,7 +21,9 @@ from medlib.mediamodel.ini_classification import IniClassification
 from medlib.handle_property import config_ini 
 from medlib.handle_property import Property 
 
-from medlib.card_ini import CardIni
+from medlib.card_ini import CardIni, CARD_INI_FILE_NAME, SECTION_CONTROL,\
+    SECTION_TITLES, SECTION_STORYLINE, SECTION_TOPIC, SECTION_LYRICS,\
+    SECTION_GENERAL, SECTION_MEDIA
 from medlib.card_ini import SECTION_CLASSIFICATION
 from medlib.card_ini import KEY_CLASSIFICATION_RATE
 from medlib.card_ini import KEY_CLASSIFICATION_FAVORITE
@@ -97,7 +99,7 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
     for file_name in file_list:
         
         # find the Card
-        if file_name == "card.ini":
+        if file_name == CARD_INI_FILE_NAME:
             card_path = os.path.join(actualDir, file_name)
             
         # find the Image
@@ -122,7 +124,7 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
         
         # --- CONTROL --- #
         try:
-            con_orderby = card_ini.get("control", "orderby", CardIni.getOrderByList()[0], False)
+            con_orderby = card_ini.get(SECTION_CONTROL, "orderby", CardIni.getOrderByList()[0], False)
             #con_orderby = parser.get("control", "orderby")
             #con_orderby = con_orderby if con_orderby in CardIni.getOrderByList() else ""
             con_orderby = con_orderby if con_orderby in CardIni.getOrderByList() else CardIni.getOrderByList()[0]
@@ -131,7 +133,7 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
             con_orderby = CardIni.getOrderByList()[0]
 
         try:
-            con_media = card_ini.get("control", "media", CardIni.getMediaList()[0], False)
+            con_media = card_ini.get(SECTION_CONTROL, "media", CardIni.getMediaList()[0], False)
             #con_media = parser.get("control", "media")
             #con_media = con_media if con_media in CardIni.getMediaList() else ""
             con_media = con_media if con_media in CardIni.getMediaList() else CardIni.getMediaList()[0]
@@ -140,7 +142,7 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
             con_media = CardIni.getMediaList()[0]
         
         try:
-            con_category = card_ini.get("control", "category", CardIni.getCategoryListByMedia(con_media)[0], False)
+            con_category = card_ini.get(SECTION_CONTROL, "category", CardIni.getCategoryListByMedia(con_media)[0], False)
             #con_category = parser.get("control", "category")            
             #con_category = con_category if con_category in CardIni.getCategoryListByMedia(con_media) else ""
             con_category = con_category if con_category in CardIni.getCategoryListByMedia(con_media) else CardIni.getCategoryListByMedia(con_media)[0]
@@ -159,13 +161,13 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
 
         # --- TITLE --- #
         try:
-            titles_dict = card_ini.getOptions("titles")
+            titles_dict = card_ini.getOptions(SECTION_TITLES)
             #titles_dict=dict(parser.items("titles"))
         except (configparser.NoSectionError, configparser.NoOptionError):
             titles_dict = {"orig": ""}            
         
         try:
-            title_orig = card_ini.get("titles", "orig", "", False) 
+            title_orig = card_ini.get(SECTION_TITLES, "orig", "", False) 
             #title_orig = parser.get("titles", "orig")
         except (configparser.NoSectionError, configparser.NoOptionError):
             title_orig = ""        
@@ -180,7 +182,7 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
 
         #--- STORYLINE --- #
         try:
-            storyline_dict = card_ini.getOptions("storyline")
+            storyline_dict = card_ini.getOptions(SECTION_STORYLINE)
             #storyline_dict=dict(parser.items("storyline"))
         except (configparser.NoSectionError, configparser.NoOptionError):
             storyline_dict = None       
@@ -201,7 +203,7 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
                 
         #--- TOPIC --- #
         try:
-            topic_dict = card_ini.getOptions("topic")
+            topic_dict = card_ini.getOptions(SECTION_TOPIC)
             #topic_dict=dict(parser.items("topic"))
         except (configparser.NoSectionError, configparser.NoOptionError):
             topic_dict=None       
@@ -222,7 +224,7 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
 
         #--- LYRICS --- #
         try:
-            lyrics_dict = card_ini.getOptions("lyrics")
+            lyrics_dict = card_ini.getOptions(SECTION_LYRICS)
             #lyrics_dict=dict(parser.items("lyrics"))
         except (configparser.NoSectionError, configparser.NoOptionError):
             lyrics_dict=None       
@@ -243,7 +245,7 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
 
         #--- GENERAL --- #
         try:
-            general_dict = card_ini.getOptions("general")
+            general_dict = card_ini.getOptions(SECTION_GENERAL)
             #general_dict=dict(parser.items("general"))
         except (configparser.NoSectionError, configparser.NoOptionError):
             if lyrics or topic or storyline:
@@ -425,7 +427,7 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
         #
         try:
 #            media_path = parser.get("media", "link")
-            media_path = card_ini.get("media", "link", media_path, False) 
+            media_path = card_ini.get(SECTION_MEDIA, "link", media_path, False) 
 
         except (configparser.NoSectionError, configparser.NoOptionError):
             pass
@@ -527,7 +529,7 @@ def collectCardsFromJson(jsonForm, parentMediaCollector = None):
     nextParent = parentMediaCollector
     
     # --- TITLE --- #
-    titles = jsonForm.get('titles')
+    titles = jsonForm.get(SECTION_TITLES)
     ini_titles = None
     if titles:        
         titles_dict = {}
@@ -541,7 +543,7 @@ def collectCardsFromJson(jsonForm, parentMediaCollector = None):
         ini_titles = IniTitles(titles_orig, titles_dict)
         
     #--- STORYLINE --- #
-    storyline = jsonForm.get('storyline')
+    storyline = jsonForm.get(SECTION_STORYLINE)
     ini_storyline = None
     if storyline:
         storyline_dict = {}
@@ -555,7 +557,7 @@ def collectCardsFromJson(jsonForm, parentMediaCollector = None):
         ini_storyline = IniStorylines(storyline_orig, storyline_dict)                
                 
     #--- TOPIC --- #
-    topic = jsonForm.get('topic')
+    topic = jsonForm.get(SECTION_TOPIC)
     ini_topic = None
     if topic:
         topic_dict = {}
@@ -569,7 +571,7 @@ def collectCardsFromJson(jsonForm, parentMediaCollector = None):
         ini_topic = IniStorylines(topic_orig, topic_dict)                
             
     #--- LYRICS --- #
-    lyrics = jsonForm.get('lyrics')
+    lyrics = jsonForm.get(SECTION_LYRICS)
     ini_lyrics = None
     if lyrics:
         lyrics_dict = {}
@@ -594,7 +596,7 @@ def collectCardsFromJson(jsonForm, parentMediaCollector = None):
 #        ini_general = None
         
     #--- GENERAL --- #
-    general = jsonForm.get('general')
+    general = jsonForm.get(SECTION_GENERAL)
     if general:
         year = general.get('year')
         length = general.get('length')
@@ -665,7 +667,7 @@ def collectCardsFromJson(jsonForm, parentMediaCollector = None):
         ini_classification = IniClassification(rat_rate, rat_favorite, rat_new) 
 
     # --- CONTROL --- #
-    control = jsonForm.get('control')
+    control = jsonForm.get(SECTION_CONTROL)
     #ini_control = None
     con_orderby = ""
     con_media = ""

@@ -53,6 +53,7 @@ section_dict = {
 
     'classification': ('rate', 'tag', 'new','favorite'),
     'control': ('orderby', 'media', 'category'),
+    'media': ('link', 'file'),
     'links': (),
 
 }
@@ -95,6 +96,8 @@ class CardIni(object):
     def getSectionDict():
         return section_dict
 
+CARD_INI_FILE_NAME = "card.ini"
+
 SECTION_TITLES = CardIni.getSectionList()[0]
 SECTION_STORYLINE = CardIni.getSectionList()[1]
 SECTION_TOPIC = CardIni.getSectionList()[2]
@@ -102,6 +105,7 @@ SECTION_LYRICS = CardIni.getSectionList()[3]
 SECTION_GENERAL = CardIni.getSectionList()[4]
 SECTION_CLASSIFICATION = CardIni.getSectionList()[5]
 SECTION_CONTROL = CardIni.getSectionList()[6]
+SECTION_MEDIA = CardIni.getSectionList()[7]
 
 KEY_CLASSIFICATION_RATE = section_dict[SECTION_CLASSIFICATION][0]
 KEY_CLASSIFICATION_TAG = section_dict[SECTION_CLASSIFICATION][1]
