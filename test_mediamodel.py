@@ -11,7 +11,7 @@ from medlib.input_output import collectCards
 from medlib.mediamodel.ini_titles import IniTitles
 from medlib.mediamodel.ini_storylines import IniStorylines
 from medlib.mediamodel.ini_control import IniControl
-from medlib.mediamodel.ini_rating import IniRating
+from medlib.mediamodel.ini_classification import IniClassification
 from medlib.mediamodel.ini_general import IniGeneral
 
 from medlib.mediamodel.media_collector import MediaCollector
@@ -61,7 +61,7 @@ class App(QWidget):
 #        general_B.setStoryline(storylines_B)
 #        general_B.setSeries("3")
 #        general_B.setEpisode("2")
-#        rating_B = IniRating(None, True, True) 
+#        rating_B = IniClassification(None, True, True) 
 #        collector_B = MediaCollector(path_collector_B, titles_B, control_B, general_B, rating_B)
 
 #        path_collector_C = PathsCollector('D_folder_name', "/path/to/ini", "/path/to/jpeg")
@@ -129,7 +129,7 @@ class App(QWidget):
 #        general_BC.setSeries("9")
 #        general_BC.setEpisode("5")
 
-#        rating_BC = IniRating(10, True, True) 
+#        rating_BC = IniClassification(10, True, True) 
 #        storage_BC = MediaStorage(path_storage_BC, titles_BC, control_BC, general_BC, rating_BC)
 #        storage_BC.addMediaAppendix(media_appendix_A)
 #        storage_BC.addMediaAppendix(media_appendix_B)
@@ -159,7 +159,7 @@ class App(QWidget):
 #        general_BD.setGenres(["action", "crime"])
 #        general_BD.setThemes(["money", "greed"])
 #        general_BD.setStoryline(storylines_BD)
-#        rating_BD = IniRating(10, True, True) 
+#        rating_BD = IniClassification(10, True, True) 
 #        storage_BD = MediaStorage(path_storage_BD, titles_BD, control_BD, general_BD, rating_BD)
 #        collector_B.addMediaStorage(storage_BD)
 

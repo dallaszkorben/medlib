@@ -24,11 +24,45 @@ media_dict = {
         'category': ()}
 }
 
+section_dict = {
+    'titles': ('movie', 'music', 'show', 'presentation', 'alternative', 'miscellaneous'),
+    'storyline': (),
+    'topic': (),
+    'lyrics': (),
+               
+    'general': (
+        {'year': (True, 'setYear',)},
+        {'director', (True, 'setDirectors',)},
+        {'maker', (True, 'setMakers',)},
+        {'writer', (True, 'setWriters',)},
+        {'author', (True, 'setAuthors',)},
+        {'actor', (True, 'setActors',)},
+        {'performer', (True, 'setPerformers',)},
+        {'lecturer', (True, 'setLecturers',)},
+        {'contributor', (True, 'setContributors',)},
+        {'voice', (True, 'setVoices',)},
+        {'genre', (True, 'setGenres',)},
+        {'theme', (True, 'setThemes',)},
+#        {'storyline', (False, 'setStoryline',)},
+#        {'topic', (True, 'setTopic',)},
+#        {'lyrics', (True, 'setLyrics',)},
+        {'series', (True, 'setSeries',)},
+        {'episode', (True, 'setEpiside',)},
+        ),
+
+
+    'classification': ('rate', 'tag', 'new','favorite'),
+    'control': ('orderby', 'media', 'category'),
+    'links': (),
+
+}
+
 class CardIni(object):
 
     @staticmethod
     def getSectionList():
-        return ('titles', 'storyline', 'general', 'rating', 'links', 'control')
+        return list(section_dict.keys()) 
+        #return ('titles', 'storyline', 'general', 'classification', 'links', 'control')
 
     @staticmethod
     def getMediaList():
@@ -53,42 +87,23 @@ class CardIni(object):
         return ('folder', 'title')
 
 
-
-
-
-
     @staticmethod
-    def getKeyList(section):
-        category = {
-            'titles': ('movie', 'music', 'show', 'presentation', 'alternative', 'miscellaneous'),
-            'storyline': (),
-            
-            'general': ({'year': (True, 'setYear',)},
-                        {'director', (True, 'setDirectors',)},
-                        {'maker', (True, 'setMakers',)},
-                        {'writer', (True, 'setWriters',)},
-                        {'author', (True, 'setAuthors',)},
-                        {'actor', (True, 'setActors',)},
-                        {'performer', (True, 'setPerformers',)},
-                        {'lecturer', (True, 'setLecturers',)},
-                        {'contributor', (True, 'setContributors',)},
-                        {'voice', (True, 'setVoices',)},
-                        {'genre', (True, 'setGenres',)},
-                        {'theme', (True, 'setThemes',)},
-                        {'storyline', (False, 'setStoryline',)},
-                        {'topic', (True, 'setTopic',)},
-                        {'lyrics', (True, 'setLyrics',)},
-                        {'series', (True, 'setSeries',)},
-                        {'episode', (True, 'setEpiside',)},
-                        ),
-
-
-
-            'rating': ('new','favorite','rate'),
-            'links': (),
-            'control': ('orderby', 'media', 'category')
-        }
-        return category[section]
+    def getKeyList(section):        
+        return section_dict[section]
     
+    @staticmethod
+    def getSectionDict():
+        return section_dict
 
+SECTION_TITLES = CardIni.getSectionList()[0]
+SECTION_STORYLINE = CardIni.getSectionList()[1]
+SECTION_TOPIC = CardIni.getSectionList()[2]
+SECTION_LYRICS = CardIni.getSectionList()[3]
+SECTION_GENERAL = CardIni.getSectionList()[4]
+SECTION_CLASSIFICATION = CardIni.getSectionList()[5]
+SECTION_CONTROL = CardIni.getSectionList()[6]
 
+KEY_CLASSIFICATION_RATE = section_dict[SECTION_CLASSIFICATION][0]
+KEY_CLASSIFICATION_TAG = section_dict[SECTION_CLASSIFICATION][1]
+KEY_CLASSIFICATION_NEW = section_dict[SECTION_CLASSIFICATION][2]
+KEY_CLASSIFICATION_FAVORITE = section_dict[SECTION_CLASSIFICATION][3]

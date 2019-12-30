@@ -26,7 +26,7 @@ class MediaStorage(MediaBase):
     This container can contain
     """
     
-    def __init__(self, pathsStorage, titles, control, general=None,  rating=None):
+    def __init__(self, pathsStorage, titles, control, general=None,  classification=None):
         """
         This is the constructor of the MediaStorage
         ___________________________________________
@@ -36,9 +36,9 @@ class MediaStorage(MediaBase):
                 titles          IniTitles         represents the [titles] section
                 control         IniControl        represents the [control] section
                 general         IniGeneral        represents the [general] section
-                rating          IniRating         represents the [rating] section
+                classification          IniRating         represents the [classification] section
         """
-        super().__init__(titles, control, general, rating)
+        super().__init__(titles, control, general, classification)
         
         assert issubclass(pathsStorage.__class__, PathsStorage)
         

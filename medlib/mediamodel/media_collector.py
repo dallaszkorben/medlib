@@ -18,7 +18,7 @@ class MediaCollector(MediaBase):
     This container can contain more MediaContainers and/or
     one MediaContent
     """
-    def __init__(self, pathsCollector, titles, control, general=None, rating=None):  
+    def __init__(self, pathsCollector, titles, control, general=None, classification=None):  
         """
         This is the constructor of the MediaCollector
         ________________________________________
@@ -28,9 +28,9 @@ class MediaCollector(MediaBase):
                 titles            IniTitles         represents the [titles] section
                 control           IniControl        represents the [control] section
                 general           IniGeneral        represents the [general] section
-                rating            IniRating         represents the [rating] section
+                classification            IniRating         represents the [classification] section
         """
-        super().__init__(titles, control, general, rating)
+        super().__init__(titles, control, general, classification)
         
 #        NoneType = type(None)
 #        assert issubclass(parentCollector.__class__, (MediaCollector, NoneType)), general.__class__

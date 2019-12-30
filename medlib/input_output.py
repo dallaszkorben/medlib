@@ -16,12 +16,16 @@ from medlib.mediamodel.ini_titles import IniTitles
 from medlib.mediamodel.ini_control import IniControl
 from medlib.mediamodel.ini_storylines import IniStorylines
 from medlib.mediamodel.ini_general import IniGeneral
-from medlib.mediamodel.ini_rating import IniRating
+from medlib.mediamodel.ini_classification import IniClassification
 
-from medlib.card_ini import CardIni
 from medlib.handle_property import config_ini 
 from medlib.handle_property import Property 
 
+from medlib.card_ini import CardIni
+from medlib.card_ini import SECTION_CLASSIFICATION
+from medlib.card_ini import KEY_CLASSIFICATION_RATE
+from medlib.card_ini import KEY_CLASSIFICATION_FAVORITE
+from medlib.card_ini import KEY_CLASSIFICATION_NEW
 
 
 def getPatternImage():
@@ -118,31 +122,31 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
         
         # --- CONTROL --- #
         try:
-            con_orderby = card_ini.get("control", "orderby", CardIni.getOrderByList().index(0), False)
+            con_orderby = card_ini.get("control", "orderby", CardIni.getOrderByList()[0], False)
             #con_orderby = parser.get("control", "orderby")
             #con_orderby = con_orderby if con_orderby in CardIni.getOrderByList() else ""
-            con_orderby = con_orderby if con_orderby in CardIni.getOrderByList() else CardIni.getOrderByList().index(0)
+            con_orderby = con_orderby if con_orderby in CardIni.getOrderByList() else CardIni.getOrderByList()[0]
         except (configparser.NoSectionError, configparser.NoOptionError):
             #con_orderby = ""
-            con_orderby = CardIni.getOrderByList().index(0)        
+            con_orderby = CardIni.getOrderByList()[0]
 
         try:
-            con_media = card_ini.get("control", "media", CardIni.getMediaList().index(0), False)
+            con_media = card_ini.get("control", "media", CardIni.getMediaList()[0], False)
             #con_media = parser.get("control", "media")
             #con_media = con_media if con_media in CardIni.getMediaList() else ""
-            con_media = con_media if con_media in CardIni.getMediaList() else CardIni.getMediaList().index(0)
+            con_media = con_media if con_media in CardIni.getMediaList() else CardIni.getMediaList()[0]
         except (configparser.NoSectionError, configparser.NoOptionError):
             #con_media = ""
-            con_media = CardIni.getMediaList().index(0)
+            con_media = CardIni.getMediaList()[0]
         
         try:
-            con_category = card_ini.get("control", "category", CardIni.getCategoryListByMedia().index(0), False)
+            con_category = card_ini.get("control", "category", CardIni.getCategoryListByMedia(con_media)[0], False)
             #con_category = parser.get("control", "category")            
             #con_category = con_category if con_category in CardIni.getCategoryListByMedia(con_media) else ""
-            con_category = con_category if con_category in CardIni.getCategoryListByMedia(con_media) else CardIni.getCategoryListByMedia().index(0)
+            con_category = con_category if con_category in CardIni.getCategoryListByMedia(con_media) else CardIni.getCategoryListByMedia(con_media)[0]
         except (configparser.NoSectionError, configparser.NoOptionError):
             #con_category = ""
-            con_category = CardIni.getCategoryListByMedia().index(0)
+            con_category = CardIni.getCategoryListByMedia(con_media)[0]
                     
         control = IniControl(con_orderby, con_media, con_category) 
  
@@ -387,37 +391,44 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
             if lyrics:
                 general.setLyrics(lyrics)
         
-        #--- RATING --- #
+        #--- CLASSIFICATION --- #
         try:
-            rating_dict = card_ini.getOptions("rating")
-            #rating_dict=dict(parser.items("rating"))
+            classification_dict = card_ini.getOptions(SECTION_CLASSIFICATION)
+            #classification_dict=dict(parser.items("classification"))
         except (configparser.NoSectionError, configparser.NoOptionError):
-            rating_dict=None       
+            classification_dict=None       
         
-        rating = None
-        if rating_dict:
+        classification = None
+        if classification_dict:
             rat_rate = 0
             rat_favorite = False
             rat_new = False
        
-            for key, value in rating_dict.items():
-                if key == "rate" and getPatternRate().match(value):
+            for key, value in classification_dict.items():
+                if key == KEY_CLASSIFICATION_RATE and getPatternRate().match(value):
                     rat_rate = int(value)
-                elif key == "favorite" and (value == 'y' or value == 'n'):
+                elif key == KEY_CLASSIFICATION_FAVORITE and (value == 'y' or value == 'n'):
                     rat_favorite = True if value == 'y' else False
-                elif key == "new" and (value == 'y' or value == 'n'):
+                elif key == KEY_CLASSIFICATION_NEW and (value == 'y' or value == 'n'):
                     rat_new = True if value == 'y' else False
                    
-            rating = IniRating(rat_rate, rat_favorite, rat_new) 
+            classification = IniClassification(rat_rate, rat_favorite, rat_new) 
 
 #        parser = configparser.RawConfigParser()
 #        parser.read(card_path, encoding='utf-8')
 #
-#        # --- MEDIA --- #
-#        try:
+        # --- MEDIA --- #
+        #
+        # Mostly used in case of Appendix
+        # it is needed when the media is not the file which is in the same folder as the card.ini
+        # for example: link
+        #
+        try:
 #            media_path = parser.get("media", "link")
-#        except (configparser.NoSectionError, configparser.NoOptionError):
-#            pass
+            media_path = card_ini.get("media", "link", media_path, False) 
+
+        except (configparser.NoSectionError, configparser.NoOptionError):
+            pass
 
 
         # -------------------- MediaCollector/MediaStorage/MediaAppendix construction ------------
@@ -457,7 +468,7 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
         #      
         if card_path and not media_path and dir_list and issubclass(parentMediaCollector.__class__, (MediaCollector, NoneType)):
             pathCollector = PathsCollector(os.path.dirname(card_path), card_path, image_path)            
-            recentMedia = MediaCollector(pathCollector, titles, control, general, rating)
+            recentMedia = MediaCollector(pathCollector, titles, control, general, classification)
             
             # If it has parent -> add it to parent, otherwise it will be the parent
             if parentMediaCollector:
@@ -470,7 +481,7 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
         #
         elif card_path and media_path and issubclass(parentMediaCollector.__class__, MediaCollector):
             pathStorage = PathsStorage(os.path.dirname(card_path), card_path, image_path, media_path)            
-            recentMedia = MediaStorage(pathStorage, titles, control, general, rating)
+            recentMedia = MediaStorage(pathStorage, titles, control, general, classification)
             parentMediaCollector.addMediaStorage(recentMedia)
 
         #
@@ -569,7 +580,7 @@ def collectCardsFromJson(jsonForm, parentMediaCollector = None):
                 lyrics_dict[key] = value
             elif key == 'orig':
                 lyrics_orig = value
-        ini_topic = IniStorylines(topic_orig, lyrics_dict)
+        ini_lyrics = IniStorylines(lyrics_orig, lyrics_dict)
 
     ini_general = IniGeneral()            
     if ini_lyrics or ini_storylines or ini_topic:
@@ -602,9 +613,6 @@ def collectCardsFromJson(jsonForm, parentMediaCollector = None):
         country = general.get('country')
         series = general.get('series')
         episode = general.get('episode')
-
-#        if year or length or director or maker or author or actor or performer or lecturer or contributor or voice or genre or theme or sub or sound or country or series or episode:
-#            ini_general = IniGeneral()
             
         if year:
             ini_general.setYear(year)
@@ -641,20 +649,20 @@ def collectCardsFromJson(jsonForm, parentMediaCollector = None):
         if episode:
             ini_general.setEpisode(episode)
 
-    #--- RATING --- #
-    rating = jsonForm.get('rating')
-    ini_rating = None
-    if rating:
+    #--- CLASSIFICATION --- #
+    classification = jsonForm.get(SECTION_CLASSIFICATION)
+    ini_classification = None
+    if classification:
 
-        rat_rate = rating.get('rate')
-        rat_favorite = rating.get('favorite')
-        rat_new = rating.get('new')        
+        rat_rate = classification.get(KEY_CLASSIFICATION_RATE)
+        rat_favorite = classification.get(KEY_CLASSIFICATION_FAVORITE)
+        rat_new = classification.get(KEY_CLASSIFICATION_NEW)        
         
         rat_rate = rat_rate if getPatternRate().match(str(rat_rate)) else 0            
         rat_favorite = True if rat_favorite == 'y' else False        
         rat_new = True if rat_new == 'y' else False      
                    
-        ini_rating = IniRating(rat_rate, rat_favorite, rat_new) 
+        ini_classification = IniClassification(rat_rate, rat_favorite, rat_new) 
 
     # --- CONTROL --- #
     control = jsonForm.get('control')
@@ -689,7 +697,7 @@ def collectCardsFromJson(jsonForm, parentMediaCollector = None):
         path_of_image = path_collector.get('path-of-image')
         
         ini_path_collector = PathsCollector(name_of_folder, path_of_card, path_of_image)
-        nextParent = MediaCollector(ini_path_collector, ini_titles, ini_control, ini_general, ini_rating)
+        nextParent = MediaCollector(ini_path_collector, ini_titles, ini_control, ini_general, ini_classification)
     
         if parentMediaCollector:
             parentMediaCollector.addMediaCollector(nextParent)
@@ -706,7 +714,7 @@ def collectCardsFromJson(jsonForm, parentMediaCollector = None):
         path_of_media = path_storage.get('path-of-media')
     
         ini_path_storage = PathsStorage(name_of_folder, path_of_card, path_of_image, path_of_media)
-        nextParent = MediaStorage(ini_path_storage, ini_titles, ini_control, ini_general, ini_rating)
+        nextParent = MediaStorage(ini_path_storage, ini_titles, ini_control, ini_general, ini_classification)
         parentMediaCollector.addMediaStorage(nextParent)
         
     #

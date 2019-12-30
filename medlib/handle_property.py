@@ -120,7 +120,7 @@ class Property(object):
         self.__write_file()
         
     def getOptions(self, section):
-        return self.parser.items(section)
+        return dict(self.parser.items(section))
     
     def should_write(self, writable):
         return ((writable is None and self.writable) or (writable))

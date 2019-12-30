@@ -14,6 +14,12 @@ from medlib.constants import RATING_ICON_EXTENSION
 from medlib.constants import ON
 from medlib.constants import OFF
 
+from medlib.card_ini import SECTION_CLASSIFICATION
+
+from medlib.card_ini import KEY_CLASSIFICATION_RATE
+from medlib.card_ini import KEY_CLASSIFICATION_TAG
+from medlib.card_ini import KEY_CLASSIFICATION_NEW
+from medlib.card_ini import KEY_CLASSIFICATION_FAVORITE
 
 from medlib.handle_property import updateCardIni
 
@@ -35,17 +41,18 @@ from PyQt5.QtCore import QSize
 
 from PyQt5.Qt import QIcon
 
-class IniRating(object):
+class IniClassification(object):
     """
-    This class represents the [rating] section in the card.ini file
+    This class represents the [classification] section in the card.ini file
         -rate
         -favorite
         -new
+        -tag
     """
     
     def __init__(self, rate=None, favorite=None, new=None):
         """
-        This is the constructor of the IniRating class
+        This is the constructor of the IniClassification class
         ___________________________________________
         input:
             rate         integer       1-10
@@ -76,9 +83,9 @@ class IniRating(object):
         
     def getJson(self):        
         json = {}
-        json.update({} if self.rate is None else {'rate': self.rate})
-        json.update({} if self.favorite is None else {'favorite' : "y" if self.favorite else "n"})
-        json.update({} if self.new is None else {'new': "y" if self.new else "n"})
+        json.update({} if self.rate is None else {KEY_CLASSIFICATION_RATE: self.rate})
+        json.update({} if self.favorite is None else {KEY_CLASSIFICATION_FAVORITE : "y" if self.favorite else "n"})
+        json.update({} if self.new is None else {KEY_CLASSIFICATION_NEW: "y" if self.new else "n"})
         
         return json
     
@@ -96,44 +103,44 @@ class IniRating(object):
              |__________|
         """        
         # layout of this widget => three columns
-        rating_layout = QVBoxLayout()
-        rating_layout.setAlignment(Qt.AlignTop)
+        classification_layout = QVBoxLayout()
+        classification_layout.setAlignment(Qt.AlignTop)
         
         # space between the three grids
-        rating_layout.setSpacing(20 * scale)
+        classification_layout.setSpacing(20 * scale)
         
         # margin around the widget
-        rating_layout.setContentsMargins(0, 5, 5, 5)
+        classification_layout.setContentsMargins(0, 5, 5, 5)
         
         widget = QWidget()
-        widget.setLayout(rating_layout)
+        widget.setLayout(classification_layout)
         
         # --- RATE ---
-        widgetRate = self.getWidgetRatingInfoRate(media, scale)
-        rating_layout.addWidget(widgetRate)
+        widgetRate = self.getWidgetClassificationInfoRate(media, scale)
+        classification_layout.addWidget(widgetRate)
         
         # --- FAVORITE ---
-        widgetFavorite=self.getWidgetRatingInfoFavorite(media, scale)
-        rating_layout.addWidget(widgetFavorite) 
+        widgetFavorite=self.getWidgetClassificationInfoFavorite(media, scale)
+        classification_layout.addWidget(widgetFavorite) 
 
         # --- NEW ---
-        widgetNew=self.getWidgetRatingInfoNew(media, scale)
-        rating_layout.addWidget(widgetNew) 
+        widgetNew=self.getWidgetClassificationInfoNew(media, scale)
+        classification_layout.addWidget(widgetNew) 
         
         return widget
 
-    #             #
-    # Rating Rate #
-    #             #
-    def getWidgetRatingInfoRate( self, media, scale ):
+    # ---- #
+    # Rate #
+    # ---- #
+    def getWidgetClassificationInfoRate( self, media, scale ):
         
         class MySpinBox(QSpinBox):
             
-            def __init__(self, ini_rating, scale):
+            def __init__(self, ini_classification, scale):
                 super().__init__()
-                self.ini_rating = ini_rating
+                self.ini_classification = ini_classification
         
-                if self.ini_rating.getRate() is None:
+                if self.ini_classification.getRate() is None:
                     self.hide()
 
                 else:
@@ -144,9 +151,9 @@ class IniRating(object):
                     self.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * scale, weight=QFont.Normal))
                     self.lineEdit().setStyleSheet( "QLineEdit{color:black}")
                     self.setStyleSheet( "QSpinBox{background:'" + RATE_BACKGROUND_COLOR + "'}")
-                    self.setValue(self.ini_rating.getRate())
+                    self.setValue(self.ini_classification.getRate())
                     
-                    self.valueChanged.connect(self.ratingRateOnValueChanged)
+                    self.valueChanged.connect(self.classificationRateOnValueChanged)
 
             def stepBy(self, steps):
                 """
@@ -176,13 +183,13 @@ class IniRating(object):
 #                self.card_panel.get_card_holder().setFocus()
                 event.ignore()
 
-            def ratingRateOnValueChanged(self):
+            def classificationRateOnValueChanged(self):
                  
                 # change the value of the rate in the Object
-                self.ini_rating.setRate(self.value())
+                self.ini_classification.setRate(self.value())
                 
                 # change the value of the rate in the card.ini
-                updateCardIni(media.getPathOfCard(), "rating", "rate", self.value())
+                updateCardIni(media.getPathOfCard(), SECTION_CLASSIFICATION, KEY_CLASSIFICATION_RATE, self.value())
                 
                 # change the value of the rate in the json                
                 medlib.input_output.saveJson(media.getRoot())
@@ -190,16 +197,16 @@ class IniRating(object):
         widget = MySpinBox(self, scale)        
         return widget
         
-    #                 #
-    # Rating Favorite #
-    #                 #
-    def getWidgetRatingInfoFavorite(self, media, scale):
+    # -------- #
+    # Favorite #
+    # -------- #
+    def getWidgetClassificationInfoFavorite(self, media, scale):
         class FavoriteButton(QPushButton):
-            def __init__(self, ini_rating, scale):
+            def __init__(self, ini_classification, scale):
                 QPushButton.__init__(self)
-                self.ini_rating = ini_rating
+                self.ini_classification = ini_classification
         
-                if self.ini_rating.getFavorite() is None:
+                if self.ini_classification.getFavorite() is None:
                     self.hide()
                 else:
                     self.setCheckable(True)        
@@ -210,17 +217,17 @@ class IniRating(object):
                     self.setIconSize(QSize(RATING_ICON_SIZE * scale, RATING_ICON_SIZE * scale))
                     self.setCursor(QCursor(Qt.PointingHandCursor))
                     self.setStyleSheet("background:transparent; border:none")
-                    self.setChecked(self.ini_rating.getFavorite())
+                    self.setChecked(self.ini_classification.getFavorite())
                     
-                    self.clicked.connect(self.ratingFavoriteButtonOnClick)
+                    self.clicked.connect(self.classificationFavoriteButtonOnClick)
                     
-            def ratingFavoriteButtonOnClick(self):
+            def classificationFavoriteButtonOnClick(self):
 
                 # change the status of the favorite in the Object
-                self.ini_rating.setFavorite(self.isChecked())
+                self.ini_classification.setFavorite(self.isChecked())
                 
                 # change the status of the favorite in the card.ini
-                updateCardIni(media.getPathOfCard(), "rating", "favorite", 'y' if self.isChecked() else 'n')
+                updateCardIni(media.getPathOfCard(), SECTION_CLASSIFICATION, KEY_CLASSIFICATION_FAVORITE, 'y' if self.isChecked() else 'n')
         
                 # change the value of the rate in the json
                 medlib.input_output.saveJson(media.getRoot())
@@ -228,16 +235,16 @@ class IniRating(object):
         button = FavoriteButton(self, scale)
         return button
 
-    #            #
-    # Rating New #
-    #            #
-    def getWidgetRatingInfoNew(self, media, scale):
+    # --- #
+    # New #
+    # --- #
+    def getWidgetClassificationInfoNew(self, media, scale):
         class NewButton(QPushButton):
-            def __init__(self, ini_rating, scale):
+            def __init__(self, ini_classification, scale):
                 QPushButton.__init__(self)    
-                self.ini_rating = ini_rating
+                self.ini_classification = ini_classification
 
-                if self.ini_rating.getNew() is None:
+                if self.ini_classification.getNew() is None:
                     self.hide()
                 else:        
                     self.setCheckable(True)        
@@ -248,17 +255,17 @@ class IniRating(object):
                     self.setIconSize(QSize(RATING_ICON_SIZE * scale, RATING_ICON_SIZE * scale))
                     self.setCursor(QCursor(Qt.PointingHandCursor))
                     self.setStyleSheet("background:transparent; border:none")
-                    self.setChecked(ini_rating.getNew())
+                    self.setChecked(ini_classification.getNew())
                     
-                    self.clicked.connect(self.ratingNewButtonOnClick)
+                    self.clicked.connect(self.classificationNewButtonOnClick)
         
-            def ratingNewButtonOnClick(self):
+            def classificationNewButtonOnClick(self):
                 
                 # change the status of the favorite in the Object
-                self.ini_rating.setNew(self.isChecked())
+                self.ini_classification.setNew(self.isChecked())
                 
                 # change the status of the favorite in the card.ini
-                updateCardIni(media.getPathOfCard(), "rating", "new", 'y' if self.isChecked() else 'n')
+                updateCardIni(media.getPathOfCard(), SECTION_CLASSIFICATION, KEY_CLASSIFICATION_NEW, 'y' if self.isChecked() else 'n')
         
                 # change the value of the rate in the json
                 medlib.input_output.saveJson(media.getRoot())

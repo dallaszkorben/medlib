@@ -21,7 +21,7 @@ from cardholder.cardholder import Card
 from medlib.mediamodel.ini_titles import IniTitles
 from medlib.mediamodel.ini_storylines import IniStorylines
 from medlib.mediamodel.ini_control import IniControl
-from medlib.mediamodel.ini_rating import IniRating
+from medlib.mediamodel.ini_rating import IniClassification
 from medlib.mediamodel.ini_general import IniGeneral
 
 from medlib.mediamodel.media_collector import MediaCollector
@@ -143,7 +143,7 @@ class App(QWidget):
         storylines_BC =IniStorylines("Ez a default: \nA Moz\ni tor\ntenet ...\n Ez egy\ntobb \nsoros\nUzenet\n Mert p\nont ezt \nakarom \n tesz\nte\nlni", {"en":"the movie's story is .." })
         #general_BC = IniGeneral("2012-2013", ["Dir 1", "Dir 2"], ["Writ 1", "Writ 2"], ["Act 1", "Act 2"], "2:12", ["en", "hu"], ["en", "hu"], ["action", "crime"], ["money", "greed"], ["us", "ca"])
         general_BC = IniGeneral("2012-2013", ["Dir 1", "Dir 2"], ["Writ 1", "Writ 2"], ["Act 1", "Act 2"], "2:12", [], [], ["action", "crime"], ["money", "greed"], ['us', 'ca'])
-        rating_BC = IniRating(10, True, True) 
+        rating_BC = IniClassification(10, True, True) 
         self.storage_BC = MediaStorage(path_storage_BC, titles_BC, control_BC, general_BC, storylines_BC, rating_BC)
         self.collector_B.addMediaStorage(self.storage_BC)
 
@@ -152,7 +152,7 @@ class App(QWidget):
         control_BD =IniControl("title", "video", "movie")
         storylines_BD =IniStorylines("Ez a \ndefault: \nA Mozi \ntorte\nnet ...\n Ez egy tobb soros\nUzenet\n Mert po\nnt ezt a\nkarom \n tesztelni", {"en":"the movie's story is .." })
         general_BD = IniGeneral("2012-2013", ["Dir 1", "Dir 2"], ["Writ 1", "Writ 2"], ["Act 1", "Act 2", "Act 3", "Act 4", "Act 5", "Act 6", "Act 7", "Act 8", "Act 9", "Act 10", "Act 11", "Act 12", "Act 13", "Act 14"], "2:12", ["en", "hu"], ["en", "hu"], ["action", "crime"], ["money", "greed"], ["us", "ca"])
-        rating_BD = IniRating(10, True, True) 
+        rating_BD = IniClassification(10, True, True) 
         storage_BD = MediaStorage(path_storage_BD, titles_BD, control_BD, general_BD, storylines_BD, rating_BD)
         self.collector_B.addMediaStorage(storage_BD)
 

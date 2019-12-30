@@ -5,7 +5,7 @@ from medlib.constants import PANEL_HEIGHT
 from builtins import object
 
 from medlib.mediamodel.ini_general import IniGeneral
-from medlib.mediamodel.ini_rating import IniRating
+from medlib.mediamodel.ini_classification import IniClassification
 from medlib.mediamodel.ini_titles import IniTitles
 from medlib.mediamodel.ini_control import IniControl
 
@@ -23,6 +23,14 @@ from PyQt5.QtGui import QPixmap
 
 from PyQt5.QtCore import Qt
 
+from medlib.card_ini import SECTION_CLASSIFICATION 
+from medlib.card_ini import SECTION_TITLES
+from medlib.card_ini import SECTION_GENERAL
+from medlib.card_ini import SECTION_STORYLINE
+from medlib.card_ini import SECTION_TOPIC
+from medlib.card_ini import SECTION_LYRICS
+from medlib.card_ini import SECTION_CONTROL
+
 class MediaBase(object):
     """
     This object represents the MediaBase
@@ -34,7 +42,7 @@ class MediaBase(object):
         """
         return locale.strxfrm(arg.getTranslatedTitle()) if arg.control.getOrderBy() == 'title' else arg.getNameOfFolder() if arg.control.getOrderBy() == 'folder' else arg.getNameOfFolder() 
     
-    def __init__(self, titles, control, general=None, rating=None):
+    def __init__(self, titles, control, general=None, classification=None):
         """
         This is the constructor of the MediaCollector
         ________________________________________
@@ -42,7 +50,7 @@ class MediaBase(object):
                 titles             IniTitles         represents the [titles] section
                 control            IniControl        represents the [control] section
                 general            IniGeneral        represents the [general] section
-                rating             IniRating         represents the [rating] section
+                classification     IniClassification represents the [classification] section
         """
         super().__init__()
         
@@ -50,14 +58,14 @@ class MediaBase(object):
         assert issubclass(titles.__class__, IniTitles)
         assert issubclass(control.__class__, IniControl)
         assert issubclass(general.__class__, (IniGeneral, NoneType)), general.__class__
-        assert issubclass(rating.__class__, (IniRating, NoneType)), rating.__class__
+        assert issubclass(classification.__class__, (IniClassification, NoneType)), classification.__class__
         
         self.parentCollector = None
         self.mediaAppendixList = []
         self.titles = titles
         self.control = control
         self.general = general if general else IniGeneral()
-        self.rating = rating if rating else IniRating()
+        self.classification = classification if classification else IniClassification()
         
         self.searchFunction = None
 
@@ -147,15 +155,15 @@ class MediaBase(object):
         """
         return self.general
 
-    def getRating(self):
+    def getClassification(self):
         """
-        Returns back the [rating] section.
+        Returns back the [classification] section.
         _________________________________________________________________________________________________
         input:
         output:
-                general       IniRating
+                general       IniClassification
         """
-        return self.rating
+        return self.classification
 
     def addMediaAppendix(self, mediaAppendix):
         """
@@ -270,6 +278,9 @@ class MediaBase(object):
         #
         cardinfo_layout.addWidget(self.general.getWidget(self, scale))
 
+        # --- TAG ---
+#        cardinfo_layout.addWidget(self.getWidget)
+
         # --- MEDIA APPENDIX ---        
         cardinfo_layout.addWidget(self.getWidgetMediaAppendix(scale))
         
@@ -312,7 +323,7 @@ class MediaBase(object):
     # --------------------------------------------
     # ----------------- Rating -------------------
     # --------------------------------------------
-    def getWidgetRating(self, scale):
+    def getWidgetClassification(self, scale):
         """   __________
              | Rate     |
              |__________|
@@ -321,7 +332,7 @@ class MediaBase(object):
              | New      |
              |__________|
         """
-        return self.rating.getWidget(self, scale)
+        return self.classification.getWidget(self, scale)
     
     # --------------------------------------------
     # --------------------------------------------
@@ -360,7 +371,7 @@ class MediaBase(object):
         grid_layout.addWidget(self.getWidgetCardInformationText(scale), 0, 1)
         
         # --- Rating ---
-        grid_layout.addWidget(self.getWidgetRating(scale), 0, 2)
+        grid_layout.addWidget(self.getWidgetClassification(scale), 0, 2)
         
         return widget
     
@@ -385,15 +396,15 @@ class MediaBase(object):
     def getJson(self):
         json = {}
         
-        json.update({'titles': self.titles.getJson()} if self.titles.getJson() else {})
-        json.update({'general': self.general.getJson()} if self.general.getJson() else {})
+        json.update({SECTION_TITLES: self.titles.getJson()} if self.titles.getJson() else {})
+        json.update({SECTION_GENERAL: self.general.getJson()} if self.general.getJson() else {})
 
-        json.update({'storyline': self.general.getStoryline().getJson()} if self.general.getStoryline().getJson() else {})
-        json.update({'topic': self.general.getTopic().getJson()} if self.general.getTopic().getJson() else {})
-        json.update({'lyrics': self.general.getLyrics().getJson()} if self.general.getLyrics().getJson() else {})
+        json.update({SECTION_STORYLINE: self.general.getStoryline().getJson()} if self.general.getStoryline().getJson() else {})
+        json.update({SECTION_TOPIC: self.general.getTopic().getJson()} if self.general.getTopic().getJson() else {})
+        json.update({SECTION_LYRICS: self.general.getLyrics().getJson()} if self.general.getLyrics().getJson() else {})
 
-        json.update({'rating': self.rating.getJson()} if self.rating.getJson() else {})
-        json.update({'control': self.control.getJson()} if self.control.getJson() else {})
+        json.update({SECTION_CLASSIFICATION: self.classification.getJson()} if self.classification.getJson() else {})
+        json.update({SECTION_CONTROL: self.control.getJson()} if self.control.getJson() else {})
         
         json.update({'appendixes' : [c.getJson() for c in self.mediaAppendixList]} if self.mediaAppendixList else {}) 
         
