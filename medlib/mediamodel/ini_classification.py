@@ -2,6 +2,8 @@ import os
 
 import medlib
 
+from medlib.handle_property import _
+
 from medlib.constants import PANEL_FONT_TYPE
 from medlib.constants import PANEL_FONT_SIZE
 from medlib.constants import RATE_BACKGROUND_COLOR
@@ -14,25 +16,30 @@ from medlib.constants import RATING_ICON_EXTENSION
 from medlib.constants import ON
 from medlib.constants import OFF
 
-from medlib.card_ini import SECTION_CLASSIFICATION
-
 from medlib.card_ini import KEY_CLASSIFICATION_RATE
 from medlib.card_ini import KEY_CLASSIFICATION_TAG
 from medlib.card_ini import KEY_CLASSIFICATION_NEW
 from medlib.card_ini import KEY_CLASSIFICATION_FAVORITE
 
+from medlib.card_ini import SECTION_CLASSIFICATION
+
+from medlib.card_ini import JSON_KEY_CLASSIFICATION_RATE
+from medlib.card_ini import JSON_KEY_CLASSIFICATION_TAG
+from medlib.card_ini import JSON_KEY_CLASSIFICATION_NEW
+from medlib.card_ini import JSON_KEY_CLASSIFICATION_FAVORITE
+
 from medlib.handle_property import updateCardIni
 
 from pkg_resources import resource_filename
 
-from PyQt5.QtWidgets import QVBoxLayout
+from PyQt5.QtWidgets import QVBoxLayout, QLabel, QSizePolicy
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtWidgets import QSpinBox
 from PyQt5.QtWidgets import QAbstractSpinBox
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtWidgets import QPushButton
 
-from PyQt5.QtGui import QFont
+from PyQt5.QtGui import QFont, QFontMetrics
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtGui import QCursor
 
@@ -40,6 +47,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtCore import QSize
 
 from PyQt5.Qt import QIcon
+from medlib.mediamodel.extra import FlowLayout, QHLine
 
 class IniClassification(object):
     """
@@ -50,21 +58,26 @@ class IniClassification(object):
         -tag
     """
     
-    def __init__(self, rate=None, favorite=None, new=None):
+    def __init__(self, rate=None, tag_list=[], favorite=None, new=None):
         """
         This is the constructor of the IniClassification class
         ___________________________________________
         input:
-            rate         integer       1-10
-            favorite     boolean       True,False
-            new          boolean       True,False
+            rate        integer     1-10
+            tag_list    list        list of tags
+            favorite    boolean     True,False
+            new         boolean     True,False
         """
         self.rate = rate if (rate is None or (rate >= 0 and rate <= 10)) else 1 if rate < 0 else 10
+        self.tag_list = tag_list
         self.favorite = favorite
         self.new = new
         
     def getRate(self):
         return self.rate
+    
+    def getTagList(self):
+        return self.tag_list
     
     def getFavorite(self):
         return self.favorite
@@ -83,17 +96,17 @@ class IniClassification(object):
         
     def getJson(self):        
         json = {}
-        json.update({} if self.rate is None else {KEY_CLASSIFICATION_RATE: self.rate})
-        json.update({} if self.favorite is None else {KEY_CLASSIFICATION_FAVORITE : "y" if self.favorite else "n"})
-        json.update({} if self.new is None else {KEY_CLASSIFICATION_NEW: "y" if self.new else "n"})
+        json.update({} if self.rate is None else {JSON_KEY_CLASSIFICATION_RATE: self.rate})
+        json.update({} if self.tag_list is None or not self.tag_list else {JSON_KEY_CLASSIFICATION_TAG: self.tag_list})
+        json.update({} if self.favorite is None else {JSON_KEY_CLASSIFICATION_FAVORITE : "y" if self.favorite else "n"})
+        json.update({} if self.new is None else {JSON_KEY_CLASSIFICATION_NEW: "y" if self.new else "n"})
         
-        return json
-    
+        return json    
     
     # --------------------------------------------
     # ----------------- Rating -------------------
     # --------------------------------------------
-    def getWidget(self, media, scale):
+    def getlWidget(self, media, scale):
         """   __________
              | Rate     |
              |__________|
@@ -273,7 +286,54 @@ class IniClassification(object):
         button = NewButton(self, scale)
         return button
     
-    
+
+    def addNameListToQLinkLabel(self, media, scale, grid_layout, row, title_id, value_method):
+        value = value_method()
+
+        if value:
+        
+            # --- horizontal line at the beginning
+            grid_layout.addWidget(QHLine(), row, 0, 1, 2)
+            row = row + 1
+            
+            widget_key = QLabel(_(title_id) + ":", )
+            widget_key.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * scale, weight=QFont.Bold))
+            widget_key.setAlignment(Qt.AlignTop)
+        
+            layout = FlowLayout()
+            layout.setAlignment(Qt.AlignLeft)        
+            layout.setSpacing(1)        
+            layout.setContentsMargins(0, 0, 0, 0)
+
+            widget_value = QWidget()
+            widget_value.setLayout( layout )
+            widget_value.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * scale, weight=QFont.Normal))        
+            first = True
+            for d in value:
+#                if not first:
+#                    layout.addWidget( QLabel(", ") )
+#                label = IniGeneral.QLinkLabelToSearch(media, scale, d, d, title_id)
+                label = QPushButton(d)
+                #label.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+                
+                label.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * scale, weight=QFont.Normal)) 
+                label.setStyleSheet("height: " + str(PANEL_FONT_SIZE * scale) + "px; ")
+                
+                # calculate text width
+                fm = QFontMetrics(label.font())
+                label.setFixedWidth(fm.width(label.text()) + 10)
+
+                
+                
+                layout.addWidget(label)
+#                first = False
+
+            grid_layout.addWidget(widget_key, row, 0)
+            grid_layout.addWidget(widget_value, row, 1)
+            row = row + 1
+            
+        return row   
+
     
     
     

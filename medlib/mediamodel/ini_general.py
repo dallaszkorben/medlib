@@ -418,7 +418,7 @@ class IniGeneral(object):
     # --------------------------------------------
     # ------------GENERAL INFORMATION ------------
     # --------------------------------------------
-    def getWidget(self, media, scale):
+    def getlWidget(self, media, scale):
         """  ___________________________________________________________________________
             | Director/Maker:                             |                             |
             |                                             |                             |
@@ -432,6 +432,8 @@ class IniGeneral(object):
             |_____________________________________________|_____________________________|
             | Storyline/Topic/Lyrics/-:                   |                             |
             |_____________________________________________|_____________________________|
+            | Tags::                                      |                             |
+            |_____________________________________________|_____________________________|            
         """                
 
         grid_layout = QGridLayout()
@@ -501,6 +503,10 @@ class IniGeneral(object):
         # --- LYRICS ---
         row = media.addWidgetGeneralInfoStoryline(widget, scale, grid_layout, row, 'title_lyrics', media.getTranslatedStoryline(self.getLyrics()))
                 
+        # --- TAG ---
+        row = media.classification.addNameListToQLinkLabel(media, scale, grid_layout, row, 'title_tag', media.classification.getTagList)
+
+        
         return widget
 
     # #####################################################################################

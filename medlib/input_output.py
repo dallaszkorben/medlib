@@ -21,7 +21,9 @@ from medlib.mediamodel.ini_classification import IniClassification
 from medlib.handle_property import config_ini 
 from medlib.handle_property import Property 
 
-from medlib.card_ini import CardIni
+from medlib.card_ini import CardIni, KEY_CLASSIFICATION_TAG,\
+    JSON_KEY_CLASSIFICATION_NEW, JSON_KEY_CLASSIFICATION_FAVORITE,\
+    JSON_KEY_CLASSIFICATION_TAG, JSON_KEY_CLASSIFICATION_RATE
 
 from medlib.card_ini import KEY_GENERAL_LENGTH
 from medlib.card_ini import KEY_GENERAL_YEAR
@@ -480,6 +482,7 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
         classification = None
         if classification_dict:
             rat_rate = 0
+            tag_list = []
             rat_favorite = False
             rat_new = False
        
@@ -490,8 +493,12 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
                     rat_favorite = True if value == 'y' else False
                 elif key == KEY_CLASSIFICATION_NEW and (value == 'y' or value == 'n'):
                     rat_new = True if value == 'y' else False
+                elif key == KEY_CLASSIFICATION_TAG and len(value) > 0:
+                    tags = value.split(",")                                
+                    for tag in tags:
+                        tag_list.append(tag.strip())
                    
-            classification = IniClassification(rat_rate, rat_favorite, rat_new) 
+            classification = IniClassification(rat_rate, tag_list, rat_favorite, rat_new) 
 
 #        parser = configparser.RawConfigParser()
 #        parser.read(card_path, encoding='utf-8')
@@ -733,15 +740,16 @@ def collectCardsFromJson(jsonForm, parentMediaCollector = None):
     ini_classification = None
     if classification:
 
-        rat_rate = classification.get(KEY_CLASSIFICATION_RATE)
-        rat_favorite = classification.get(KEY_CLASSIFICATION_FAVORITE)
-        rat_new = classification.get(KEY_CLASSIFICATION_NEW)        
+        rat_rate = classification.get(JSON_KEY_CLASSIFICATION_RATE)
+        rat_tags = classification.get(JSON_KEY_CLASSIFICATION_TAG)
+        rat_favorite = classification.get(JSON_KEY_CLASSIFICATION_FAVORITE)
+        rat_new = classification.get(JSON_KEY_CLASSIFICATION_NEW)
         
         rat_rate = rat_rate if getPatternRate().match(str(rat_rate)) else 0            
         rat_favorite = True if rat_favorite == 'y' else False        
         rat_new = True if rat_new == 'y' else False      
                    
-        ini_classification = IniClassification(rat_rate, rat_favorite, rat_new) 
+        ini_classification = IniClassification(rat_rate, rat_tags, rat_favorite, rat_new) 
 
     # --- CONTROL --- #
     control = jsonForm.get(JSON_SECTION_CONTROL)

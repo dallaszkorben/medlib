@@ -4,6 +4,7 @@ from medlib.mediamodel.media_storage import MediaStorage
 from medlib.mediamodel.paths_collector import PathsCollector
 
 from PyQt5.QtWidgets import QPlainTextEdit
+from PyQt5.QtWidgets import QSizePolicy
 from PyQt5.QtGui import QTextCursor
 from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt
@@ -11,6 +12,7 @@ from PyQt5.QtCore import Qt
 from medlib.mediamodel.extra import QHLine
 
 from medlib.mediamodel.qlabel_to_link_on_cllick import QLabelToLinkOnClick
+from PyQt5 import QtGui
 
 class MediaCollector(MediaBase):
     """
@@ -162,6 +164,9 @@ class MediaCollector(MediaBase):
             widget_value.setReadOnly(True)
             widget_value.setMinimumHeight( (PANEL_FONT_SIZE + 3) * sizeRate )
 
+            sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+            widget_value.setSizePolicy(sizePolicy)
+
             [ widget_value.appendPlainText(line) for line in value.split('\\n')]
             #widget_value.insertPlainText(value)
             #widget_value.appendPlainText("hello")
@@ -173,7 +178,7 @@ class MediaCollector(MediaBase):
             
             grid_layout.addWidget( widget_value, row, 1)        
             row = row + 1
-            
+
         return row
 
     def setNextLevelListener(self, nextLevelListener):

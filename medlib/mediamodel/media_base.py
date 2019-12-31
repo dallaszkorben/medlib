@@ -254,7 +254,7 @@ class MediaBase(object):
         # | Icon | Title                            |
         # |______|__________________________________|
         #
-        cardinfo_layout.addWidget(self.titles.getWidget(self, scale))
+        cardinfo_layout.addWidget(self.titles.getlWidget(self, scale))
         cardinfo_layout.addWidget(QHLine())
         
         # --- ONLINE INFO ---"
@@ -278,21 +278,23 @@ class MediaBase(object):
         # |_____________________________________________|_____________________________|
         # | Storyline/Topic/Lyrics/-:                   |                             |
         # |_____________________________________________|_____________________________|
+        # | Tags::                                      |                             |
+        # |_____________________________________________|_____________________________|
         #
-        cardinfo_layout.addWidget(self.general.getWidget(self, scale))
+        cardinfo_layout.addWidget(self.general.getlWidget(self, scale))
 
         # --- TAG ---
-#        cardinfo_layout.addWidget(self.getWidget)
+#        cardinfo_layout.addWidget(self.getlWidget)
 
         # --- MEDIA APPENDIX ---        
         cardinfo_layout.addWidget(self.getWidgetMediaAppendix(scale))
         
         # --- Stretch ---
-        cardinfo_layout.addStretch(1)
-        label = QLabel()
-        label.setMinimumHeight(0)
-        label.setFixedHeight(0)
-        cardinfo_layout.addWidget(label)        
+#        cardinfo_layout.addStretch(1)
+#        label = QLabel()
+#        label.setMinimumHeight(0)
+#        label.setFixedHeight(0)
+#        cardinfo_layout.addWidget(label)        
         
         return widget
 
@@ -312,7 +314,7 @@ class MediaBase(object):
             layout.addWidget(QHLine())
 
         for media_appendix in self.getMediaAppendixList():
-            layout.addWidget(media_appendix.getWidget(sizeRate))
+            layout.addWidget(media_appendix.getlWidget(sizeRate))
         
         return widget
     
@@ -335,14 +337,14 @@ class MediaBase(object):
              | New      |
              |__________|
         """
-        return self.classification.getWidget(self, scale)
+        return self.classification.getlWidget(self, scale)
     
     # --------------------------------------------
     # --------------------------------------------
     # --------------- WIDGET -------------------
     # --------------------------------------------
     # --------------------------------------------
-    def getWidget(self, scale):
+    def getlWidget(self, scale):
         """  ___________________________________________
             |         |                        |        |
             |         |                        |        |
