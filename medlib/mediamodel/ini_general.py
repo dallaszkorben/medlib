@@ -2,6 +2,7 @@ from PyQt5.QtWidgets import QHBoxLayout
 from PyQt5.QtWidgets import QLabel
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtWidgets import QGridLayout
+from PyQt5.QtWidgets import QApplication
 
 from PyQt5.QtGui import QFont
 from PyQt5.QtGui import QPalette
@@ -573,9 +574,11 @@ class IniGeneral(object):
             row = row + 1
             
         return row
-     
-    class QLinkLabelToSearch( QLabelToLinkOnClick ):
 
+    class QLinkLabelToSearch( QLabelToLinkOnClick ):
+        """
+            Link Widget to search Genre/Theme/Director/Maker/Writer/Actor/Performer/Lecturer/Contributor/Voice
+        """
         def __init__(self, media, scale, translatedText, rawText, title_id):
             super().__init__(translatedText, media.isSelected)
             self.media = media
@@ -585,9 +588,13 @@ class IniGeneral(object):
             self.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * scale, weight=QFont.Normal))
 
         def toDoOnClick(self):
-            if self.media.searchFunction is not None:
-                self.media.searchFunction( self.rawText, self.title_id)
-            print("Search for " + self.rawText + " by " + self.title_id)
+            modifiers = QApplication.keyboardModifiers()
+            if modifiers == Qt.ShiftModifier:
+                withShift = True
+            else:
+                withShift = False
+
+            self.media.search( withShift, self.rawText, self.title_id)                
             
         def enterEvent(self, event):
             super().enterEvent(event)

@@ -69,8 +69,19 @@ class MediaBase(object):
         self.general = general if general else IniGeneral()
         self.classification = classification if classification else IniClassification()
         
-        self.searchFunction = None
+#        self.searchFunction = None
 
+    def search(self, withShift, forWho, byWhat):
+        """
+        searchFunction( forWho, byWhat )    - A search function when you click on a link on the card.
+                                              For example on a Director or Actor ...
+                                              It has two parameters:
+                                                -forWho is the text you clicked on
+                                                -byWhat is the title_id of the group. for example for the
+                                                 directors: title_director or actors: title_actor ...
+        """
+        print("Search for '" + forWho + "' by " + byWhat, "With Shift" if withShift else "")
+        
     def getRoot(self):
         """
             Gives back the root of the media hierarchy
@@ -83,16 +94,16 @@ class MediaBase(object):
             return self
         
         
-    def setSearchFunction(self, searchFunction ):
-        """
-            searchFunction( forWho, byWhat )    - A search function when you click on a link on the card.
-                                                  For example on a Director or Actor ...
-                                                  It has two parameters:
-                                                  -forWho is the text you clicked on
-                                                  -byWhat is the title_id of the group. for example for the
-                                                   directors: title_director or actors: title_actor ...
-        """
-        self.searchFunction = searchFunction
+ #   def setSearchFunction(self, searchFunction ):
+ #       """
+ #           searchFunction( forWho, byWhat )    - A search function when you click on a link on the card.
+ #                                                 For example on a Director or Actor ...
+ #                                                 It has two parameters:
+ #                                                 -forWho is the text you clicked on
+ #                                                 -byWhat is the title_id of the group. for example for the
+ #                                                  directors: title_director or actors: title_actor ...
+ #       """
+ #       self.searchFunction = searchFunction
 
     def getParentCollector(self):
         return self.parentCollector

@@ -28,11 +28,14 @@ from medlib.card_ini import JSON_KEY_CLASSIFICATION_TAG
 from medlib.card_ini import JSON_KEY_CLASSIFICATION_NEW
 from medlib.card_ini import JSON_KEY_CLASSIFICATION_FAVORITE
 
+from medlib.mediamodel.extra import FlowLayout, QHLine
+
 from medlib.handle_property import updateCardIni
 
 from pkg_resources import resource_filename
 
-from PyQt5.QtWidgets import QVBoxLayout, QLabel, QSizePolicy
+from PyQt5.QtWidgets import QVBoxLayout
+from PyQt5.QtWidgets import QLabel
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtWidgets import QSpinBox
 from PyQt5.QtWidgets import QAbstractSpinBox
@@ -47,7 +50,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtCore import QSize
 
 from PyQt5.Qt import QIcon
-from medlib.mediamodel.extra import FlowLayout, QHLine
+
 
 class IniClassification(object):
     """
@@ -308,32 +311,47 @@ class IniClassification(object):
             widget_value = QWidget()
             widget_value.setLayout( layout )
             widget_value.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * scale, weight=QFont.Normal))        
-            first = True
             for d in value:
-#                if not first:
-#                    layout.addWidget( QLabel(", ") )
-#                label = IniGeneral.QLinkLabelToSearch(media, scale, d, d, title_id)
-                label = QPushButton(d)
-                #label.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
-                
-                label.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * scale, weight=QFont.Normal)) 
-                label.setStyleSheet("height: " + str(PANEL_FONT_SIZE * scale) + "px; ")
-                
-                # calculate text width
-                fm = QFontMetrics(label.font())
-                label.setFixedWidth(fm.width(label.text()) + 10)
-
-                
-                
+                label = self.TagButtonForSearch(media, scale, d, d, title_id)
                 layout.addWidget(label)
-#                first = False
-
             grid_layout.addWidget(widget_key, row, 0)
             grid_layout.addWidget(widget_value, row, 1)
             row = row + 1
             
         return row   
 
-    
+    class TagButtonForSearch(QPushButton):
+
+        def __init__(self, media, scale, translatedText, rawText, title_id):
+            
+            """
+            This is the constructor of the IniClassification class
+            ___________________________________________
+            input:
+                text        string    text on the button
+                scale       double    scale of the size (font, height, width...)
+            """
+            super().__init__(translatedText)
+            self.media = media
+            self.rawText = rawText
+            self.title_id = title_id
+            
+            self.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * scale, weight=QFont.Normal)) 
+            self.setStyleSheet("height: " + str(PANEL_FONT_SIZE * scale) + "px; ")
+                
+            # calculate text width
+            fm = QFontMetrics(self.font())
+            self.setFixedWidth(fm.width(self.text()) + 10)
+            
+            self.clicked.connect(self.on_click)
+        
+        def on_click(self):
+            modifiers = QApplication.keyboardModifiers()
+            if modifiers == Qt.ShiftModifier:
+                withShift = True
+            else:
+                withShift = False
+            self.media.search( withShift, self.rawText, self.title_id)
+
     
     
