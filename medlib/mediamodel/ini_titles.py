@@ -68,7 +68,7 @@ class IniTitles(object):
         return json
     
     
-    def getlWidget(self, media, scale):
+    def getWidget(self, media, scale):
         """  _________________________________________
             | Icon | Title                            |
             |______|__________________________________|

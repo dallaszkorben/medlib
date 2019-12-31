@@ -4,7 +4,7 @@ import medlib
 
 from medlib.handle_property import _
 
-from medlib.constants import PANEL_FONT_TYPE
+from medlib.constants import PANEL_FONT_TYPE, TITLE_ICON_FOLDER
 from medlib.constants import PANEL_FONT_SIZE
 from medlib.constants import RATE_BACKGROUND_COLOR
 from medlib.constants import RATING_ICON_FOLDER
@@ -34,7 +34,7 @@ from medlib.handle_property import updateCardIni
 
 from pkg_resources import resource_filename
 
-from PyQt5.QtWidgets import QVBoxLayout
+from PyQt5.QtWidgets import QVBoxLayout, QHBoxLayout
 from PyQt5.QtWidgets import QLabel
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtWidgets import QSpinBox
@@ -45,11 +45,12 @@ from PyQt5.QtWidgets import QPushButton
 from PyQt5.QtGui import QFont, QFontMetrics
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtGui import QCursor
+from PyQt5.QtGui import QIcon
 
-from PyQt5.QtCore import Qt 
+from PyQt5 import QtCore
+from PyQt5.QtCore import Qt , pyqtSignal
 from PyQt5.QtCore import QSize
 
-from PyQt5.Qt import QIcon
 
 
 class IniClassification(object):
@@ -97,6 +98,9 @@ class IniClassification(object):
     def setNew(self, new):
         self.new = new
         
+    def setTagList(self, tag_list):
+        self.tag_list = tag_list
+        
     def getJson(self):        
         json = {}
         json.update({} if self.rate is None else {JSON_KEY_CLASSIFICATION_RATE: self.rate})
@@ -109,7 +113,7 @@ class IniClassification(object):
     # --------------------------------------------
     # ----------------- Rating -------------------
     # --------------------------------------------
-    def getlWidget(self, media, scale):
+    def getWidget(self, media, scale):
         """   __________
              | Rate     |
              |__________|
@@ -288,12 +292,95 @@ class IniClassification(object):
         
         button = NewButton(self, scale)
         return button
-    
 
-    def addNameListToQLinkLabel(self, media, scale, grid_layout, row, title_id, value_method):
-        value = value_method()
+    def addTagListButton(self, media, scale, grid_layout, row, title_id, value_method):
+        tag_list = value_method()
 
-        if value:
+        class TagButtonForSearch(QPushButton):
+            """
+            It represents the tag button
+            The button has a "delete" icon on the right side.
+            If you click on the delete icon, the tag will be removed
+            """
+            class DeleteLabel(QLabel):            
+                clicked=pyqtSignal()
+            
+                def __init__(self, parent=None):
+                    QLabel.__init__(self, parent)
+
+                def mousePressEvent(self, event):
+                    self.clicked.emit()
+                
+                def enterEvent(self, event):
+                    self.update()
+                    QApplication.setOverrideCursor(Qt.PointingHandCursor)        
+                    event.ignore()
+        
+                def leaveEvent(self, event):
+                    self.update()
+                    QApplication.restoreOverrideCursor()        
+                    event.ignore()
+                
+            def __init__(self, media, scale, translatedText, rawText, title_id):
+            
+                super().__init__(translatedText + "     ")
+                self.media = media
+                self.rawText = rawText
+                self.title_id = title_id
+
+                iconBorder = 2 * scale
+
+                # Set size of button
+                self.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * scale, weight=QFont.Normal)) 
+                fm = QFontMetrics(self.font())
+
+                # Icon
+                pathToDeleteIcon = resource_filename(__name__, os.path.join(TITLE_ICON_FOLDER, "tag-delete.png"))
+                label_icon = self.DeleteLabel()
+                label_icon.setAttribute(QtCore.Qt.WA_TranslucentBackground)
+#                label_icon.setPixmap(QIcon(pathToDeleteIcon).pixmap(QSize(fm.height() * scale - 2 * iconBorder, fm.height() * scale - 2 * iconBorder)))
+                label_icon.setPixmap(QIcon(pathToDeleteIcon).pixmap(QSize(fm.height() - iconBorder * 2, fm.height() - iconBorder * 2)))
+
+                layout = QHBoxLayout(self)
+                layout.setContentsMargins(0, 0, iconBorder, 0)
+                layout.addWidget(label_icon, alignment=QtCore.Qt.AlignRight)
+
+
+#                self.setStyleSheet("height: " + str(PANEL_FONT_SIZE * scale) + "px;")
+            
+                # calculate text width
+                self.setFixedWidth(fm.width(self.text()) + 10)
+                self.setFixedHeight(fm.height())
+
+                label_icon.clicked.connect(self.on_delete)            
+                self.clicked.connect(self.on_click)
+
+            def on_delete(self):
+                print("delete")
+
+                # remove the tag from the tag list
+                tag_list.remove(self.rawText)
+            
+                # change the tag list in the Object
+                media.classification.setTagList(tag_list)
+            
+                # change the status of the favorite in the card.ini
+                updateCardIni(media.getPathOfCard(), SECTION_CLASSIFICATION, KEY_CLASSIFICATION_TAG, ','.join(tag_list))
+        
+                # change the value of the rate in the json
+                medlib.input_output.saveJson(media.getRoot())
+
+                media.reGenerate(scale)
+            
+            def on_click(self):
+                modifiers = QApplication.keyboardModifiers()
+                if modifiers == Qt.ShiftModifier:
+                    withShift = True
+                else:
+                    withShift = False
+                self.media.search( withShift, self.rawText, self.title_id)
+
+        if tag_list:
         
             # --- horizontal line at the beginning
             grid_layout.addWidget(QHLine(), row, 0, 1, 2)
@@ -311,8 +398,8 @@ class IniClassification(object):
             widget_value = QWidget()
             widget_value.setLayout( layout )
             widget_value.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * scale, weight=QFont.Normal))        
-            for d in value:
-                label = self.TagButtonForSearch(media, scale, d, d, title_id)
+            for tag in tag_list:
+                label = TagButtonForSearch(media, scale, tag, tag, title_id)
                 layout.addWidget(label)
             grid_layout.addWidget(widget_key, row, 0)
             grid_layout.addWidget(widget_value, row, 1)
@@ -320,38 +407,6 @@ class IniClassification(object):
             
         return row   
 
-    class TagButtonForSearch(QPushButton):
-
-        def __init__(self, media, scale, translatedText, rawText, title_id):
-            
-            """
-            This is the constructor of the IniClassification class
-            ___________________________________________
-            input:
-                text        string    text on the button
-                scale       double    scale of the size (font, height, width...)
-            """
-            super().__init__(translatedText)
-            self.media = media
-            self.rawText = rawText
-            self.title_id = title_id
-            
-            self.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * scale, weight=QFont.Normal)) 
-            self.setStyleSheet("height: " + str(PANEL_FONT_SIZE * scale) + "px; ")
-                
-            # calculate text width
-            fm = QFontMetrics(self.font())
-            self.setFixedWidth(fm.width(self.text()) + 10)
-            
-            self.clicked.connect(self.on_click)
         
-        def on_click(self):
-            modifiers = QApplication.keyboardModifiers()
-            if modifiers == Qt.ShiftModifier:
-                withShift = True
-            else:
-                withShift = False
-            self.media.search( withShift, self.rawText, self.title_id)
-
     
     

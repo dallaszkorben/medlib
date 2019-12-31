@@ -69,6 +69,7 @@ class MediaBase(object):
         self.general = general if general else IniGeneral()
         self.classification = classification if classification else IniClassification()
         
+        self.widget = None
 #        self.searchFunction = None
 
     def search(self, withShift, forWho, byWhat):
@@ -265,7 +266,7 @@ class MediaBase(object):
         # | Icon | Title                            |
         # |______|__________________________________|
         #
-        cardinfo_layout.addWidget(self.titles.getlWidget(self, scale))
+        cardinfo_layout.addWidget(self.titles.getWidget(self, scale))
         cardinfo_layout.addWidget(QHLine())
         
         # --- ONLINE INFO ---"
@@ -292,10 +293,10 @@ class MediaBase(object):
         # | Tags::                                      |                             |
         # |_____________________________________________|_____________________________|
         #
-        cardinfo_layout.addWidget(self.general.getlWidget(self, scale))
+        cardinfo_layout.addWidget(self.general.getWidget(self, scale))
 
         # --- TAG ---
-#        cardinfo_layout.addWidget(self.getlWidget)
+#        cardinfo_layout.addWidget(self.getWidget)
 
         # --- MEDIA APPENDIX ---        
         cardinfo_layout.addWidget(self.getWidgetMediaAppendix(scale))
@@ -325,7 +326,7 @@ class MediaBase(object):
             layout.addWidget(QHLine())
 
         for media_appendix in self.getMediaAppendixList():
-            layout.addWidget(media_appendix.getlWidget(sizeRate))
+            layout.addWidget(media_appendix.getWidget(sizeRate))
         
         return widget
     
@@ -348,14 +349,14 @@ class MediaBase(object):
              | New      |
              |__________|
         """
-        return self.classification.getlWidget(self, scale)
+        return self.classification.getWidget(self, scale)
     
     # --------------------------------------------
     # --------------------------------------------
     # --------------- WIDGET -------------------
     # --------------------------------------------
     # --------------------------------------------
-    def getlWidget(self, scale):
+    def getWidget(self, scale):
         """  ___________________________________________
             |         |                        |        |
             |         |                        |        |
@@ -389,7 +390,28 @@ class MediaBase(object):
         # --- Rating ---
         grid_layout.addWidget(self.getWidgetClassification(scale), 0, 2)
         
+        self.widget = widget
+        self.layout = grid_layout
+        
         return widget
+    
+    def reGenerate(self, scale):
+
+        layout = self.layout
+        # delete all widgets
+        for i in reversed(range(layout.count())): 
+            layout.itemAt(i).widget().deleteLater()
+
+        # --- Image ---
+        layout.addWidget(self.getWidgetImage(scale), 0, 0)
+        
+        # --- Card Information ---
+        layout.addWidget(self.getWidgetCardInformationText(scale), 0, 1)
+        
+        # --- Rating ---
+        layout.addWidget(self.getWidgetClassification(scale), 0, 2)
+
+
     
     def getMediaAppendixList(self):
         return self.mediaAppendixList
