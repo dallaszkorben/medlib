@@ -505,7 +505,7 @@ class IniGeneral(object):
         row = media.addWidgetGeneralInfoStoryline(widget, scale, grid_layout, row, 'title_lyrics', media.getTranslatedStoryline(self.getLyrics()))
                 
         # --- TAG ---
-        row = media.classification.addTagListButton(media, scale, grid_layout, row, 'title_tag', media.classification.getTagList)
+        row = media.classification.addTagListButtons(media, scale, grid_layout, row, 'title_tag', media.classification.getTagList)
 
         
         return widget

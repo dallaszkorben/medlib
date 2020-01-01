@@ -4,15 +4,20 @@ import medlib
 
 from medlib.handle_property import _
 
-from medlib.constants import PANEL_FONT_TYPE, TITLE_ICON_FOLDER
+from medlib.constants import PANEL_FONT_TYPE
 from medlib.constants import PANEL_FONT_SIZE
-from medlib.constants import RATE_BACKGROUND_COLOR
-from medlib.constants import RATING_ICON_FOLDER
-from medlib.constants import RATING_ICON_PREFIX
-from medlib.constants import RATING_ICON_FAVORITE_TAG   
-from medlib.constants import RATING_ICON_SIZE
-from medlib.constants import RATING_ICON_NEW_TAG
-from medlib.constants import RATING_ICON_EXTENSION
+
+from medlib.constants import CLASSIFICATION_TAG_FIELD_BACKGROUND_COLOR
+from medlib.constants import CLASSIFICATION_RATE_FIELD_BACKGROUND_COLOR
+
+from medlib.constants import CLASSIFICATION_ICON_TAG_ADD
+from medlib.constants import CLASSIFICATION_ICON_TAG_DELETE
+from medlib.constants import CLASSIFICATION_ICON_FOLDER
+from medlib.constants import CLASSIFICATION_ICON_PREFIX
+from medlib.constants import CLASSIFICATION_ICON_FAVORITE_TAG   
+from medlib.constants import CLASSIFICATION_ICON_SIZE
+from medlib.constants import CLASSIFICATION_ICON_NEW
+from medlib.constants import CLASSIFICATION_ICON_EXTENSION
 from medlib.constants import ON
 from medlib.constants import OFF
 
@@ -28,13 +33,16 @@ from medlib.card_ini import JSON_KEY_CLASSIFICATION_TAG
 from medlib.card_ini import JSON_KEY_CLASSIFICATION_NEW
 from medlib.card_ini import JSON_KEY_CLASSIFICATION_FAVORITE
 
-from medlib.mediamodel.extra import FlowLayout, QHLine
+from medlib.mediamodel.extra import FlowLayout
+from medlib.mediamodel.extra import QHLine
 
 from medlib.handle_property import updateCardIni
 
 from pkg_resources import resource_filename
 
-from PyQt5.QtWidgets import QVBoxLayout, QHBoxLayout
+from PyQt5.QtWidgets import QVBoxLayout
+from PyQt5.QtWidgets import QHBoxLayout
+from PyQt5.QtWidgets import QLineEdit
 from PyQt5.QtWidgets import QLabel
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtWidgets import QSpinBox
@@ -42,16 +50,16 @@ from PyQt5.QtWidgets import QAbstractSpinBox
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtWidgets import QPushButton
 
-from PyQt5.QtGui import QFont, QFontMetrics
+from PyQt5.QtGui import QFont
+from PyQt5.QtGui import QFontMetrics
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtGui import QCursor
 from PyQt5.QtGui import QIcon
 
 from PyQt5 import QtCore
-from PyQt5.QtCore import Qt , pyqtSignal
+from PyQt5.QtCore import Qt
+from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import QSize
-
-
 
 class IniClassification(object):
     """
@@ -73,9 +81,11 @@ class IniClassification(object):
             new         boolean     True,False
         """
         self.rate = rate if (rate is None or (rate >= 0 and rate <= 10)) else 1 if rate < 0 else 10
-        self.tag_list = tag_list
+        self.tag_list = tag_list if tag_list else []
         self.favorite = favorite
         self.new = new
+        
+        self.tag_field_widget = None
         
     def getRate(self):
         return self.rate
@@ -111,7 +121,7 @@ class IniClassification(object):
         return json    
     
     # --------------------------------------------
-    # ----------------- Rating -------------------
+    # ------------- Classification ---------------
     # --------------------------------------------
     def getWidget(self, media, scale):
         """   __________
@@ -140,18 +150,26 @@ class IniClassification(object):
         classification_layout.addWidget(widgetRate)
         
         # --- FAVORITE ---
-        widgetFavorite=self.getWidgetClassificationInfoFavorite(media, scale)
+        widgetFavorite = self.getWidgetClassificationInfoFavorite(media, scale)
         classification_layout.addWidget(widgetFavorite) 
 
         # --- NEW ---
-        widgetNew=self.getWidgetClassificationInfoNew(media, scale)
+        widgetNew = self.getWidgetClassificationInfoNew(media, scale)
         classification_layout.addWidget(widgetNew) 
+        
+        # --- ADD ---
+        widgetAdd = self.getWidgetAdd(media, scale)
+        classification_layout.addWidget(widgetAdd)
         
         return widget
 
-    # ---- #
-    # Rate #
-    # ---- #
+    def setFocusTagField(self, value):
+        if self.tag_field_widget:
+            self.tag_field_widget.setFocus()
+        
+    # ---------- #
+    # Rate field #
+    # ---------- #
     def getWidgetClassificationInfoRate( self, media, scale ):
         
         class MySpinBox(QSpinBox):
@@ -170,7 +188,7 @@ class IniClassification(object):
                     self.lineEdit().setReadOnly(True)
                     self.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * scale, weight=QFont.Normal))
                     self.lineEdit().setStyleSheet( "QLineEdit{color:black}")
-                    self.setStyleSheet( "QSpinBox{background:'" + RATE_BACKGROUND_COLOR + "'}")
+                    self.setStyleSheet( "QSpinBox{background:'" + CLASSIFICATION_RATE_FIELD_BACKGROUND_COLOR + "'}")
                     self.setValue(self.ini_classification.getRate())
                     
                     self.valueChanged.connect(self.classificationRateOnValueChanged)
@@ -217,9 +235,9 @@ class IniClassification(object):
         widget = MySpinBox(self, scale)        
         return widget
         
-    # -------- #
-    # Favorite #
-    # -------- #
+    # --------------- #
+    # Favorite button #
+    # --------------- #
     def getWidgetClassificationInfoFavorite(self, media, scale):
         class FavoriteButton(QPushButton):
             def __init__(self, ini_classification, scale):
@@ -231,10 +249,10 @@ class IniClassification(object):
                 else:
                     self.setCheckable(True)        
                     icon = QIcon()
-                    icon.addPixmap(QPixmap( resource_filename(__name__, os.path.join(RATING_ICON_FOLDER, RATING_ICON_PREFIX + "-" + RATING_ICON_FAVORITE_TAG + "-" + ON + "." + RATING_ICON_EXTENSION)) ), QIcon.Normal, QIcon.On)
-                    icon.addPixmap(QPixmap( resource_filename(__name__, os.path.join(RATING_ICON_FOLDER, RATING_ICON_PREFIX + "-" + RATING_ICON_FAVORITE_TAG + "-" + OFF + "." + RATING_ICON_EXTENSION)) ), QIcon.Normal, QIcon.Off)
+                    icon.addPixmap(QPixmap( resource_filename(__name__, os.path.join(CLASSIFICATION_ICON_FOLDER, CLASSIFICATION_ICON_PREFIX + "-" + CLASSIFICATION_ICON_FAVORITE_TAG + "-" + ON + "." + CLASSIFICATION_ICON_EXTENSION)) ), QIcon.Normal, QIcon.On)
+                    icon.addPixmap(QPixmap( resource_filename(__name__, os.path.join(CLASSIFICATION_ICON_FOLDER, CLASSIFICATION_ICON_PREFIX + "-" + CLASSIFICATION_ICON_FAVORITE_TAG + "-" + OFF + "." + CLASSIFICATION_ICON_EXTENSION)) ), QIcon.Normal, QIcon.Off)
                     self.setIcon(icon)
-                    self.setIconSize(QSize(RATING_ICON_SIZE * scale, RATING_ICON_SIZE * scale))
+                    self.setIconSize(QSize(CLASSIFICATION_ICON_SIZE * scale, CLASSIFICATION_ICON_SIZE * scale))
                     self.setCursor(QCursor(Qt.PointingHandCursor))
                     self.setStyleSheet("background:transparent; border:none")
                     self.setChecked(self.ini_classification.getFavorite())
@@ -255,9 +273,9 @@ class IniClassification(object):
         button = FavoriteButton(self, scale)
         return button
 
-    # --- #
-    # New #
-    # --- #
+    # ---------- #
+    # New button #
+    # ---------- #
     def getWidgetClassificationInfoNew(self, media, scale):
         class NewButton(QPushButton):
             def __init__(self, ini_classification, scale):
@@ -269,10 +287,10 @@ class IniClassification(object):
                 else:        
                     self.setCheckable(True)        
                     icon = QIcon()
-                    icon.addPixmap(QPixmap(resource_filename(__name__, os.path.join(RATING_ICON_FOLDER, RATING_ICON_PREFIX + "-" + RATING_ICON_NEW_TAG + "-" + ON + "." + RATING_ICON_EXTENSION))), QIcon.Normal, QIcon.On)
-                    icon.addPixmap(QPixmap(resource_filename(__name__, os.path.join(RATING_ICON_FOLDER, RATING_ICON_PREFIX + "-" + RATING_ICON_NEW_TAG + "-" + OFF + "." + RATING_ICON_EXTENSION))), QIcon.Normal, QIcon.Off)
+                    icon.addPixmap(QPixmap(resource_filename(__name__, os.path.join(CLASSIFICATION_ICON_FOLDER, CLASSIFICATION_ICON_PREFIX + "-" + CLASSIFICATION_ICON_NEW + "-" + ON + "." + CLASSIFICATION_ICON_EXTENSION))), QIcon.Normal, QIcon.On)
+                    icon.addPixmap(QPixmap(resource_filename(__name__, os.path.join(CLASSIFICATION_ICON_FOLDER, CLASSIFICATION_ICON_PREFIX + "-" + CLASSIFICATION_ICON_NEW + "-" + OFF + "." + CLASSIFICATION_ICON_EXTENSION))), QIcon.Normal, QIcon.Off)
                     self.setIcon(icon)
-                    self.setIconSize(QSize(RATING_ICON_SIZE * scale, RATING_ICON_SIZE * scale))
+                    self.setIconSize(QSize(CLASSIFICATION_ICON_SIZE * scale, CLASSIFICATION_ICON_SIZE * scale))
                     self.setCursor(QCursor(Qt.PointingHandCursor))
                     self.setStyleSheet("background:transparent; border:none")
                     self.setChecked(ini_classification.getNew())
@@ -293,9 +311,83 @@ class IniClassification(object):
         button = NewButton(self, scale)
         return button
 
-    def addTagListButton(self, media, scale, grid_layout, row, title_id, value_method):
+    # ---------- #
+    # ADD button #
+    # ---------- #
+    def getWidgetAdd(self, media, scale):
+        class AddButton(QPushButton):
+   
+            class AddLabel(QLabel):            
+                clicked=pyqtSignal()
+            
+                def __init__(self, parent=None):
+                    QLabel.__init__(self, parent)
+
+                def mousePressEvent(self, event):
+                    self.clicked.emit()
+                
+                def enterEvent(self, event):
+                    self.update()
+                    QApplication.setOverrideCursor(Qt.PointingHandCursor)        
+                    event.ignore()
+        
+                def leaveEvent(self, event):
+                    self.update()
+                    QApplication.restoreOverrideCursor()        
+                    event.ignore()
+            
+            def __init__(self, ini_classification, scale):
+                QPushButton.__init__(self)    
+                self.ini_classification = ini_classification
+
+                icon = QIcon()
+                icon.addPixmap(QPixmap(resource_filename(__name__, os.path.join(CLASSIFICATION_ICON_FOLDER, CLASSIFICATION_ICON_TAG_ADD + "." + CLASSIFICATION_ICON_EXTENSION))), QIcon.Normal, QIcon.On)
+
+                self.setIcon(icon)
+                self.setIconSize(QSize(CLASSIFICATION_ICON_SIZE * scale, CLASSIFICATION_ICON_SIZE * scale))
+                
+                self.setCursor(QCursor(Qt.PointingHandCursor))
+
+                self.setStyleSheet("background:transparent; border:none")
+                    
+                self.clicked.connect(self.on_click)
+
+            # You clicked on the Add (green cross) button
+            def on_click(self):
+ 
+                # Indicates that the TAG FIELD needs to be shown
+                media.setNeededTagField(True)
+                
+                # Re-paint the widget (with the TAG FIELD)
+                media.reGenerate(scale)              
+#                pass
+                # change the status of the favorite in the Object
+#                self.ini_classification.setNew(self.isChecked())
+                
+                # change the status of the favorite in the card.ini
+#                updateCardIni(media.getPathOfCard(), SECTION_CLASSIFICATION, KEY_CLASSIFICATION_NEW, 'y' if self.isChecked() else 'n')
+        
+                # change the value of the rate in the json
+#                medlib.input_output.saveJson(media.getRoot())
+        
+        button = AddButton(self, scale)
+        return button
+
+
+
+
+
+
+    def addTagListButtons(self, media, scale, grid_layout, row, title_id, value_method):
+        """
+        Adds the tags as buttons        
+        """
+        
         tag_list = value_method()
 
+        #
+        # TAG button
+        #
         class TagButtonForSearch(QPushButton):
             """
             It represents the tag button
@@ -331,23 +423,20 @@ class IniClassification(object):
                 iconBorder = 2 * scale
 
                 # Set size of button
-                self.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * scale, weight=QFont.Normal)) 
+                self.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * scale, weight=QFont.Bold)) 
                 fm = QFontMetrics(self.font())
 
                 # Icon
-                pathToDeleteIcon = resource_filename(__name__, os.path.join(TITLE_ICON_FOLDER, "tag-delete.png"))
+                pathToDeleteIcon = resource_filename(__name__, os.path.join(CLASSIFICATION_ICON_FOLDER, CLASSIFICATION_ICON_TAG_DELETE + "." + CLASSIFICATION_ICON_EXTENSION))
+                
                 label_icon = self.DeleteLabel()
                 label_icon.setAttribute(QtCore.Qt.WA_TranslucentBackground)
-#                label_icon.setPixmap(QIcon(pathToDeleteIcon).pixmap(QSize(fm.height() * scale - 2 * iconBorder, fm.height() * scale - 2 * iconBorder)))
                 label_icon.setPixmap(QIcon(pathToDeleteIcon).pixmap(QSize(fm.height() - iconBorder * 2, fm.height() - iconBorder * 2)))
 
                 layout = QHBoxLayout(self)
                 layout.setContentsMargins(0, 0, iconBorder, 0)
                 layout.addWidget(label_icon, alignment=QtCore.Qt.AlignRight)
 
-
-#                self.setStyleSheet("height: " + str(PANEL_FONT_SIZE * scale) + "px;")
-            
                 # calculate text width
                 self.setFixedWidth(fm.width(self.text()) + 10)
                 self.setFixedHeight(fm.height())
@@ -356,10 +445,11 @@ class IniClassification(object):
                 self.clicked.connect(self.on_click)
 
             def on_delete(self):
-                print("delete")
 
                 # remove the tag from the tag list
                 tag_list.remove(self.rawText)
+                
+                media.setNeededTagField(False)
             
                 # change the tag list in the Object
                 media.classification.setTagList(tag_list)
@@ -370,6 +460,7 @@ class IniClassification(object):
                 # change the value of the rate in the json
                 medlib.input_output.saveJson(media.getRoot())
 
+                # Re-print the widgets
                 media.reGenerate(scale)
             
             def on_click(self):
@@ -380,27 +471,107 @@ class IniClassification(object):
                     withShift = False
                 self.media.search( withShift, self.rawText, self.title_id)
 
-        if tag_list:
-        
-            # --- horizontal line at the beginning
-            grid_layout.addWidget(QHLine(), row, 0, 1, 2)
-            row = row + 1
+        #
+        # TAG FIELD
+        #
+        class TagField(QLineEdit):
+            """
+            It represents the TAG field
+            """
+            def __init__(self, media, scale): #, translatedText, rawText, title_id):
             
-            widget_key = QLabel(_(title_id) + ":", )
-            widget_key.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * scale, weight=QFont.Bold))
-            widget_key.setAlignment(Qt.AlignTop)
-        
-            layout = FlowLayout()
-            layout.setAlignment(Qt.AlignLeft)        
-            layout.setSpacing(1)        
-            layout.setContentsMargins(0, 0, 0, 0)
+                super().__init__()
+                self.media = media
 
-            widget_value = QWidget()
-            widget_value.setLayout( layout )
-            widget_value.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * scale, weight=QFont.Normal))        
-            for tag in tag_list:
-                label = TagButtonForSearch(media, scale, tag, tag, title_id)
-                layout.addWidget(label)
+                # Set size of button
+                self.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * scale, weight=QFont.Bold)) 
+                self.setStyleSheet( "color:black; background:'" + CLASSIFICATION_TAG_FIELD_BACKGROUND_COLOR + "'")
+                fm = QFontMetrics(self.font())
+
+                # calculate text width
+                self.setFixedWidth(fm.width("WWWWWWW") + 10)
+                self.setFixedHeight(fm.height())
+
+                self.returnPressed.connect(self.pressedEnterEvent)
+
+            # press ENTER on the TAG FIELD
+            def pressedEnterEvent(self):
+
+                text = self.text().strip()
+                
+                if text and text not in tag_list:
+
+                    # add the tag to the tag list
+                    tag_list.append(text)
+            
+                    # change the tag list in the Object
+                    media.classification.setTagList(tag_list)
+            
+                    # change the status of the favorite in the card.ini
+                    updateCardIni(media.getPathOfCard(), SECTION_CLASSIFICATION, KEY_CLASSIFICATION_TAG, ','.join(tag_list))
+        
+                    # change the value of the rate in the json
+                    medlib.input_output.saveJson(media.getRoot())
+
+                # No need TAG FIELD anymore
+                media.setNeededTagField(False)
+
+                # Re-print the widgets
+                media.reGenerate(scale)                
+                
+            def focusOutEvent(self, event):
+
+                # No need TAG FIELD anymore
+                media.setNeededTagField(False)
+                
+                # Re-paint the widget (without the TAG FIELD)
+                media.reGenerate(scale)              
+
+
+
+
+        
+        
+        # --- horizontal line at the beginning
+        grid_layout.addWidget(QHLine(), row, 0, 1, 2)
+        row = row + 1
+            
+        widget_key = QLabel(_(title_id) + ":", )
+        widget_key.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * scale, weight=QFont.Bold))
+        widget_key.setAlignment(Qt.AlignTop)
+        
+        layout = FlowLayout()
+        layout.setAlignment(Qt.AlignLeft)        
+        layout.setSpacing(1)        
+        layout.setContentsMargins(0, 0, 0, 0)
+
+        widget_value = QWidget()
+        widget_value.setLayout( layout )
+        widget_value.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * scale, weight=QFont.Normal))        
+
+        needWidget = False
+        
+        # Add TAG buttons
+        for tag in tag_list:            
+            label = TagButtonForSearch(media, scale, tag, tag, title_id)
+            layout.addWidget(label)
+            needWidget = True
+                
+        # Add TAG field
+        if media.isNeededTagField():
+            field = TagField(media, scale)
+            layout.addWidget(field)
+                
+            self.tag_field_widget = field
+            
+            needWidget = True
+
+        else:
+            self.tag_field_widget = None
+            
+        # if there was TAGs and/or TAG FIELD    
+        if needWidget:
+                               
             grid_layout.addWidget(widget_key, row, 0)
             grid_layout.addWidget(widget_value, row, 1)
             row = row + 1

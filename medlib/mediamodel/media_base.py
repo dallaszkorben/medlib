@@ -15,7 +15,6 @@ from medlib.mediamodel.extra import QHLine
 
 from PyQt5.QtWidgets import QGridLayout
 from PyQt5.QtWidgets import QHBoxLayout, QVBoxLayout
-from PyQt5.QtWidgets import QLabel
 from PyQt5.QtWidgets import QWidget
 
 from PyQt5.QtGui import QColor
@@ -25,12 +24,11 @@ from PyQt5.QtCore import Qt
 
 from medlib.card_ini import JSON_SECTION_TITLES
 from medlib.card_ini import JSON_SECTION_GENERAL
-from medlib.card_ini import JSON_SECTION_CONTROL
-from medlib.card_ini import JSON_SECTION_CLASSIFICATION
-from medlib.card_ini import JSON_SECTION_LYRICS
-from medlib.card_ini import JSON_SECTION_TOPIC
 from medlib.card_ini import JSON_SECTION_STORYLINE
-
+from medlib.card_ini import JSON_SECTION_TOPIC
+from medlib.card_ini import JSON_SECTION_LYRICS
+from medlib.card_ini import JSON_SECTION_CLASSIFICATION
+from medlib.card_ini import JSON_SECTION_CONTROL
 from medlib.card_ini import JSON_NODE_APPENDIXES
 
 class MediaBase(object):
@@ -69,6 +67,7 @@ class MediaBase(object):
         self.general = general if general else IniGeneral()
         self.classification = classification if classification else IniClassification()
         
+        self.neededTagField = False
         self.widget = None
 #        self.searchFunction = None
 
@@ -290,13 +289,10 @@ class MediaBase(object):
         # |_____________________________________________|_____________________________|
         # | Storyline/Topic/Lyrics/-:                   |                             |
         # |_____________________________________________|_____________________________|
-        # | Tags::                                      |                             |
+        # | Tags:                                       |                             |
         # |_____________________________________________|_____________________________|
         #
         cardinfo_layout.addWidget(self.general.getWidget(self, scale))
-
-        # --- TAG ---
-#        cardinfo_layout.addWidget(self.getWidget)
 
         # --- MEDIA APPENDIX ---        
         cardinfo_layout.addWidget(self.getWidgetMediaAppendix(scale))
@@ -398,6 +394,7 @@ class MediaBase(object):
     def reGenerate(self, scale):
 
         layout = self.layout
+        
         # delete all widgets
         for i in reversed(range(layout.count())): 
             layout.itemAt(i).widget().deleteLater()
@@ -408,10 +405,17 @@ class MediaBase(object):
         # --- Card Information ---
         layout.addWidget(self.getWidgetCardInformationText(scale), 0, 1)
         
-        # --- Rating ---
+        # --- Classification ---
         layout.addWidget(self.getWidgetClassification(scale), 0, 2)
+        
+        if self.isNeededTagField():
+            self.classification.setFocusTagField(True)
 
-
+    def setNeededTagField(self, value):
+        self.neededTagField = value
+        
+    def isNeededTagField(self):
+        return self.neededTagField
     
     def getMediaAppendixList(self):
         return self.mediaAppendixList
@@ -444,7 +448,7 @@ class MediaBase(object):
         json.update({JSON_SECTION_CLASSIFICATION: self.classification.getJson()} if self.classification.getJson() else {})
         json.update({JSON_SECTION_CONTROL: self.control.getJson()} if self.control.getJson() else {})
         
-        json.update({JSON_NODE_APPENDIXES : [c.getJson() for c in self.mediaAppendixList]} if self.mediaAppendixList else {}) 
+        json.update({JSON_NODE_APPENDIXES: [c.getJson() for c in self.mediaAppendixList]} if self.mediaAppendixList else {}) 
         
         return json
     
