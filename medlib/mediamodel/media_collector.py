@@ -30,7 +30,7 @@ class MediaCollector(MediaBase):
                 titles            IniTitles         represents the [titles] section
                 control           IniControl        represents the [control] section
                 general           IniGeneral        represents the [general] section
-                classification            IniRating         represents the [classification] section
+                classification    IniClassification represents the [classification] section
         """
         super().__init__(titles, control, general, classification)
         
@@ -43,6 +43,7 @@ class MediaCollector(MediaBase):
         self.media_storage_list = []
         
         self.nextLevelListener = None
+        self.previousLevelListener = None
   
     def getNameOfFolder(self):
         return self.pathsCollector.getNameOfFolder()
@@ -150,36 +151,36 @@ class MediaCollector(MediaBase):
             out += storage.getHierarchyTitle(space + "   ")        
         return out
 
-    def addWidgetGeneralInfoStoryline(self, parent, sizeRate, grid_layout, row, title_id, value):
-        if value:
-            grid_layout.addWidget(QHLine(), row, 0, 1, 2)
-            row = row + 1
-            
-            widget_value = QPlainTextEdit(parent)
-            
-            #widget_value.setLineWrapMode( QPlainTextEdit.WidgetWidth )
-            widget_value.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-            
-            widget_value.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Normal))
-            widget_value.setReadOnly(True)
-            widget_value.setMinimumHeight( (PANEL_FONT_SIZE + 3) * sizeRate )
-
-            sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-            widget_value.setSizePolicy(sizePolicy)
-
-            [ widget_value.appendPlainText(line) for line in value.split('\\n')]
-            #widget_value.insertPlainText(value)
-            #widget_value.appendPlainText("hello")
-
-            widget_value.moveCursor(QTextCursor.Start)
-            # - eliminate the padding from the top - #            
-            widget_value.document().setDocumentMargin(0)
-            widget_value.setStyleSheet("QPlainTextEdit {padding-left:5px; padding-top:0px; border:0px;}")
-            
-            grid_layout.addWidget( widget_value, row, 1)        
-            row = row + 1
-
-        return row
+#    def addWidgetGeneralInfoStoryline(self, parent, sizeRate, grid_layout, row, title_id, value):
+#        if value:
+#            grid_layout.addWidget(QHLine(), row, 0, 1, 2)
+#            row = row + 1
+#            
+#            widget_value = QPlainTextEdit(parent)
+#            
+#            #widget_value.setLineWrapMode( QPlainTextEdit.WidgetWidth )
+#            widget_value.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+#            
+#            widget_value.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Normal))
+#            widget_value.setReadOnly(True)
+#            widget_value.setMinimumHeight( (PANEL_FONT_SIZE + 3) * sizeRate )
+#
+#            sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+#            widget_value.setSizePolicy(sizePolicy)
+#
+#            [ widget_value.appendPlainText(line) for line in value.split('\\n')]
+#            #widget_value.insertPlainText(value)
+#            #widget_value.appendPlainText("hello")
+#
+#            widget_value.moveCursor(QTextCursor.Start)
+#            # - eliminate the padding from the top - #            
+#            widget_value.document().setDocumentMargin(0)
+#            widget_value.setStyleSheet("QPlainTextEdit {padding-left:5px; padding-top:0px; border:0px;}")
+#            
+#            grid_layout.addWidget( widget_value, row, 1)        
+#            row = row + 1
+#
+#        return row
 
     def setNextLevelListener(self, nextLevelListener):
         """
@@ -191,6 +192,17 @@ class MediaCollector(MediaBase):
 
         """
         self.nextLevelListener = nextLevelListener
+
+    def setPreviousLevelListener(self, previousLevelListener):
+        """
+            From outside, it is needed to provide a METHOD as the previousLevelListener parameter, 
+            which will handle the Escape on the actual MediaCollector - goes one level higher 
+            ________________________________________
+            input:
+                    previousLevelListener    Function    handles the Escape
+
+        """
+        self.previousLevelListener = previousLevelListener
         
     def getQLabelToKeepImage(self):
         """
@@ -210,6 +222,8 @@ class MediaCollector(MediaBase):
         def toDoOnClick(self):                 
             if self.collector.nextLevelListener is not None:
                 self.collector.nextLevelListener(self.collector)
+            elif self.collector.getRoot().nextLevelListener is not None:
+                self.collector.getRoot().nextLevelListener(self.collector)
 
     def getJson(self):
         json = super().getJson();

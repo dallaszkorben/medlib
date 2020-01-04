@@ -1,6 +1,6 @@
 import locale
 
-from medlib.constants import PANEL_HEIGHT
+from medlib.constants import PANEL_HEIGHT, PANEL_FONT_TYPE, PANEL_FONT_SIZE
 
 from builtins import object
 
@@ -11,13 +11,13 @@ from medlib.mediamodel.ini_control import IniControl
 
 from medlib.mediamodel.media_appendix import MediaAppendix
 
-from medlib.mediamodel.extra import QHLine
+from medlib.mediamodel.extra import QHLine, clearLayout
 
-from PyQt5.QtWidgets import QGridLayout
+from PyQt5.QtWidgets import QGridLayout, QPlainTextEdit, QSizePolicy
 from PyQt5.QtWidgets import QHBoxLayout, QVBoxLayout
 from PyQt5.QtWidgets import QWidget
 
-from PyQt5.QtGui import QColor
+from PyQt5.QtGui import QColor, QFont, QTextCursor
 from PyQt5.QtGui import QPixmap
 
 from PyQt5.QtCore import Qt
@@ -30,6 +30,7 @@ from medlib.card_ini import JSON_SECTION_LYRICS
 from medlib.card_ini import JSON_SECTION_CLASSIFICATION
 from medlib.card_ini import JSON_SECTION_CONTROL
 from medlib.card_ini import JSON_NODE_APPENDIXES
+from cardholder.cardholder import Card
 
 class MediaBase(object):
     """
@@ -58,7 +59,7 @@ class MediaBase(object):
         assert issubclass(titles.__class__, IniTitles)
         assert issubclass(control.__class__, IniControl)
         assert issubclass(general.__class__, (IniGeneral, NoneType)), general.__class__
-        assert issubclass(classification.__class__, (IniClassification, NoneType)), classification.__class__
+        assert issubclass(classification.__class__, (NoneType, IniClassification)), classification.__class__
         
         self.parentCollector = None
         self.mediaAppendixList = []
@@ -69,6 +70,7 @@ class MediaBase(object):
         
         self.neededTagField = False
         self.widget = None
+        self.grid_layout = None
 #        self.searchFunction = None
 
     def search(self, withShift, forWho, byWhat):
@@ -92,18 +94,6 @@ class MediaBase(object):
             return pc.getRoot()
         else:
             return self
-        
-        
- #   def setSearchFunction(self, searchFunction ):
- #       """
- #           searchFunction( forWho, byWhat )    - A search function when you click on a link on the card.
- #                                                 For example on a Director or Actor ...
- #                                                 It has two parameters:
- #                                                 -forWho is the text you clicked on
- #                                                 -byWhat is the title_id of the group. for example for the
- #                                                  directors: title_director or actors: title_actor ...
- #       """
- #       self.searchFunction = searchFunction
 
     def getParentCollector(self):
         return self.parentCollector
@@ -198,7 +188,7 @@ class MediaBase(object):
     # --------------------------------------------
     # --------------- Image ---------------------
     # --------------------------------------------
-    def getWidgetImage(self, scale):
+    def getWidgetImage(self, mainWidget, scale):
 
         # layout of this widget => three columns
         image_layout = QHBoxLayout()
@@ -235,7 +225,8 @@ class MediaBase(object):
     # --------------------------------------------
     # ------------- Middle - Text part -----------
     # --------------------------------------------
-    def getWidgetCardInformationText(self, scale):
+                 
+    def getWidgetCardInformationText(self, mainWidget, scale):
         """  _________________________________________
             |  Title                                  |
             |_________________________________________|       
@@ -246,34 +237,75 @@ class MediaBase(object):
             |  Media Appendix                         |
             |_________________________________________|            
         """
+        class CardInformationTextWidget(QWidget):
+            def __init__(self, scale):
+                QWidget.__init__(self)
+            
+                self.scale = scale
+                self.general_widget = None
+
+                # layout of this widget => four rows
+                self.cardinfo_layout = QVBoxLayout()
+                self.cardinfo_layout.setAlignment(Qt.AlignTop)
         
-        # layout of this widget => three columns
-        cardinfo_layout = QVBoxLayout()
-        cardinfo_layout.setAlignment(Qt.AlignTop)
+                # space between the three grids
+                self.cardinfo_layout.setSpacing(1)
+        
+                # margin around the widget
+                self.cardinfo_layout.setContentsMargins(0, 0, 0, 0)
+
+                self.setLayout(self.cardinfo_layout)
+
+            def addTitleWidget(self, widget):
+                self.cardinfo_layout.addWidget(widget) 
+                self.cardinfo_layout.addWidget(QHLine())
+
+            def addOneLineWidget(self, widget):
+                self.cardinfo_layout.addWidget(widget) 
+
+            def addGeneralWidget(self, widget):
+                self.general_widget = widget
+                self.cardinfo_layout.addWidget(widget) 
+
+            def addMediaAppendixWidget(self, widget):
+                self.cardinfo_layout.addWidget(widget) 
+            
+            def setFocusTagField(self, value):
+                if self.general_widget:
+                    self.general_widget.setFocusTagField(value)
+
+#       --------------- CardInformationTextWidget ----------------------
+
+        
+        # layout of this widget => four rows
+#        cardinfo_layout = QVBoxLayout()
+#        cardinfo_layout.setAlignment(Qt.AlignTop)
         
         # space between the three grids
-        cardinfo_layout.setSpacing(1)
+#        cardinfo_layout.setSpacing(1)
         
         # margin around the widget
-        cardinfo_layout.setContentsMargins(0, 0, 0, 0)
+#        cardinfo_layout.setContentsMargins(0, 0, 0, 0)
         
-        widget = QWidget()
-        widget.setLayout(cardinfo_layout)
+        widget = CardInformationTextWidget(scale)
+#        widget.setLayout(cardinfo_layout)
 
         # --- TITLE ---
         #  _________________________________________
         # | Icon | Title                            |
         # |______|__________________________________|
         #
-        cardinfo_layout.addWidget(self.titles.getWidget(self, scale))
-        cardinfo_layout.addWidget(QHLine())
+        widget.addTitleWidget(self.titles.getWidget(self, scale))
+#        cardinfo_layout.addWidget(self.titles.getWidget(self, scale))
+#        cardinfo_layout.addWidget(QHLine())
         
         # --- ONLINE INFO ---"
         #  _________________________________________
         # | Year: Length: Country: Sound: Sutitle:  |
         # |_________________________________________|
         #
-        cardinfo_layout.addWidget(self.general.getWidgetOneLine(self, scale))
+        widget.addOneLineWidget(self.general.getWidgetOneLine(self, scale))
+#        cardinfo_layout.addWidget(self.general.getWidgetOneLine(self, scale))
         
         # --- GENERAL INFO ---
         #  ___________________________________________________________________________
@@ -292,10 +324,12 @@ class MediaBase(object):
         # | Tags:                                       |                             |
         # |_____________________________________________|_____________________________|
         #
-        cardinfo_layout.addWidget(self.general.getWidget(self, scale))
+        widget.addGeneralWidget(self.general.getWidget(mainWidget, self, scale))
+        #cardinfo_layout.addWidget(self.general.getWidget(mainWidget, self, scale))
 
-        # --- MEDIA APPENDIX ---        
-        cardinfo_layout.addWidget(self.getWidgetMediaAppendix(scale))
+        # --- MEDIA APPENDIX ---
+        widget.addMediaAppendixWidget(self.getWidgetMediaAppendix(scale))
+#        cardinfo_layout.addWidget(self.getWidgetMediaAppendix(scale))
         
         # --- Stretch ---
 #        cardinfo_layout.addStretch(1)
@@ -329,14 +363,45 @@ class MediaBase(object):
     # --------------------------------------------
     # ----------------- STORYLINE ----------------
     # --------------------------------------------
-    def addWidgetGeneralInfoStoryline(self, parent, sizeRate, grid_layout, row, title_id, value):
-        raise NotImplementedError
-        return row   
+    def getWidgetGeneralInfoStoryLine(self, parent, scale, value):
+        if value:
+#            grid_layout.addWidget(QHLine(), row, 0, 1, 2)
+#            row = row + 1
+            
+            widget_value = QPlainTextEdit(parent)
+            
+            widget_value.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+            
+            widget_value.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * scale, weight=QFont.Normal))
+            widget_value.setReadOnly(True)
+            widget_value.setMinimumHeight( (PANEL_FONT_SIZE + 3) * scale )
+
+            sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+            widget_value.setSizePolicy(sizePolicy)
+
+            [ widget_value.appendPlainText(line) for line in value.split('\\n')]
+
+            widget_value.moveCursor(QTextCursor.Start)
+            # - eliminate the padding from the top - #            
+            widget_value.document().setDocumentMargin(0)
+            widget_value.setStyleSheet("QPlainTextEdit {padding-left:5px; padding-top:0px; border:0px;}")
+            
+#            grid_layout.addWidget( widget_value, row, 1)        
+#            row = row + 1
+            return widget_value
+
+        return None
+
+
+        
+#    def addWidgetGeneralInfoStoryline(self, parent, sizeRate, grid_layout, row, title_id, value):
+#        raise NotImplementedError
+#        return row   
 
     # --------------------------------------------
-    # ----------------- Rating -------------------
+    # ------------- Classification ---------------
     # --------------------------------------------
-    def getWidgetClassification(self, scale):
+    def getWidgetClassification(self, mainWidget, scale):
         """   __________
              | Rate     |
              |__________|
@@ -344,78 +409,145 @@ class MediaBase(object):
              |__________|
              | New      |
              |__________|
+             | +        |
+             |__________|
         """
-        return self.classification.getWidget(self, scale)
+        return self.classification.getWidget(mainWidget, self, scale)
     
     # --------------------------------------------
     # --------------------------------------------
     # --------------- WIDGET -------------------
     # --------------------------------------------
     # --------------------------------------------
+                        
     def getWidget(self, scale):
-        """  ___________________________________________
-            |         |                        |        |
-            |         |                        |        |
-            |  Image  |  Card Information Text | Rating |
-            |         |                        |        |
-            |_________|________________________|________|
+        """  ___________________________________________________
+            |         |                        |                |
+            |         |                        |                |
+            |  Image  |  Card Information Text | Classification |
+            |         |                        |                |
+            |_________|________________________|________________|
         """
+        class MainWidget(QWidget):
+            def __init__(self, media, scale):
+                QWidget.__init__(self)
+            
+                self.scale = scale
+                self.media = media
+            
+                self.image_widget = None
+                self.card_information_widget = None        
+                self.classification_widget = None
 
-        # layout of this widget => three columns
-        grid_layout = QGridLayout()
+                self.setStyleSheet('background: ' + media.getBackgroundColor())     
 
-        # space between the three grids
-        grid_layout.setSpacing(10)
-        
-        # margin around the widget
-        grid_layout.setContentsMargins(0, 0, 0, 0)
-        
-        # stretch out the middle part
-        grid_layout.setColumnStretch(1, 1)
+                self.grid_layout = QGridLayout()
 
-        widget = QWidget()
-        widget.setStyleSheet('background: ' + self.getBackgroundColor())
-        widget.setLayout(grid_layout)
+                # space between the three grids
+                self.grid_layout.setSpacing(10)
         
-        # --- Image ---
-        grid_layout.addWidget(self.getWidgetImage(scale), 0, 0)
+                # margin around the widget
+                self.grid_layout.setContentsMargins(0, 0, 0, 0)
         
-        # --- Card Information ---
-        grid_layout.addWidget(self.getWidgetCardInformationText(scale), 0, 1)
+                # stretch out the middle part
+                self.grid_layout.setColumnStretch(1, 1)
+
+                self.setLayout(self.grid_layout)
+            
+                self.setAttribute(Qt.WA_StyledBackground, True)
+            
+                self.neededTagField = False
+            
+            def addImageWidget(self, get_image_widget_method):
+                self.get_image_widget_method = get_image_widget_method
+                self.image_widget = get_image_widget_method(self, self.scale)
+                self.grid_layout.addWidget(self.image_widget, 0, 0)
+            
+            def addCardInformationWidget(self, get_card_information_widget_method):
+                self.get_card_information_widget_method = get_card_information_widget_method
+                self.card_information_widget = get_card_information_widget_method(self, self.scale)            
+                self.grid_layout.addWidget(self.card_information_widget, 0, 1)
+            
+            def addClassificationWidget(self, get_classification_widget_method):
+                self.get_classification_widget_method = get_classification_widget_method
+                self.classification_widget = get_classification_widget_method(self, self.scale)
+                self.grid_layout.addWidget(self.classification_widget, 0, 2)
+            
+            def getLayout(self):
+                return self.grid_layout
         
-        # --- Rating ---
-        grid_layout.addWidget(self.getWidgetClassification(scale), 0, 2)
+            def regenerate(self):
+                """
+                This method is called when the user clicked on the + (Add) button
+                """
+                # Remove all widget from the layout       
+                clearLayout(self.grid_layout)
+
+                # --- Image ---
+                self.image_widget = self.get_image_widget_method(self, self.scale)
+                self.grid_layout.addWidget(self.image_widget, 0, 0)            
         
-        self.widget = widget
-        self.layout = grid_layout
+                # --- Card Information ---
+                self.card_information_widget = self.get_card_information_widget_method(self, self.scale)            
+                self.grid_layout.addWidget(self.card_information_widget, 0, 1)
         
-        return widget
+                # --- Classification ---
+                self.classification_widget = self.get_classification_widget_method(self, self.scale)
+                self.grid_layout.addWidget(self.classification_widget, 0, 2)
+        
+                if self.isNeededTagField():
+                    self.card_information_widget.setFocusTagField(True)
+
+            def setNeededTagField(self, value):
+                self.neededTagField = value
+        
+            def isNeededTagField(self):
+                return self.neededTagField
+ 
+#            def setFocusTagField(self, value):
+#                if self.card_information_widget:
+#                    self.card_information_widget.setFocusTagField(value)
+
+#       -----------------------------------------------------------------
+
+        if True: #not self.grid_layout:
+
+            self.widget = MainWidget(self, scale)
+        
+            # --- Image ---
+            self.widget.addImageWidget(self.getWidgetImage)
+        
+            # --- Card Information ---
+            self.widget.addCardInformationWidget(self.getWidgetCardInformationText)
+        
+            # --- Classification ---
+            self.widget.addClassificationWidget(self.getWidgetClassification)
+        
+        return self.widget
     
-    def reGenerate(self, scale):
+#    def reGenerate(self, scale):
 
-        layout = self.layout
         
         # delete all widgets
-        for i in reversed(range(layout.count())): 
-            layout.itemAt(i).widget().deleteLater()
+#        clearLayout(self.grid_layout)
 
         # --- Image ---
-        layout.addWidget(self.getWidgetImage(scale), 0, 0)
+#        self.grid_layout.addWidget(self.getWidgetImage(scale), 0, 0)
         
         # --- Card Information ---
-        layout.addWidget(self.getWidgetCardInformationText(scale), 0, 1)
+#        self.grid_layout.addWidget(self.getWidgetCardInformationText(scale), 0, 1)
         
         # --- Classification ---
-        layout.addWidget(self.getWidgetClassification(scale), 0, 2)
+#        self.grid_layout.addWidget(self.getWidgetClassification(scale), 0, 2)
         
-        if self.isNeededTagField():
-            self.classification.setFocusTagField(True)
+#        if self.isNeededTagField():
+#            self.classification.setFocusTagField(True)
 
-    def setNeededTagField(self, value):
-        self.neededTagField = value
+#    def setNeededTagField(self, value):
+#        self.neededTagField = value
         
-    def isNeededTagField(self):
-        return self.neededTagField
+#    def isNeededTagField(self):
+#        return self.neededTagField
     
     def getMediaAppendixList(self):
         return self.mediaAppendixList

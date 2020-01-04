@@ -34,7 +34,6 @@ from medlib.card_ini import JSON_KEY_CLASSIFICATION_NEW
 from medlib.card_ini import JSON_KEY_CLASSIFICATION_FAVORITE
 
 from medlib.mediamodel.extra import FlowLayout
-from medlib.mediamodel.extra import QHLine
 
 from medlib.handle_property import updateCardIni
 
@@ -85,8 +84,6 @@ class IniClassification(object):
         self.favorite = favorite
         self.new = new
         
-        self.tag_field_widget = None
-        
     def getRate(self):
         return self.rate
     
@@ -122,8 +119,9 @@ class IniClassification(object):
     
     # --------------------------------------------
     # ------------- Classification ---------------
-    # --------------------------------------------
-    def getWidget(self, media, scale):
+    # --------------------------------------------    
+      
+    def getWidget(self, mainWidget, media, scale):
         """   __________
              | Rate     |
              |__________|
@@ -131,42 +129,57 @@ class IniClassification(object):
              |__________|
              | New      |
              |__________|
+             | +        |
+             |__________|             
         """        
-        # layout of this widget => three columns
-        classification_layout = QVBoxLayout()
-        classification_layout.setAlignment(Qt.AlignTop)
+
+        class ClassificationWidget(QWidget):
+            def __init__(self, media, scale):
+                QWidget.__init__(self)
+            
+                self.scale = scale
+                self.media = media
+
+                # layout of this widget => three columns
+                self.classification_layout = QVBoxLayout()
+                self.classification_layout.setAlignment(Qt.AlignTop)
         
-        # space between the three grids
-        classification_layout.setSpacing(20 * scale)
+                # space between the three grids
+                self.classification_layout.setSpacing(20 * scale)
+
+                # margin around the widget
+                self.classification_layout.setContentsMargins(0, 5, 5, 5)
+
+                self.setLayout(self.classification_layout)
+
+            def addWidget(self, widget):
+                self.classification_layout.addWidget(widget)  
         
-        # margin around the widget
-        classification_layout.setContentsMargins(0, 5, 5, 5)
+#       ----------- ClassificationWidget -----------
+
+
+
         
-        widget = QWidget()
-        widget.setLayout(classification_layout)
+        widget = ClassificationWidget(media, scale)
         
         # --- RATE ---
         widgetRate = self.getWidgetClassificationInfoRate(media, scale)
-        classification_layout.addWidget(widgetRate)
+        widget.addWidget(widgetRate)
         
         # --- FAVORITE ---
         widgetFavorite = self.getWidgetClassificationInfoFavorite(media, scale)
-        classification_layout.addWidget(widgetFavorite) 
+        widget.addWidget(widgetFavorite)
 
         # --- NEW ---
         widgetNew = self.getWidgetClassificationInfoNew(media, scale)
-        classification_layout.addWidget(widgetNew) 
+        widget.addWidget(widgetNew)
         
         # --- ADD ---
-        widgetAdd = self.getWidgetAdd(media, scale)
-        classification_layout.addWidget(widgetAdd)
+        widgetAdd = self.getWidgetAdd(mainWidget, media, scale)
+        widget.addWidget(widgetAdd)
         
         return widget
-
-    def setFocusTagField(self, value):
-        if self.tag_field_widget:
-            self.tag_field_widget.setFocus()
-        
+       
     # ---------- #
     # Rate field #
     # ---------- #
@@ -314,7 +327,7 @@ class IniClassification(object):
     # ---------- #
     # ADD button #
     # ---------- #
-    def getWidgetAdd(self, media, scale):
+    def getWidgetAdd(self, mainWidget, media, scale):
         class AddButton(QPushButton):
    
             class AddLabel(QLabel):            
@@ -340,50 +353,41 @@ class IniClassification(object):
                 QPushButton.__init__(self)    
                 self.ini_classification = ini_classification
 
-                icon = QIcon()
-                icon.addPixmap(QPixmap(resource_filename(__name__, os.path.join(CLASSIFICATION_ICON_FOLDER, CLASSIFICATION_ICON_TAG_ADD + "." + CLASSIFICATION_ICON_EXTENSION))), QIcon.Normal, QIcon.On)
+                if self.ini_classification.getNew() is None and self.ini_classification.getFavorite() is None and self.ini_classification.getRate() is None:
+                    self.hide()
+                else:        
 
-                self.setIcon(icon)
-                self.setIconSize(QSize(CLASSIFICATION_ICON_SIZE * scale, CLASSIFICATION_ICON_SIZE * scale))
+                    icon = QIcon()
+                    icon.addPixmap(QPixmap(resource_filename(__name__, os.path.join(CLASSIFICATION_ICON_FOLDER, CLASSIFICATION_ICON_TAG_ADD + "." + CLASSIFICATION_ICON_EXTENSION))), QIcon.Normal, QIcon.On)
+
+                    self.setIcon(icon)
+                    self.setIconSize(QSize(CLASSIFICATION_ICON_SIZE * scale, CLASSIFICATION_ICON_SIZE * scale))
                 
-                self.setCursor(QCursor(Qt.PointingHandCursor))
+                    self.setCursor(QCursor(Qt.PointingHandCursor))
 
-                self.setStyleSheet("background:transparent; border:none")
+                    self.setStyleSheet("background:transparent; border:none")
                     
-                self.clicked.connect(self.on_click)
+                    self.clicked.connect(self.on_click)
 
             # You clicked on the Add (green cross) button
             def on_click(self):
  
                 # Indicates that the TAG FIELD needs to be shown
-                media.setNeededTagField(True)
+                mainWidget.setNeededTagField(True)
                 
                 # Re-paint the widget (with the TAG FIELD)
-                media.reGenerate(scale)              
-#                pass
-                # change the status of the favorite in the Object
-#                self.ini_classification.setNew(self.isChecked())
-                
-                # change the status of the favorite in the card.ini
-#                updateCardIni(media.getPathOfCard(), SECTION_CLASSIFICATION, KEY_CLASSIFICATION_NEW, 'y' if self.isChecked() else 'n')
-        
-                # change the value of the rate in the json
-#                medlib.input_output.saveJson(media.getRoot())
+                mainWidget.regenerate()              
         
         button = AddButton(self, scale)
         return button
 
 
-
-
-
-
-    def addTagListButtons(self, media, scale, grid_layout, row, title_id, value_method):
+    def getWidgetTagListButtons(self, mainWidget, media, scale, title_id, get_list_method):
         """
         Adds the tags as buttons        
         """
         
-        tag_list = value_method()
+        tag_list = get_list_method()      
 
         #
         # TAG button
@@ -397,49 +401,59 @@ class IniClassification(object):
             class DeleteLabel(QLabel):            
                 clicked=pyqtSignal()
             
-                def __init__(self, parent=None):
+                def __init__(self, parent):
                     QLabel.__init__(self, parent)
+                    
+                    self.parent = parent
+                    
+                    self. pathToDeleteOffIcon = resource_filename(__name__, os.path.join(CLASSIFICATION_ICON_FOLDER, CLASSIFICATION_ICON_TAG_DELETE + "-" + OFF + "." + CLASSIFICATION_ICON_EXTENSION))
+                    self. pathToDeleteOnIcon = resource_filename(__name__, os.path.join(CLASSIFICATION_ICON_FOLDER, CLASSIFICATION_ICON_TAG_DELETE + "-" + ON + "." + CLASSIFICATION_ICON_EXTENSION))
+                    
+                    self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
+
+                    self.setPixmap(QIcon(self.pathToDeleteOffIcon).pixmap(QSize(parent.fm.height() - parent.iconBorder * 2, parent.fm.height() - parent.iconBorder * 2)))
 
                 def mousePressEvent(self, event):
                     self.clicked.emit()
                 
                 def enterEvent(self, event):
                     self.update()
+                    self.setPixmap(QIcon(self.pathToDeleteOnIcon).pixmap(QSize(self.parent.fm.height() - self.parent.iconBorder * 2, self.parent.fm.height() - self.parent.iconBorder * 2)))
+
                     QApplication.setOverrideCursor(Qt.PointingHandCursor)        
                     event.ignore()
         
                 def leaveEvent(self, event):
                     self.update()
+                    self.setPixmap(QIcon(self.pathToDeleteOffIcon).pixmap(QSize(self.parent.fm.height() - self.parent.iconBorder * 2, self.parent.fm.height() - self.parent.iconBorder * 2)))
+
                     QApplication.restoreOverrideCursor()        
                     event.ignore()
                 
             def __init__(self, media, scale, translatedText, rawText, title_id):
             
-                super().__init__(translatedText + "     ")
+                super().__init__(translatedText + "   ")
                 self.media = media
                 self.rawText = rawText
                 self.title_id = title_id
 
-                iconBorder = 2 * scale
+                self.iconBorder = 2 * scale
 
                 # Set size of button
                 self.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * scale, weight=QFont.Bold)) 
-                fm = QFontMetrics(self.font())
+                self.fm = QFontMetrics(self.font())
 
-                # Icon
-                pathToDeleteIcon = resource_filename(__name__, os.path.join(CLASSIFICATION_ICON_FOLDER, CLASSIFICATION_ICON_TAG_DELETE + "." + CLASSIFICATION_ICON_EXTENSION))
-                
-                label_icon = self.DeleteLabel()
-                label_icon.setAttribute(QtCore.Qt.WA_TranslucentBackground)
-                label_icon.setPixmap(QIcon(pathToDeleteIcon).pixmap(QSize(fm.height() - iconBorder * 2, fm.height() - iconBorder * 2)))
+                # Delete Icon                
+                label_icon = self.DeleteLabel(self)
+
 
                 layout = QHBoxLayout(self)
-                layout.setContentsMargins(0, 0, iconBorder, 0)
+                layout.setContentsMargins(0, 0, self.iconBorder, 0)
                 layout.addWidget(label_icon, alignment=QtCore.Qt.AlignRight)
 
                 # calculate text width
-                self.setFixedWidth(fm.width(self.text()) + 10)
-                self.setFixedHeight(fm.height())
+                self.setFixedWidth(self.fm.width(self.text()) + 10)
+                self.setFixedHeight(self.fm.height())
 
                 label_icon.clicked.connect(self.on_delete)            
                 self.clicked.connect(self.on_click)
@@ -448,8 +462,6 @@ class IniClassification(object):
 
                 # remove the tag from the tag list
                 tag_list.remove(self.rawText)
-                
-                media.setNeededTagField(False)
             
                 # change the tag list in the Object
                 media.classification.setTagList(tag_list)
@@ -460,8 +472,11 @@ class IniClassification(object):
                 # change the value of the rate in the json
                 medlib.input_output.saveJson(media.getRoot())
 
+                # No need TAG FIELD anymore                    
+                mainWidget.setNeededTagField(False)
+
                 # Re-print the widgets
-                media.reGenerate(scale)
+                mainWidget.regenerate()
             
             def on_click(self):
                 modifiers = QApplication.keyboardModifiers()
@@ -490,94 +505,105 @@ class IniClassification(object):
 
                 # calculate text width
                 self.setFixedWidth(fm.width("WWWWWWW") + 10)
-                self.setFixedHeight(fm.height())
+                self.setFixedHeight(fm.height())            
+             
+            def keyPressEvent(self, event):
 
-                self.returnPressed.connect(self.pressedEnterEvent)
+                # press ESC on the TAG FIELD
+                if event.key() == Qt.Key_Escape:
+                    
+                    # No need TAG FIELD anymore
+                    mainWidget.setNeededTagField(False)
+                    
+                    # Re-paint the widget (without the TAG FIELD)
+                    mainWidget.regenerate()
+                    
+                    #event.ignore()
 
-            # press ENTER on the TAG FIELD
-            def pressedEnterEvent(self):
-
-                text = self.text().strip()
+                # press ENTER on the TAG FIELD                    
+                if event.key() == Qt.Key_Return:
+                    text = self.text().strip()
                 
-                if text and text not in tag_list:
+                    if text and text not in tag_list:
 
-                    # add the tag to the tag list
-                    tag_list.append(text)
+                        # add the tag to the tag list
+                        tag_list.append(text)
             
-                    # change the tag list in the Object
-                    media.classification.setTagList(tag_list)
+                        # change the tag list in the Object
+                        media.classification.setTagList(tag_list)
             
-                    # change the status of the favorite in the card.ini
-                    updateCardIni(media.getPathOfCard(), SECTION_CLASSIFICATION, KEY_CLASSIFICATION_TAG, ','.join(tag_list))
+                        # change the status of the favorite in the card.ini
+                        updateCardIni(media.getPathOfCard(), SECTION_CLASSIFICATION, KEY_CLASSIFICATION_TAG, ','.join(tag_list))
         
-                    # change the value of the rate in the json
-                    medlib.input_output.saveJson(media.getRoot())
+                        # change the value of the rate in the json
+                        medlib.input_output.saveJson(media.getRoot())
 
-                # No need TAG FIELD anymore
-                media.setNeededTagField(False)
+                    # No need TAG FIELD anymore
+                    mainWidget.setNeededTagField(False)
 
-                # Re-print the widgets
-                media.reGenerate(scale)                
+                    # Re-print the widgets
+                    mainWidget.regenerate()   
+                
+                else:
+                    super(TagField, self).keyPressEvent(event)
+                
                 
             def focusOutEvent(self, event):
 
                 # No need TAG FIELD anymore
-                media.setNeededTagField(False)
+                mainWidget.setNeededTagField(False)
                 
                 # Re-paint the widget (without the TAG FIELD)
-                media.reGenerate(scale)              
+                mainWidget.regenerate()
 
+        class TagListButtonsWidget(QWidget):
+            def __init__(self, mainWidget, media, scale):
+                QWidget.__init__(self)
 
+                self.mainWidget = mainWidget
+                self.media = media
+                self.scale = scale
+          
+                self.layout = FlowLayout()
+                self.layout.setAlignment(Qt.AlignLeft)        
+                self.layout.setSpacing(1)        
+                self.layout.setContentsMargins(0, 0, 0, 0)                
+                self.setLayout( self.layout )
 
+                self.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * scale, weight=QFont.Normal))
+                
+                self.fieldWidget = None      
 
-        
-        
-        # --- horizontal line at the beginning
-        grid_layout.addWidget(QHLine(), row, 0, 1, 2)
-        row = row + 1
-            
-        widget_key = QLabel(_(title_id) + ":", )
-        widget_key.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * scale, weight=QFont.Bold))
-        widget_key.setAlignment(Qt.AlignTop)
-        
-        layout = FlowLayout()
-        layout.setAlignment(Qt.AlignLeft)        
-        layout.setSpacing(1)        
-        layout.setContentsMargins(0, 0, 0, 0)
+            def addButtonWidget(self, buttonWidget):
+                self.layout.addWidget(buttonWidget)
+                
+            def addFieldWidget(self, fieldWidget):
+                self.fieldWidget = fieldWidget
+                self.layout.addWidget(fieldWidget)
+                
+            def setFocusTagField(self, value):
+                if self.fieldWidget:
+                    self.fieldWidget.setFocus(value)                
 
-        widget_value = QWidget()
-        widget_value.setLayout( layout )
-        widget_value.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * scale, weight=QFont.Normal))        
+        widget_value = TagListButtonsWidget(mainWidget, media, scale)
 
         needWidget = False
         
         # Add TAG buttons
         for tag in tag_list:            
             label = TagButtonForSearch(media, scale, tag, tag, title_id)
-            layout.addWidget(label)
+            widget_value.addButtonWidget(label)
             needWidget = True
                 
         # Add TAG field
-        if media.isNeededTagField():
+        if mainWidget.isNeededTagField():
             field = TagField(media, scale)
-            layout.addWidget(field)
+            widget_value.addFieldWidget(field)
                 
-            self.tag_field_widget = field
-            
             needWidget = True
-
-        else:
-            self.tag_field_widget = None
             
         # if there was TAGs and/or TAG FIELD    
         if needWidget:
-                               
-            grid_layout.addWidget(widget_key, row, 0)
-            grid_layout.addWidget(widget_value, row, 1)
-            row = row + 1
-            
-        return row   
-
-        
-    
-    
+            return widget_value
+        else:
+            return None

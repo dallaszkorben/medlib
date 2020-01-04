@@ -208,7 +208,7 @@ class CardHolder( QWidget ):
             self.cc.start()   
         
     # -------------------------------------------------------
-    # refres card collection - used by the CollectCardsThread
+    # refresh card collection - used by the CollectCardsThread
     # -------------------------------------------------------
     def refresh(self, filtered_card_list): 
         self.stop_spinner()
