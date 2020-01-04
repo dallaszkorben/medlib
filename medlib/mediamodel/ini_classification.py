@@ -151,6 +151,9 @@ class IniClassification(object):
                 self.classification_layout.setContentsMargins(0, 5, 5, 5)
 
                 self.setLayout(self.classification_layout)
+                
+#                self.setAttribute(Qt.WA_StyledBackground, True)
+
 
             def addWidget(self, widget):
                 self.classification_layout.addWidget(widget)  
@@ -171,7 +174,7 @@ class IniClassification(object):
         widget.addWidget(widgetFavorite)
 
         # --- NEW ---
-        widgetNew = self.getWidgetClassificationInfoNew(media, scale)
+        widgetNew = self.getWidgetClassificationInfoNew(mainWidget, media, scale)
         widget.addWidget(widgetNew)
         
         # --- ADD ---
@@ -282,6 +285,7 @@ class IniClassification(object):
         
                 # change the value of the rate in the json
                 medlib.input_output.saveJson(media.getRoot())
+                
 
         button = FavoriteButton(self, scale)
         return button
@@ -289,7 +293,7 @@ class IniClassification(object):
     # ---------- #
     # New button #
     # ---------- #
-    def getWidgetClassificationInfoNew(self, media, scale):
+    def getWidgetClassificationInfoNew(self, mainWidget, media, scale):
         class NewButton(QPushButton):
             def __init__(self, ini_classification, scale):
                 QPushButton.__init__(self)    
@@ -320,6 +324,8 @@ class IniClassification(object):
         
                 # change the value of the rate in the json
                 medlib.input_output.saveJson(media.getRoot())
+                
+#                mainWidget.setFocus()
         
         button = NewButton(self, scale)
         return button
@@ -335,6 +341,8 @@ class IniClassification(object):
             
                 def __init__(self, parent=None):
                     QLabel.__init__(self, parent)
+                    self.setAttribute(Qt.WA_StyledBackground, True)
+
 
                 def mousePressEvent(self, event):
                     self.clicked.emit()
@@ -518,7 +526,7 @@ class IniClassification(object):
                     # Re-paint the widget (without the TAG FIELD)
                     mainWidget.regenerate()
                     
-                    #event.ignore()
+                    event.ignore()
 
                 # press ENTER on the TAG FIELD                    
                 if event.key() == Qt.Key_Return:
@@ -542,7 +550,9 @@ class IniClassification(object):
                     mainWidget.setNeededTagField(False)
 
                     # Re-print the widgets
-                    mainWidget.regenerate()   
+                    mainWidget.regenerate()
+                    
+                   
                 
                 else:
                     super(TagField, self).keyPressEvent(event)

@@ -491,8 +491,8 @@ class IniGeneral(object):
                         layout.addWidget(label)
                         first = False
 
-                    grid_layout.addWidget(widget_key, self.row, 0)
-                    grid_layout.addWidget(widget_value, self.row, 1)
+                    self.grid_layout.addWidget(widget_key, self.row, 0)
+                    self.grid_layout.addWidget(widget_value, self.row, 1)
                     self.row = self.row + 1
 
             def addQlinkTranslatedWidget(self, media, scale, title_id, element_list):
@@ -562,178 +562,64 @@ class IniGeneral(object):
 
 #       ---------------- GeneralWidget -----------------------
 
-
-            #
-            # !!!!! MUST BE DELETED !!!!!!
-            #
-            def getLayout(self):
-                return self.grid_layout
-            
-#        grid_layout = QGridLayout()
         widget = GeneralWidget(mainWidget, media, scale)
-#        widget.setLayout(grid_layout)
-        row = 0;
-        
-        #
-        # !!!!! MUST BE DELETED !!!!!!
-        #
-        grid_layout = widget.getLayout()
-        
-        
-        # space between the three grids
-#        grid_layout.setSpacing(1)
-        
-        # margin around the widget
-#        grid_layout.setContentsMargins(0, 0, 0, 0)
-
-        # stretch out the 2nd column
-#        grid_layout.setColumnStretch(1, 1)
-
-        #
-        # TODO if by control.media / control.category 
-        #
- 
- 
-        #
-        # !!!!! MUST BE MODIFIED !!!!!!
-        #
-
  
         # ---
         # --- DIRECTORS ---
         widget.addQlinkSimpleWidget(media, scale, 'title_director', media.general.getDirectors)
-#        row = self.addNameListToQLinkLabel(media, scale, grid_layout, row, 'title_director', media.general.getDirectors)
 
         # --- MAKER ---       
         widget.addQlinkSimpleWidget(media, scale, 'title_maker', media.general.getMakers)
-#        row = self.addNameListToQLinkLabel(media, scale, grid_layout, row, 'title_maker', media.general.getMakers)
 
         # ---
         # --- WRITERS ---
         widget.addQlinkSimpleWidget(media, scale, 'title_writer', media.general.getWriters)
-#        row = self.addNameListToQLinkLabel(media, scale, grid_layout, row, 'title_writer', media.general.getWriters)
 
         # --- AUTHORS ---
         widget.addQlinkSimpleWidget(media, scale, 'title_author', media.general.getAuthors)
-#        row = self.addNameListToQLinkLabel(media, scale, grid_layout, row, 'title_author', media.general.getAuthors)
 
         # ---
         # --- ACTORS ---       
         widget.addQlinkSimpleWidget(media, scale, 'title_actor', media.general.getActors)
-#        row = self.addNameListToQLinkLabel(media, scale, grid_layout, row, 'title_actor', media.general.getActors)
 
         # --- PERFORMER ---       
         widget.addQlinkSimpleWidget(media, scale, 'title_performer', media.general.getPerformers)
-#        row = self.addNameListToQLinkLabel(media, scale, grid_layout, row, 'title_performer', media.general.getPerformers)
 
         # --- LECTURER ---       
         widget.addQlinkSimpleWidget(media, scale, 'title_lecturer', media.general.getLecturers)
-#        row = self.addNameListToQLinkLabel(media, scale, grid_layout, row, 'title_lecturer', media.general.getLecturers)
 
         # --- CONTRIBUTOR ---       
         widget.addQlinkSimpleWidget(media, scale, 'title_contributor', media.general.getContributors)
-#        row = self.addNameListToQLinkLabel(media, scale, grid_layout, row, 'title_contributor', media.general.getContributors)
 
         # --- VOICE ---       
         widget.addQlinkSimpleWidget(media, scale, 'title_voice', media.general.getVoices)
-#        row = self.addNameListToQLinkLabel(media, scale, grid_layout, row, 'title_voice', media.general.getVoices)
 
         # ---
         # --- GENRE ---       
         widget.addQlinkTranslatedWidget(media, scale, 'title_genre', media.getTranslatedGenreList())
-#        row = self.addTranslatedListToQLinkLabel(scale, grid_layout, row, 'title_genre', self.general.getGenres)
 
         # ---
         # --- THEME ---
         widget.addQlinkTranslatedWidget(media, scale, 'title_theme', media.getTranslatedThemeList())    
-#        row = self.addTranslatedListToQLinkLabel(media, scale, grid_layout, row, 'title_theme', media.getTranslatedThemeList())
         
         # ---
         # --- STORILINES ---
         storyline_widget = media.getWidgetGeneralInfoStoryLine(widget, scale, media.getTranslatedStoryline(self.getStoryline()))
         widget.addStorylineWidget(storyline_widget, 'title_storyline')
 
-        #row = media.addWidgetGeneralInfoStoryline(widget, scale, grid_layout, row, 'title_storyline', media.getTranslatedStoryline(self.getStoryline()))
-
         # --- TOPIC ---
-#        row = media.addWidgetGeneralInfoStoryline(widget, scale, grid_layout, row, 'title_topic', media.getTranslatedStoryline(self.getTopic()))
-
+        storyline_widget = media.getWidgetGeneralInfoStoryLine(widget, scale, media.getTranslatedStoryline(self.getTopic()))
+        widget.addStorylineWidget(storyline_widget, 'title_topic')
+        
         # --- LYRICS ---
-#        row = media.addWidgetGeneralInfoStoryline(widget, scale, grid_layout, row, 'title_lyrics', media.getTranslatedStoryline(self.getLyrics()))
-                
+        storyline_widget = media.getWidgetGeneralInfoStoryLine(widget, scale, media.getTranslatedStoryline(self.getLyrics()))
+        widget.addStorylineWidget(storyline_widget, 'title_lyrics')
+
         # --- TAG ---
         self.tag_widget = media.classification.getWidgetTagListButtons(mainWidget, media, scale, 'title_tag', media.classification.getTagList)
         widget.addTagWidget(self.tag_widget, 'title_tag')
         
-#        row = media.classification.addTagListButtons(mainWidget, media, scale, grid_layout, row, 'title_tag', media.classification.getTagList)
-
-        
         return widget
-
-    # #####################################################################################
-    # Link List - Director/Maker/Writer/Author/Actor/Performer/Lecturer/Contributor/Voice #
-    # #####################################################################################
-#    def addNameListToQLinkLabel(self, media, scale, grid_layout, row, title_id, value_method):
-#        value = value_method()
-#
-#        if value:
-#        
-#            widget_key = QLabel(_(title_id) + ":", )
-#            widget_key.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * scale, weight=QFont.Bold))
-#            widget_key.setAlignment(Qt.AlignTop)
-#        
-#            layout = FlowLayout()
-#            layout.setAlignment(Qt.AlignLeft)        
-#            layout.setSpacing(1)        
-#            layout.setContentsMargins(0, 0, 0, 0)
-#
-#            widget_value = QWidget()
-#            widget_value.setLayout( layout )
-#            widget_value.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * scale, weight=QFont.Normal))        
-#            first = True
-#            for d in value:
-#                if not first:
-#                    layout.addWidget( QLabel(", ") )
-#                label = IniGeneral.QLinkLabelToSearch(media, scale, d, d, title_id)
-#                layout.addWidget(label)
-#                first = False
-#
-#            grid_layout.addWidget(widget_key, row, 0)
-#            grid_layout.addWidget(widget_value, row, 1)
-#            row = row + 1
-#            
-#        return row   
-
-    # ###########################
-    # String List - Genre/Theme #
-    # ###########################
-#    def addTranslatedListToQLinkLabel(self, media, scale, grid_layout, row, title_id, element_list):
-#       
-#        if element_list:
-#            widget_key = QLabel(_(title_id) + ":", )
-#            widget_key.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * scale, weight=QFont.Bold))
-#        
-#            layout_genres = QHBoxLayout()
-#            layout_genres.setAlignment(Qt.AlignLeft)
-#            layout_genres.setSpacing(1)        
-#            layout_genres.setContentsMargins(0, 0, 0, 0)
-#
-#            widget_value = QWidget()
-#            widget_value.setLayout( layout_genres )
-#            widget_value.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * scale, weight=QFont.Normal))
-#            first = True
-#            for d, e in element_list:
-#                if not first:
-#                    layout_genres.addWidget( QLabel(", ") )
-#                label = IniGeneral.QLinkLabelToSearch(media, scale, d, e, title_id)                
-#                layout_genres.addWidget(label)
-#                first = False
-#        
-#            grid_layout.addWidget(widget_key, row, 0)
-#            grid_layout.addWidget(widget_value, row, 1)
-#            row = row + 1
-#            
-#        return row
 
     class QLinkLabelToSearch( QLabelToLinkOnClick ):
         """

@@ -3,16 +3,7 @@ from medlib.mediamodel.media_base import MediaBase
 from medlib.mediamodel.media_storage import MediaStorage
 from medlib.mediamodel.paths_collector import PathsCollector
 
-from PyQt5.QtWidgets import QPlainTextEdit
-from PyQt5.QtWidgets import QSizePolicy
-from PyQt5.QtGui import QTextCursor
-from PyQt5.QtGui import QFont
-from PyQt5.QtCore import Qt
-
-from medlib.mediamodel.extra import QHLine
-
 from medlib.mediamodel.qlabel_to_link_on_cllick import QLabelToLinkOnClick
-from PyQt5 import QtGui
 
 class MediaCollector(MediaBase):
     """
@@ -151,37 +142,6 @@ class MediaCollector(MediaBase):
             out += storage.getHierarchyTitle(space + "   ")        
         return out
 
-#    def addWidgetGeneralInfoStoryline(self, parent, sizeRate, grid_layout, row, title_id, value):
-#        if value:
-#            grid_layout.addWidget(QHLine(), row, 0, 1, 2)
-#            row = row + 1
-#            
-#            widget_value = QPlainTextEdit(parent)
-#            
-#            #widget_value.setLineWrapMode( QPlainTextEdit.WidgetWidth )
-#            widget_value.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-#            
-#            widget_value.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * sizeRate, weight=QFont.Normal))
-#            widget_value.setReadOnly(True)
-#            widget_value.setMinimumHeight( (PANEL_FONT_SIZE + 3) * sizeRate )
-#
-#            sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-#            widget_value.setSizePolicy(sizePolicy)
-#
-#            [ widget_value.appendPlainText(line) for line in value.split('\\n')]
-#            #widget_value.insertPlainText(value)
-#            #widget_value.appendPlainText("hello")
-#
-#            widget_value.moveCursor(QTextCursor.Start)
-#            # - eliminate the padding from the top - #            
-#            widget_value.document().setDocumentMargin(0)
-#            widget_value.setStyleSheet("QPlainTextEdit {padding-left:5px; padding-top:0px; border:0px;}")
-#            
-#            grid_layout.addWidget( widget_value, row, 1)        
-#            row = row + 1
-#
-#        return row
-
     def setNextLevelListener(self, nextLevelListener):
         """
             From outside, it is needed to provide a METHOD as the nextLevelListener parameter, 
@@ -204,7 +164,7 @@ class MediaCollector(MediaBase):
         """
         self.previousLevelListener = previousLevelListener
         
-    def getQLabelToKeepImage(self):
+    def getQLabelToHoldImage(self):
         """
             Gives back a class extending QLabel which will keep the image.
             This class has to implement the 'toDoOnClick' method which
@@ -212,6 +172,9 @@ class MediaCollector(MediaBase):
         """
         return MediaCollector.QLabelWithLinkToNextLevel(self)
 
+#    def goPreviousLevel(self):
+#        if self.previousLevelListener:
+#            self.previousLevelListener(self.getParentCollector())
 
     class QLabelWithLinkToNextLevel( QLabelToLinkOnClick ):
 

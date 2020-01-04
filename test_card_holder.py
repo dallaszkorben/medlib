@@ -1,38 +1,17 @@
 import sys
-import os
 
 from PyQt5.QtWidgets import QPushButton
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtWidgets import QVBoxLayout
-from PyQt5.QtWidgets import QLabel
 from PyQt5.QtWidgets import QApplication
 
 from PyQt5.QtGui import QColor
-from PyQt5.QtCore import Qt, QObject
-from PyQt5.QtCore import QUrl
-
-#from PyQt5.QtWebEngineWidgets import QWebEngineView
-
-#from pkg_resources import resource_string, resource_filename
+from PyQt5.QtCore import Qt
 
 from cardholder.cardholder import CardHolder
 from cardholder.cardholder import Card
 
-from medlib.mediamodel.ini_titles import IniTitles
-from medlib.mediamodel.ini_storylines import IniStorylines
-from medlib.mediamodel.ini_control import IniControl
-from medlib.mediamodel.ini_classification import IniClassification
-from medlib.mediamodel.ini_general import IniGeneral
-
-from medlib.mediamodel.media_collector import MediaCollector
-from medlib.mediamodel.media_storage import MediaStorage
-
-from medlib.mediamodel.paths_collector import PathsCollector
-from medlib.mediamodel.paths_storage import PathsStorage
 from medlib.input_output import collectCards
-#from PyQt5.QtWebEngine import QtWebEngine
-#from PyQt5 import QtWebEngineWidgets
-
 
 class App(QWidget):
  
@@ -55,12 +34,9 @@ class App(QWidget):
         self.scroll_layout.setSpacing(0)
         self.setLayout(self.scroll_layout)
         
-#        self.buildUpMediaModel()
-        
         self.actual_card_holder = CardHolder(            
             self, 
-            [],
-            "Kezdocim",            
+            self.goesHigher,           
             self.getNewCard,
             self.collectCards
         )
@@ -89,8 +65,7 @@ class App(QWidget):
         self.scroll_layout.addWidget(next_button)
         self.scroll_layout.addWidget(fill_up_button)
         
-#        self.actual_card_holder.setFocus()
-        
+        self.actual_card_holder.setFocus()
 
         self.show()
         
@@ -102,31 +77,36 @@ class App(QWidget):
         
     def fill_up(self):
         self.actual_card_holder.start_card_collection([])
-        
+
+    #
+    # Input parameter for CardHolder
+    #
     def collectCards(self, paths):
         """
         """
-        self.collector = collectCards()
-        self.collector.setNextLevelListener(self.goesDeeper)
-        self.collector.setPreviousLevelListener(self.goesHigher)
+        collector = collectCards()
+        collector.setNextLevelListener(self.goesDeeper)
      
-        cdl = self.collector.getMediaCollectorList()
-        
+        cdl = collector.getMediaCollectorList()
         
         return cdl
 
-    def goesHigher(self, mediaCollector):        
-        print("goes higher")
-
-    def goesDeeper(self, mediaCollector):        
-        mcl = mediaCollector.getMediaCollectorList()
-        msl = mediaCollector.getMediaStorageList()
+    #
+    # Input parameter for CardHolder
+    #
+    def goesHigher(self, actual_collector):   
+        parent_collector = actual_collector.getParentCollector()
+            
+        if parent_collector:
+            mcl = parent_collector.getMediaCollectorList()
+            msl = parent_collector.getMediaStorageList()
+            self.actual_card_holder.refresh(mcl + msl)
         
-        self.actual_card_holder.refresh(mcl + msl)
-        
+    #
+    # Input parameter for CardHolder
+    #
     def getNewCard(self, card_data, local_index, index):
-        """
-        
+        """        
         """
         card = Card(self.actual_card_holder, card_data, local_index, index)
         
@@ -136,7 +116,6 @@ class App(QWidget):
         #card.set_border_width(18)
         card.setMaximumHeight(300)
         card.setMinimumHeight(300)
-        
  
         panel = card.get_panel()
         layout = panel.get_layout()
@@ -146,19 +125,23 @@ class App(QWidget):
         layout.addWidget(myPanel)
         
         return card
+        
+    #
+    # Input parameter for MediaCollector
+    #
+    def goesDeeper(self, mediaCollector):        
+        mcl = mediaCollector.getMediaCollectorList()
+        msl = mediaCollector.getMediaStorageList()
+        
+        self.actual_card_holder.refresh(mcl + msl)
 
 
+        
 
-
-    
     def keyPressEvent(self, event):
         print( "Main window", event.key())
         
         return QWidget.keyPressEvent(self, event)
-    
-
-
-
     
     def get_y_coordinate_by_reverse_index(self, reverse_index):
         """
@@ -171,10 +154,6 @@ class App(QWidget):
         """
         return index * 4
 
-
-
-
-
 class MyPanel(QWidget):
     
     def __init__(self, card):
@@ -182,6 +161,9 @@ class MyPanel(QWidget):
         
         self.card = card
         card.card_data.getWidget()
+        
+        self.setAttribute(Qt.WA_StyledBackground, True)
+
  
         
         

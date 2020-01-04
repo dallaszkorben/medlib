@@ -30,7 +30,6 @@ from medlib.card_ini import JSON_SECTION_LYRICS
 from medlib.card_ini import JSON_SECTION_CLASSIFICATION
 from medlib.card_ini import JSON_SECTION_CONTROL
 from medlib.card_ini import JSON_NODE_APPENDIXES
-from cardholder.cardholder import Card
 
 class MediaBase(object):
     """
@@ -71,7 +70,6 @@ class MediaBase(object):
         self.neededTagField = False
         self.widget = None
         self.grid_layout = None
-#        self.searchFunction = None
 
     def search(self, withShift, forWho, byWhat):
         """
@@ -199,7 +197,7 @@ class MediaBase(object):
         # margin around the widget
         image_layout.setContentsMargins(0, 0, 0, 0)
         
-        widget = self.getQLabelToKeepImage()
+        widget = self.getQLabelToHoldImage()
         widget.setStyleSheet('background: black')
         widget.setAlignment(Qt.AlignCenter)
         widget.setLayout(image_layout)
@@ -275,20 +273,8 @@ class MediaBase(object):
                     self.general_widget.setFocusTagField(value)
 
 #       --------------- CardInformationTextWidget ----------------------
-
-        
-        # layout of this widget => four rows
-#        cardinfo_layout = QVBoxLayout()
-#        cardinfo_layout.setAlignment(Qt.AlignTop)
-        
-        # space between the three grids
-#        cardinfo_layout.setSpacing(1)
-        
-        # margin around the widget
-#        cardinfo_layout.setContentsMargins(0, 0, 0, 0)
         
         widget = CardInformationTextWidget(scale)
-#        widget.setLayout(cardinfo_layout)
 
         # --- TITLE ---
         #  _________________________________________
@@ -296,8 +282,6 @@ class MediaBase(object):
         # |______|__________________________________|
         #
         widget.addTitleWidget(self.titles.getWidget(self, scale))
-#        cardinfo_layout.addWidget(self.titles.getWidget(self, scale))
-#        cardinfo_layout.addWidget(QHLine())
         
         # --- ONLINE INFO ---"
         #  _________________________________________
@@ -305,7 +289,6 @@ class MediaBase(object):
         # |_________________________________________|
         #
         widget.addOneLineWidget(self.general.getWidgetOneLine(self, scale))
-#        cardinfo_layout.addWidget(self.general.getWidgetOneLine(self, scale))
         
         # --- GENERAL INFO ---
         #  ___________________________________________________________________________
@@ -325,11 +308,9 @@ class MediaBase(object):
         # |_____________________________________________|_____________________________|
         #
         widget.addGeneralWidget(self.general.getWidget(mainWidget, self, scale))
-        #cardinfo_layout.addWidget(self.general.getWidget(mainWidget, self, scale))
 
         # --- MEDIA APPENDIX ---
         widget.addMediaAppendixWidget(self.getWidgetMediaAppendix(scale))
-#        cardinfo_layout.addWidget(self.getWidgetMediaAppendix(scale))
         
         # --- Stretch ---
 #        cardinfo_layout.addStretch(1)
@@ -365,8 +346,6 @@ class MediaBase(object):
     # --------------------------------------------
     def getWidgetGeneralInfoStoryLine(self, parent, scale, value):
         if value:
-#            grid_layout.addWidget(QHLine(), row, 0, 1, 2)
-#            row = row + 1
             
             widget_value = QPlainTextEdit(parent)
             
@@ -386,17 +365,9 @@ class MediaBase(object):
             widget_value.document().setDocumentMargin(0)
             widget_value.setStyleSheet("QPlainTextEdit {padding-left:5px; padding-top:0px; border:0px;}")
             
-#            grid_layout.addWidget( widget_value, row, 1)        
-#            row = row + 1
             return widget_value
 
         return None
-
-
-        
-#    def addWidgetGeneralInfoStoryline(self, parent, sizeRate, grid_layout, row, title_id, value):
-#        raise NotImplementedError
-#        return row   
 
     # --------------------------------------------
     # ------------- Classification ---------------
@@ -439,8 +410,6 @@ class MediaBase(object):
                 self.card_information_widget = None        
                 self.classification_widget = None
 
-                self.setStyleSheet('background: ' + media.getBackgroundColor())     
-
                 self.grid_layout = QGridLayout()
 
                 # space between the three grids
@@ -453,7 +422,8 @@ class MediaBase(object):
                 self.grid_layout.setColumnStretch(1, 1)
 
                 self.setLayout(self.grid_layout)
-            
+
+                self.setStyleSheet('background: ' + media.getBackgroundColor())                 
                 self.setAttribute(Qt.WA_StyledBackground, True)
             
                 self.neededTagField = False
@@ -503,11 +473,12 @@ class MediaBase(object):
         
             def isNeededTagField(self):
                 return self.neededTagField
- 
-#            def setFocusTagField(self, value):
-#                if self.card_information_widget:
-#                    self.card_information_widget.setFocusTagField(value)
+            
+#            def keyPressEvent(self, event):
+#                print( "Media", event.key())        
+#                return QWidget.keyPressEvent(self, event)
 
+ 
 #       -----------------------------------------------------------------
 
         if True: #not self.grid_layout:
@@ -525,38 +496,14 @@ class MediaBase(object):
         
         return self.widget
     
-#    def reGenerate(self, scale):
-
-        
-        # delete all widgets
-#        clearLayout(self.grid_layout)
-
-        # --- Image ---
-#        self.grid_layout.addWidget(self.getWidgetImage(scale), 0, 0)
-        
-        # --- Card Information ---
-#        self.grid_layout.addWidget(self.getWidgetCardInformationText(scale), 0, 1)
-        
-        # --- Classification ---
-#        self.grid_layout.addWidget(self.getWidgetClassification(scale), 0, 2)
-        
-#        if self.isNeededTagField():
-#            self.classification.setFocusTagField(True)
-
-#    def setNeededTagField(self, value):
-#        self.neededTagField = value
-        
-#    def isNeededTagField(self):
-#        return self.neededTagField
-    
     def getMediaAppendixList(self):
         return self.mediaAppendixList
 
-    def getQLabelToKeepImage(self):
+    def getQLabelToHoldImage(self):
         raise NotImplementedError
     
-    def setNextLevelListener(self, nextLevelListener):
-        raise NotImplementedError
+#    def setNextLevelListener(self, nextLevelListener):
+#        raise NotImplementedError
     
     # TODO    
     def isSelected(self):

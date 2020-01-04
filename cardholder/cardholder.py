@@ -1,55 +1,28 @@
-import sys
+
 import math
 import time 
 import os
-from itertools import cycle
-from datetime import datetime
 
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtWidgets import QVBoxLayout
-from PyQt5.QtWidgets import QHBoxLayout
-from PyQt5.QtWidgets import QScrollArea
-from PyQt5.QtWidgets import QDesktopWidget
-from PyQt5.QtWidgets import QPushButton
+
 from PyQt5.QtWidgets import QLabel
-from PyQt5.QtWidgets import QFrame
-from PyQt5.QtWidgets import QSpacerItem
 from PyQt5.QtWidgets import QSizePolicy
 from PyQt5.QtWidgets import QApplication
-from PyQt5.QtWidgets import QComboBox
-from PyQt5.QtWidgets import QCheckBox
-from PyQt5.QtWidgets import QStyleFactory
-from PyQt5.QtWidgets import QFileDialog
-from PyQt5.QtWidgets import QInputDialog
-from PyQt5.QtWidgets import QDialog
-from PyQt5.QtWidgets import QDialogButtonBox
-from PyQt5.QtWidgets import QLineEdit
 
-
-from PyQt5.QtGui import QFont
 from PyQt5.QtGui import QColor
-from PyQt5.QtGui import QPalette
-from PyQt5.QtGui import QPixmap
 from PyQt5.QtGui import QPainter
-from PyQt5.QtGui import QIcon
-from PyQt5.QtGui import QCursor
-from PyQt5.QtGui import QDrag
 from PyQt5.QtGui import QMovie
 
 from PyQt5 import QtCore
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtCore import QSize
-from PyQt5.QtCore import QAbstractTableModel
-from PyQt5.QtCore import QModelIndex
-from PyQt5.QtCore import QVariant
 from PyQt5.QtCore import QThread
 from PyQt5.QtCore import pyqtSignal
-from PyQt5.QtCore import QMimeData
 from PyQt5.QtCore import QPoint
 from PyQt5.QtCore import QByteArray
 
-from pkg_resources import resource_string, resource_filename
+from pkg_resources import resource_filename
  
 # =========================
 #
@@ -76,8 +49,9 @@ class CardHolder( QWidget ):
     
     def __init__(self, 
                  parent, 
-                 recent_card_structure, 
-                 title_hierarchy, 
+#                 recent_card_structure, 
+#                 title_hierarchy,
+                 goes_higher_method, 
                  get_new_card_method, 
                  get_collected_cards_method
                  ):
@@ -85,8 +59,9 @@ class CardHolder( QWidget ):
         QWidget.__init__(self, parent)
 
         self.parent = parent
-        self.title_hierarchy = title_hierarchy
-        self.recent_card_structure = recent_card_structure
+#        self.title_hierarchy = title_hierarchy
+#        self.recent_card_structure = recent_card_structure
+        self.goes_higher_method = goes_higher_method
         self.get_new_card_method = get_new_card_method
         self.get_collected_cards_method = get_collected_cards_method
         
@@ -117,6 +92,9 @@ class CardHolder( QWidget ):
 
         # it hides the CardHolder until it is filled up with cards
         self.select_index(0)
+        
+        self.setAttribute(Qt.WA_StyledBackground, True)
+
         #self.setHidden(True)
         #self.show()
         
@@ -604,8 +582,6 @@ class CardHolder( QWidget ):
         else:
             return index
 
-
-
     def paintEvent(self, event):
         s = self.size()
         qp = QPainter()
@@ -615,6 +591,12 @@ class CardHolder( QWidget ):
 
         qp.drawRoundedRect(0, 0, s.width(), s.height(), self.border_radius, self.border_radius)
         qp.end()  
+
+    def getActualCard(self):
+        return self.card_descriptor_list[self.actual_card_index]
+    
+    def getActualCollector(self):
+        return self.getActualCard().getParentCollector()
 
     def wheelEvent(self, event):
         modifiers = QApplication.keyboardModifiers()
@@ -626,6 +608,13 @@ class CardHolder( QWidget ):
             self.animated_move_to_next(sleep=0.03)
         elif event.key() == QtCore.Qt.Key_Down:
             self.animated_move_to_previous(sleep=0.03)
+        elif event.key() == QtCore.Qt.Key_Escape:
+            
+            print("Card Holder - ESC")
+            
+            if self.goes_higher_method:
+                self.goes_higher_method(self.getActualCollector())
+            
         event.accept()
   
         
@@ -706,6 +695,9 @@ class Panel(QWidget):
         self.set_border_width(Panel.DEFAULT_BORDER_WIDTH, False)
         #self.set_border_radius(border_radius, False)
 
+        self.setAttribute(Qt.WA_StyledBackground, True)
+
+
     def get_layout(self):
         return self.self_layout
     
@@ -737,7 +729,6 @@ class Panel(QWidget):
         qp.begin(self)
         qp.setRenderHint(QPainter.Antialiasing, True)
         qp.setBrush( self.background_color )
-
         qp.drawRoundedRect(0, 0, s.width(), s.height(), self.border_radius, self.border_radius)
         qp.end()    
     
@@ -812,6 +803,11 @@ class Card(QWidget):
         self.onMouseClicked.connect(self.card_holder.animated_move_to)
         #self.onMouseDragged.connect(self.card_holder.rolling_wheel)
  
+        self.already_mouse_pressed = False
+        
+        self.setAttribute(Qt.WA_StyledBackground, True)
+
+        
     def set_selected(self):
         self.set_status(Card.STATUS_SELECTED, True)
         
