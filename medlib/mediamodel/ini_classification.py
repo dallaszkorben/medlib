@@ -131,8 +131,8 @@ class IniClassification(object):
              |__________|
              | +        |
              |__________|             
-        """        
-
+        """
+#       ┌──────────────────── ClassificationWidget ──────────────────────┐        
         class ClassificationWidget(QWidget):
             def __init__(self, media, scale):
                 QWidget.__init__(self)
@@ -157,12 +157,8 @@ class IniClassification(object):
 
             def addWidget(self, widget):
                 self.classification_layout.addWidget(widget)  
-        
-#       ----------- ClassificationWidget -----------
-
-
-
-        
+#       └──────────────────── ClassificationWidget ──────────────────────┘    
+       
         widget = ClassificationWidget(media, scale)
         
         # --- RATE ---
@@ -188,6 +184,7 @@ class IniClassification(object):
     # ---------- #
     def getWidgetClassificationInfoRate( self, media, scale ):
         
+#       ┌──────────────────── MySpinBox ──────────────────────┐        
         class MySpinBox(QSpinBox):
             
             def __init__(self, ini_classification, scale):
@@ -200,7 +197,7 @@ class IniClassification(object):
                 else:
                     self.setButtonSymbols(QAbstractSpinBox.NoButtons) #PlusMinus / NoButtons / UpDownArrows        
                     self.setMaximum(10)
-                    self.setFocusPolicy(Qt.NoFocus)
+#                    self.setFocusPolicy(Qt.NoFocus)
                     self.lineEdit().setReadOnly(True)
                     self.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * scale, weight=QFont.Normal))
                     self.lineEdit().setStyleSheet( "QLineEdit{color:black}")
@@ -247,7 +244,9 @@ class IniClassification(object):
                 
                 # change the value of the rate in the json                
                 medlib.input_output.saveJson(media.getRoot())
-                
+#       └──────────────────── MySpinBox ──────────────────────┘
+
+    
         widget = MySpinBox(self, scale)        
         return widget
         
@@ -255,6 +254,8 @@ class IniClassification(object):
     # Favorite button #
     # --------------- #
     def getWidgetClassificationInfoFavorite(self, media, scale):
+        
+#       ┌──────────────────── FavoriteButton ──────────────────────┐    
         class FavoriteButton(QPushButton):
             def __init__(self, ini_classification, scale):
                 QPushButton.__init__(self)
@@ -285,7 +286,7 @@ class IniClassification(object):
         
                 # change the value of the rate in the json
                 medlib.input_output.saveJson(media.getRoot())
-                
+#       └──────────────────── FavoriteButton ──────────────────────┘
 
         button = FavoriteButton(self, scale)
         return button
@@ -294,10 +295,12 @@ class IniClassification(object):
     # New button #
     # ---------- #
     def getWidgetClassificationInfoNew(self, mainWidget, media, scale):
+#       ┌──────────────────── NewButton ──────────────────────┐
         class NewButton(QPushButton):
             def __init__(self, ini_classification, scale):
                 QPushButton.__init__(self)    
                 self.ini_classification = ini_classification
+#                self.setFocusPolicy(Qt.NoFocus)
 
                 if self.ini_classification.getNew() is None:
                     self.hide()
@@ -324,18 +327,20 @@ class IniClassification(object):
         
                 # change the value of the rate in the json
                 medlib.input_output.saveJson(media.getRoot())
-                
-#                mainWidget.setFocus()
+#       └──────────────────── NewButton ──────────────────────┘
         
         button = NewButton(self, scale)
         return button
 
-    # ---------- #
-    # ADD button #
-    # ---------- #
+    # ------------ #
+    # + ADD button #
+    # ------------ #
     def getWidgetAdd(self, mainWidget, media, scale):
+
+#       ┌──────────────────── AddButton ──────────────────────┐        
         class AddButton(QPushButton):
    
+#           ┌───────────────────── AddLabel ──────────────────────┐
             class AddLabel(QLabel):            
                 clicked=pyqtSignal()
             
@@ -356,6 +361,7 @@ class IniClassification(object):
                     self.update()
                     QApplication.restoreOverrideCursor()        
                     event.ignore()
+#           └──────────────────── AddLabel ──────────────────────┘
             
             def __init__(self, ini_classification, scale):
                 QPushButton.__init__(self)    
@@ -384,7 +390,8 @@ class IniClassification(object):
                 mainWidget.setNeededTagField(True)
                 
                 # Re-paint the widget (with the TAG FIELD)
-                mainWidget.regenerate()              
+                mainWidget.regenerate()
+#       └──────────────────── AddButton ──────────────────────┘        
         
         button = AddButton(self, scale)
         return button
@@ -400,12 +407,14 @@ class IniClassification(object):
         #
         # TAG button
         #
+#       ┌──────────────────── TagButtonForSearch ──────────────────────┐        
         class TagButtonForSearch(QPushButton):
             """
             It represents the tag button
             The button has a "delete" icon on the right side.
             If you click on the delete icon, the tag will be removed
             """
+#           ┌──────────────────── DeleteLabel ──────────────────────┐            
             class DeleteLabel(QLabel):            
                 clicked=pyqtSignal()
             
@@ -421,6 +430,7 @@ class IniClassification(object):
 
                     self.setPixmap(QIcon(self.pathToDeleteOffIcon).pixmap(QSize(parent.fm.height() - parent.iconBorder * 2, parent.fm.height() - parent.iconBorder * 2)))
 
+#                    self.setFocusPolicy(Qt.NoFocus)
                 def mousePressEvent(self, event):
                     self.clicked.emit()
                 
@@ -437,6 +447,7 @@ class IniClassification(object):
 
                     QApplication.restoreOverrideCursor()        
                     event.ignore()
+#           └──────────────────── DeleteLabel ──────────────────────┘        
                 
             def __init__(self, media, scale, translatedText, rawText, title_id):
             
@@ -493,10 +504,12 @@ class IniClassification(object):
                 else:
                     withShift = False
                 self.media.search( withShift, self.rawText, self.title_id)
+#       └──────────────────── TagButtonForSearch ──────────────────────┘        
 
         #
         # TAG FIELD
         #
+#       ┌──────────────────── TagField ──────────────────────┐
         class TagField(QLineEdit):
             """
             It represents the TAG field
@@ -526,10 +539,13 @@ class IniClassification(object):
                     # Re-paint the widget (without the TAG FIELD)
                     mainWidget.regenerate()
                     
-                    event.ignore()
+                    # I do not want to propagate the ESC event to the parent
+                    event.setAccepted(True)
+
+#                    print("Tag field")
 
                 # press ENTER on the TAG FIELD                    
-                if event.key() == Qt.Key_Return:
+                elif event.key() == Qt.Key_Return:
                     text = self.text().strip()
                 
                     if text and text not in tag_list:
@@ -552,20 +568,14 @@ class IniClassification(object):
                     # Re-print the widgets
                     mainWidget.regenerate()
                     
-                   
+                    # I do not want to propagate the ESC event to the parent
+                    event.setAccepted(True)
                 
                 else:
                     super(TagField, self).keyPressEvent(event)
-                
-                
-            def focusOutEvent(self, event):
-
-                # No need TAG FIELD anymore
-                mainWidget.setNeededTagField(False)
-                
-                # Re-paint the widget (without the TAG FIELD)
-                mainWidget.regenerate()
-
+#       └──────────────────── TagField ──────────────────────┘
+                    
+#       ┌──────────────── TagListButtonsWidget ──────────────┐
         class TagListButtonsWidget(QWidget):
             def __init__(self, mainWidget, media, scale):
                 QWidget.__init__(self)
@@ -593,10 +603,10 @@ class IniClassification(object):
                 
             def setFocusTagField(self, value):
                 if self.fieldWidget:
-                    self.fieldWidget.setFocus(value)                
-
+                    self.fieldWidget.setFocus(value)
+#       └──────────────── TagListButtonsWidget ──────────────┘
+                
         widget_value = TagListButtonsWidget(mainWidget, media, scale)
-
         needWidget = False
         
         # Add TAG buttons
@@ -617,3 +627,4 @@ class IniClassification(object):
             return widget_value
         else:
             return None
+        

@@ -12,6 +12,7 @@ from cardholder.cardholder import CardHolder
 from cardholder.cardholder import Card
 
 from medlib.input_output import collectCards
+from PyQt5 import QtCore
 
 class App(QWidget):
  
@@ -36,9 +37,9 @@ class App(QWidget):
         
         self.actual_card_holder = CardHolder(            
             self, 
-            self.goesHigher,           
             self.getNewCard,
-            self.collectCards
+            self.collectCards,
+            self.goesHigher
         )
         
         self.actual_card_holder.set_background_color(QColor(Qt.yellow))
@@ -65,12 +66,9 @@ class App(QWidget):
         self.scroll_layout.addWidget(next_button)
         self.scroll_layout.addWidget(fill_up_button)
         
-        self.actual_card_holder.setFocus()
+        self.setFocusPolicy(Qt.NoFocus)
 
         self.show()
-        
-    def buildUpMediaModel(self):
-        pass
 
     def change_spinner(self):
         self.actual_card_holder.set_spinner(self.spinner_file_name)
@@ -94,13 +92,14 @@ class App(QWidget):
     #
     # Input parameter for CardHolder
     #
-    def goesHigher(self, actual_collector):   
-        parent_collector = actual_collector.getParentCollector()
+    def goesHigher(self, actual_collector):
+        if actual_collector:
+            parent_collector = actual_collector.getParentCollector()
             
-        if parent_collector:
-            mcl = parent_collector.getMediaCollectorList()
-            msl = parent_collector.getMediaStorageList()
-            self.actual_card_holder.refresh(mcl + msl)
+            if parent_collector:
+                mcl = parent_collector.getMediaCollectorList()
+                msl = parent_collector.getMediaStorageList()
+                self.actual_card_holder.refresh(mcl + msl)
         
     #
     # Input parameter for CardHolder
@@ -135,17 +134,16 @@ class App(QWidget):
         
         self.actual_card_holder.refresh(mcl + msl)
 
-
-        
-
-    def keyPressEvent(self, event):
-        print( "Main window", event.key())
-        
-        return QWidget.keyPressEvent(self, event)
+# !!!!!!!!!!!!!!!!!!!!!
+#    def keyPressEvent(self, event):
+#        if event.key() == QtCore.Qt.Key_Escape:
+#            print( "Main window-Esc", event.key())
+#        
+#        return QWidget.keyPressEvent(self, event)
+# !!!!!!!!!!!!!!!!!!!!!
     
     def get_y_coordinate_by_reverse_index(self, reverse_index):
-        """
-        
+        """        
         """        
         return reverse_index * reverse_index * 16
     

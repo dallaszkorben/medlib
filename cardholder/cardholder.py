@@ -16,7 +16,7 @@ from PyQt5.QtGui import QMovie
 
 from PyQt5 import QtCore
 
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QEvent
 from PyQt5.QtCore import QThread
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import QPoint
@@ -49,18 +49,22 @@ class CardHolder( QWidget ):
     
     def __init__(self, 
                  parent, 
-#                 recent_card_structure, 
-#                 title_hierarchy,
-                 goes_higher_method, 
                  get_new_card_method, 
-                 get_collected_cards_method
+                 get_collected_cards_method,
+                 goes_higher_method = None          
                  ):
+        """
+        Represents a CardHolder widget
+        Input:
+            parent:                        The widget which contains this CardHolder
+            get_new_card_method:           Method to create the appearing Card
+            get_collected_cards_method:    Method to collect the contents of the Cards
+            goes_higher_method:            Method to go to the previous level           
+        """
         #super(CardHolder, self).__init__(parent)
         QWidget.__init__(self, parent)
 
         self.parent = parent
-#        self.title_hierarchy = title_hierarchy
-#        self.recent_card_structure = recent_card_structure
         self.goes_higher_method = goes_higher_method
         self.get_new_card_method = get_new_card_method
         self.get_collected_cards_method = get_collected_cards_method
@@ -95,16 +99,11 @@ class CardHolder( QWidget ):
         
         self.setAttribute(Qt.WA_StyledBackground, True)
 
-        #self.setHidden(True)
-        #self.show()
-        
-        #QApplication.instance().installEventFilter(self)
-        
-    
-    #def eventFilter(self, obj, event):        
-    #    print(event.type())        
-    #    return super(CardHolder, self).eventFilter(obj, event)
-        
+        # The CardHolder will accept Focus by Tabbing and Clicking
+        self.setFocusPolicy(Qt.StrongFocus)
+        self.setFocus()
+      
+            
     def set_y_coordinate_by_reverse_index_method(self, method):
         self.get_y_coordinate_by_reverse_index_method = method
         
@@ -192,10 +191,6 @@ class CardHolder( QWidget ):
         self.stop_spinner()
         self.fill_up_card_descriptor_list(filtered_card_list)
         self.select_actual_card()
-        
-        
-        #if self.shown_card_list:
-        #    self.setHidden(False)
 
     # ------------------------------------------------------
     # fill up card descriptor - used by the refresh() method
@@ -593,10 +588,17 @@ class CardHolder( QWidget ):
         qp.end()  
 
     def getActualCard(self):
-        return self.card_descriptor_list[self.actual_card_index]
+        if self.card_descriptor_list:
+            return self.card_descriptor_list[self.actual_card_index]
+        else:
+            return None
     
     def getActualCollector(self):
-        return self.getActualCard().getParentCollector()
+        actual_card = self.getActualCard()
+        if actual_card:
+            return actual_card.getParentCollector()
+        else:
+            return None
 
     def wheelEvent(self, event):
         modifiers = QApplication.keyboardModifiers()
@@ -610,12 +612,18 @@ class CardHolder( QWidget ):
             self.animated_move_to_previous(sleep=0.03)
         elif event.key() == QtCore.Qt.Key_Escape:
             
-            print("Card Holder - ESC")
+#!!!!!!!!!!!!!!!!!!!!!!
+#            print("Card Holder - ESC")
+#!!!!!!!!!!!!!!!!!!!!!!
             
             if self.goes_higher_method:
                 self.goes_higher_method(self.getActualCollector())
-            
-        event.accept()
+         
+                # I do not want to propagate the ESC event to the parent
+                event.setAccepted(True)
+        
+        else:
+            event.setAccepted(False)
   
         
     # --------------
@@ -916,8 +924,6 @@ class Card(QWidget):
             if self.already_mouse_pressed and self.local_index > 0:                
                 self.onMouseClicked.emit(self.local_index)
         event.ignore()
-
-
 
 
 

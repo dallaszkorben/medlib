@@ -235,6 +235,7 @@ class MediaBase(object):
             |  Media Appendix                         |
             |_________________________________________|            
         """
+#       ┌────────────── CardInformationTextWidget ───────────────┐
         class CardInformationTextWidget(QWidget):
             def __init__(self, scale):
                 QWidget.__init__(self)
@@ -272,7 +273,7 @@ class MediaBase(object):
                 if self.general_widget:
                     self.general_widget.setFocusTagField(value)
 
-#       --------------- CardInformationTextWidget ----------------------
+#       └────────────── CardInformationTextWidget ───────────────┘
         
         widget = CardInformationTextWidget(scale)
 
@@ -399,6 +400,7 @@ class MediaBase(object):
             |         |                        |                |
             |_________|________________________|________________|
         """
+#       ┌──────────────────── MainWidget ──────────────────────┐
         class MainWidget(QWidget):
             def __init__(self, media, scale):
                 QWidget.__init__(self)
@@ -466,20 +468,20 @@ class MediaBase(object):
                 self.grid_layout.addWidget(self.classification_widget, 0, 2)
         
                 if self.isNeededTagField():
+                    
+                    # The Tag input field into FOCUS
                     self.card_information_widget.setFocusTagField(True)
+                else:
+                    
+                    # This (MainWidget) into FOCUS
+                    self.setFocus()
 
             def setNeededTagField(self, value):
                 self.neededTagField = value
         
             def isNeededTagField(self):
                 return self.neededTagField
-            
-#            def keyPressEvent(self, event):
-#                print( "Media", event.key())        
-#                return QWidget.keyPressEvent(self, event)
-
- 
-#       -----------------------------------------------------------------
+#       └──────────────────── MainWidget ──────────────────────┘
 
         if True: #not self.grid_layout:
 
@@ -501,9 +503,6 @@ class MediaBase(object):
 
     def getQLabelToHoldImage(self):
         raise NotImplementedError
-    
-#    def setNextLevelListener(self, nextLevelListener):
-#        raise NotImplementedError
     
     # TODO    
     def isSelected(self):
