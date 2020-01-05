@@ -272,7 +272,6 @@ class MediaBase(object):
             def setFocusTagField(self, value):
                 if self.general_widget:
                     self.general_widget.setFocusTagField(value)
-
 #       └────────────── CardInformationTextWidget ───────────────┘
         
         widget = CardInformationTextWidget(scale)

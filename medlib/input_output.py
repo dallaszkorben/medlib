@@ -21,9 +21,16 @@ from medlib.mediamodel.ini_classification import IniClassification
 from medlib.handle_property import config_ini 
 from medlib.handle_property import Property 
 
-from medlib.card_ini import CardIni, KEY_CLASSIFICATION_TAG,\
-    JSON_KEY_CLASSIFICATION_NEW, JSON_KEY_CLASSIFICATION_FAVORITE,\
-    JSON_KEY_CLASSIFICATION_TAG, JSON_KEY_CLASSIFICATION_RATE
+from medlib.card_ini import CardIni
+from medlib.card_ini import JSON_KEY_CLASSIFICATION_NEW
+from medlib.card_ini import JSON_KEY_CLASSIFICATION_FAVORITE
+from medlib.card_ini import JSON_KEY_CLASSIFICATION_TAG
+from medlib.card_ini import JSON_KEY_CLASSIFICATION_RATE
+
+from medlib.card_ini import KEY_CLASSIFICATION_TAG
+from medlib.card_ini import KEY_CLASSIFICATION_RATE
+from medlib.card_ini import KEY_CLASSIFICATION_FAVORITE
+from medlib.card_ini import KEY_CLASSIFICATION_NEW
 
 from medlib.card_ini import KEY_GENERAL_LENGTH
 from medlib.card_ini import KEY_GENERAL_YEAR
@@ -104,10 +111,6 @@ from medlib.card_ini import SECTION_LYRICS
 from medlib.card_ini import SECTION_GENERAL
 from medlib.card_ini import SECTION_MEDIA
 from medlib.card_ini import SECTION_CLASSIFICATION
-
-from medlib.card_ini import KEY_CLASSIFICATION_RATE
-from medlib.card_ini import KEY_CLASSIFICATION_FAVORITE
-from medlib.card_ini import KEY_CLASSIFICATION_NEW
 
 def getPatternImage():
     return re.compile( '^image[.](jp(eg|g)|png)$' )
@@ -375,7 +378,7 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
                     author_list = []            
                     for author in authors:
                         author_list.append(author.strip())
-                    general.setAuthor(author_list)
+                    general.setAuthors(author_list)
 
                 # - actor - #
                 elif key == KEY_GENERAL_ACTOR and len(value) > 0:

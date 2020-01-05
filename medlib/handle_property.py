@@ -111,8 +111,9 @@ class Property(object):
         # update
         self.__write_file()
         
-    def removeAection(self, section):
+    def removeSection(self, section):
         self.parser.remove_section(section)
+        self.__write_file()
 
     def removeOption(self, section, option):
         self.parser.read(self.file, encoding='utf-8')
@@ -120,7 +121,10 @@ class Property(object):
         self.__write_file()
         
     def getOptions(self, section):
-        return dict(self.parser.items(section))
+        try:
+            return dict(self.parser.items(section))
+        except configparser.NoSectionError as e:
+            return None
     
     def should_write(self, writable):
         return ((writable is None and self.writable) or (writable))

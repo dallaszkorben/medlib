@@ -54,12 +54,6 @@ class App(QWidget):
         self.layout.addWidget(self.widget)
         self.show()
       
-        
-        
-#        from medlib import handle_property 
-#        ci = handle_property.get_config_ini()
-#        par = ci.getMediaPlayerWithParameters('text', 'epub')
-#        print(par)
 
     def goesDeeper(self, mediaCollector):        
         mcl = mediaCollector.getMediaCollectorList()

@@ -1,5 +1,4 @@
 import sys
-import os
 
 from PyQt5.QtWidgets import QPushButton
 from PyQt5.QtWidgets import QWidget
@@ -10,8 +9,6 @@ from PyQt5.QtWidgets import QApplication
 from PyQt5.QtGui import QColor
 
 from PyQt5.QtCore import Qt
-
-from pkg_resources import resource_string, resource_filename
 
 from cardholder.cardholder import CardHolder
 from cardholder.cardholder import Card
@@ -39,8 +36,6 @@ class App(QWidget):
         
         self.actual_card_holder = CardHolder(            
             self, 
-            [],
-            "Kezdocim",            
             self.getNewCard,
             self.collectCards
         )
