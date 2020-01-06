@@ -145,7 +145,8 @@ class App(QWidget):
     def get_y_coordinate_by_reverse_index(self, reverse_index):
         """        
         """        
-        return reverse_index * reverse_index * 16
+#        return reverse_index * reverse_index * 16
+        return reverse_index * 50
     
     def get_x_offset_by_index(self, index):
         """

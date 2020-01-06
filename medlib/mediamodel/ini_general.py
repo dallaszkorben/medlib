@@ -166,7 +166,8 @@ class IniGeneral(object):
         output:
                 [(translated, raw), (translated, raw), ... ]
         """
-        pre = "genre" + ("_" + category if category is not None and category == "music" else "" ) + "_"
+#        pre = "genre" + ("_" + category if category is not None and category == "music" else "" ) + "_"
+        pre = "genre_"        
         genres = [ (_(pre+g), g) for g in self.getGenres() ]
         
         return genres

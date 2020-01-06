@@ -2,7 +2,7 @@ import re
 
 media_dict = {
     'video': {
-        'ext': ('mkv', 'mp4', 'flv', 'divx', 'avi' 'webm'), 
+        'ext': ('mkv', 'mp4', 'flv', 'divx', 'avi', 'webm'), 
         'category': ('movie', 'music', 'show', 'presentation', 'alternative', 'miscellaneous', 'appendix')},
     'audio': {
         'ext': ('mp3', 'ogg'), 
