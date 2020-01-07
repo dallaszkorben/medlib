@@ -39,6 +39,7 @@ class App(QWidget):
             self, 
             self.getNewCard,
             self.collectCards,
+            self.selectCard,
             self.goesHigher
         )
         
@@ -89,17 +90,25 @@ class App(QWidget):
         
         return cdl
 
+    def selectCard(self, selectedCard ):
+        panel = selectedCard.getPanel()
+        layout = panel.getLayout()
+        widget = layout.itemAt(0).widget()
+        widget.image_widget.toDoOnClick()
+        
     #
     # Input parameter for CardHolder
     #
-    def goesHigher(self, actual_collector):
-        if actual_collector:
-            parent_collector = actual_collector.getParentCollector()
+    def goesHigher(self, actual_media):
+        if actual_media:
+            actual_collector = actual_media.getParentCollector()
+            if actual_collector:
+                parent_collector = actual_collector.getParentCollector()
             
-            if parent_collector:
-                mcl = parent_collector.getMediaCollectorList()
-                msl = parent_collector.getMediaStorageList()
-                self.actual_card_holder.refresh(mcl + msl)
+                if parent_collector:
+                    mcl = parent_collector.getMediaCollectorList()
+                    msl = parent_collector.getMediaStorageList()
+                    self.actual_card_holder.refresh(mcl + msl)
         
     #
     # Input parameter for CardHolder
@@ -116,8 +125,8 @@ class App(QWidget):
         card.setMaximumHeight(300)
         card.setMinimumHeight(300)
  
-        panel = card.get_panel()
-        layout = panel.get_layout()
+        panel = card.getPanel()
+        layout = panel.getLayout()
         
         myPanel = card.card_data.getWidget(1)
 
@@ -135,9 +144,9 @@ class App(QWidget):
         self.actual_card_holder.refresh(mcl + msl)
 
 # !!!!!!!!!!!!!!!!!!!!!
-#    def keyPressEvent(self, event):
-#        if event.key() == QtCore.Qt.Key_Escape:
-#            print( "Main window-Esc", event.key())
+    def keyPressEvent(self, event):
+        if event.key() == QtCore.Qt.Key_Space:
+            print( "Main window-Space", event.key())
 #        
 #        return QWidget.keyPressEvent(self, event)
 # !!!!!!!!!!!!!!!!!!!!!

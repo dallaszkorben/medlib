@@ -103,8 +103,8 @@ class App(QWidget):
         #card.set_border_width(18)
  
  
-        panel = card.get_panel()
-        layout = panel.get_layout()
+        panel = card.getPanel()
+        layout = panel.getLayout()
         
         # Construct the Card
 #        label=QLabel(card_data + "\n\n\n\n\n\n\n\n\n\nHello")
