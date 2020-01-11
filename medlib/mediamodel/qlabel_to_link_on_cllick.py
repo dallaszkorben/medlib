@@ -2,16 +2,18 @@ import os
 import subprocess
 import platform
 
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QEvent
 from PyQt5.QtWidgets import QLabel
 from PyQt5.QtWidgets import QApplication
+from PyQt5 import QtCore
+from PyQt5.QtGui import QKeyEvent
 
 class QLabelToLinkOnClick(QLabel):
 
-    def __init__(self, text, funcIsSelected):
+    def __init__(self, media, text, funcIsSelected):
         super().__init__( text )
-        self.funcIsSelected = funcIsSelected 
-        
+        self.funcIsSelected = funcIsSelected
+        self.media = media
         self.mouse_pressed_for_click = False
     
     def enterEvent(self, event):
@@ -54,10 +56,23 @@ class QLabelToLinkOnClick(QLabel):
         
         self.mouse_already_pressed = False
         
-        self.toDoOnClick() 
+#        self.toDoOnClick()
+        
+        """
+        I delegate the Click on the Image as a SPACE key press to up. 
+        I can catch it in the CardHolder as a SPACE key press
+
+        I could have made a direct selection in the media_collector/media_storage
+        using the toDoOnClick() method, but I do not do this because in that case 
+        I could not have the index of the selected Card  
+        """
+        event = QKeyEvent(QEvent.KeyPress, QtCore.Qt.Key_Space, Qt.NoModifier, str(self.media.getIndexInDataList()))
+        QtCore.QCoreApplication.postEvent(self, event)
                 
         event.accept()
-        
-    def toDoOnClick(self):
+#        event.ignore()
+#        return
+               
+    def toDoSelection(self):
         raise NotImplementedError
-        
+              

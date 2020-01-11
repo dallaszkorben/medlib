@@ -70,7 +70,15 @@ class MediaBase(object):
         self.neededTagField = False
         self.widget = None
         self.grid_layout = None
+        
+        self._index = 0
 
+    def setIndexInDataList(self, index):
+        self._index = index
+    
+    def getIndexInDataList(self):
+        return self._index
+    
     def search(self, withShift, forWho, byWhat):
         """
         searchFunction( forWho, byWhat )    - A search function when you click on a link on the card.

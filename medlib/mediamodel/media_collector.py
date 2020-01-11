@@ -4,6 +4,9 @@ from medlib.mediamodel.media_storage import MediaStorage
 from medlib.mediamodel.paths_collector import PathsCollector
 
 from medlib.mediamodel.qlabel_to_link_on_cllick import QLabelToLinkOnClick
+from PyQt5 import QtCore
+from PyQt5.QtGui import QKeyEvent
+from PyQt5.QtCore import QEvent, Qt
 
 class MediaCollector(MediaBase):
     """
@@ -35,6 +38,8 @@ class MediaCollector(MediaBase):
         
         self.nextLevelListener = None
         self.previousLevelListener = None
+        
+        self.index_of_selected_media = 0
   
     def getNameOfFolder(self):
         return self.pathsCollector.getNameOfFolder()
@@ -170,23 +175,20 @@ class MediaCollector(MediaBase):
             This class has to implement the 'toDoOnClick' method which
             handles the selection of this MediaCollector
         """
-        return MediaCollector.QLabelWithLinkToNextLevel(self)
+        class QLabelWithLinkToNextLevel( QLabelToLinkOnClick ):
+            def __init__(self, collector):
+                super().__init__(collector, None, collector.isSelected)
 
-#    def goPreviousLevel(self):
-#        if self.previousLevelListener:
-#            self.previousLevelListener(self.getParentCollector())
+#            def toDoOnClick(self):
+            def toDoSelection(self):
+                if self.media.nextLevelListener is not None:
+                    self.media.nextLevelListener(self.media)
+                elif self.media.getRoot().nextLevelListener is not None:
+                    self.media.getRoot().nextLevelListener(self.media)
+        
+        return QLabelWithLinkToNextLevel(self)
 
-    class QLabelWithLinkToNextLevel( QLabelToLinkOnClick ):
 
-        def __init__(self, collector):
-            super().__init__(None, collector.isSelected)
-            self.collector = collector
-
-        def toDoOnClick(self):                 
-            if self.collector.nextLevelListener is not None:
-                self.collector.nextLevelListener(self.collector)
-            elif self.collector.getRoot().nextLevelListener is not None:
-                self.collector.getRoot().nextLevelListener(self.collector)
 
     def getJson(self):
         json = super().getJson();

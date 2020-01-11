@@ -35,7 +35,7 @@ class App(QWidget):
         self.scroll_layout.setSpacing(0)
         self.setLayout(self.scroll_layout)
         
-        self.actual_card_holder = CardHolder(            
+        self.card_holder = CardHolder(            
             self, 
             self.getNewCard,
             self.collectCards,
@@ -43,19 +43,19 @@ class App(QWidget):
             self.goesHigher
         )
         
-        self.actual_card_holder.set_background_color(QColor(Qt.yellow))
-        self.actual_card_holder.set_border_width(10)
-        self.actual_card_holder.set_max_overlapped_cards(5)
-        self.actual_card_holder.set_y_coordinate_by_reverse_index_method(self.get_y_coordinate_by_reverse_index)
-        self.actual_card_holder.set_x_offset_by_index_method(self.get_x_offset_by_index)
-        self.scroll_layout.addWidget(self.actual_card_holder)
+        self.card_holder.set_background_color(QColor(Qt.yellow))
+        self.card_holder.set_border_width(10)
+        self.card_holder.set_max_overlapped_cards(5)
+        self.card_holder.set_y_coordinate_by_reverse_index_method(self.get_y_coordinate_by_reverse_index)
+        self.card_holder.set_x_offset_by_index_method(self.get_x_offset_by_index)
+        self.scroll_layout.addWidget(self.card_holder)
         
         next_button = QPushButton("next",self)
-        next_button.clicked.connect(self.actual_card_holder.button_animated_move_to_next)        
+        next_button.clicked.connect(self.card_holder.button_animated_move_to_next)        
         next_button.setFocusPolicy(Qt.NoFocus)
         
         previous_button = QPushButton("prev",self)
-        previous_button.clicked.connect(self.actual_card_holder.button_animated_move_to_previous)
+        previous_button.clicked.connect(self.card_holder.button_animated_move_to_previous)
         previous_button.setFocusPolicy(Qt.NoFocus)
 
         fill_up_button = QPushButton("fill up",self)
@@ -72,10 +72,10 @@ class App(QWidget):
         self.show()
 
     def change_spinner(self):
-        self.actual_card_holder.set_spinner(self.spinner_file_name)
+        self.card_holder.set_spinner(self.spinner_file_name)
         
     def fill_up(self):
-        self.actual_card_holder.start_card_collection([])
+        self.card_holder.start_card_collection([])
 
     #
     # Input parameter for CardHolder
@@ -90,11 +90,24 @@ class App(QWidget):
         
         return cdl
 
-    def selectCard(self, selectedCard ):
+    def selectCard(self, selectedCard):
+        """
+        This method is executed when a SPACE/ENTER button is clicked in the
+        CardHolder Class or a mouse click was executed directly on the Image
+        in the Media Widget 
+        """        
+        indexOfSelectedCard = selectedCard.getIndexInDataList()
+        
+        print("index of selected: ", indexOfSelectedCard)
+        
+        selected_media = selectedCard.card_data
+        parent_media_collector = selected_media.getParentCollector()
+        parent_media_collector.index_of_selected_media = indexOfSelectedCard
+        
         panel = selectedCard.getPanel()
         layout = panel.getLayout()
         widget = layout.itemAt(0).widget()
-        widget.image_widget.toDoOnClick()
+        widget.image_widget.toDoSelection()
         
     #
     # Input parameter for CardHolder
@@ -106,9 +119,11 @@ class App(QWidget):
                 parent_collector = actual_collector.getParentCollector()
             
                 if parent_collector:
+                    indexOfSelectedCard = parent_collector.index_of_selected_media
+                    print("saved index: ", indexOfSelectedCard)
                     mcl = parent_collector.getMediaCollectorList()
                     msl = parent_collector.getMediaStorageList()
-                    self.actual_card_holder.refresh(mcl + msl)
+                    self.card_holder.refresh(mcl + msl, indexOfSelectedCard)
         
     #
     # Input parameter for CardHolder
@@ -116,7 +131,8 @@ class App(QWidget):
     def getNewCard(self, card_data, local_index, index):
         """        
         """
-        card = Card(self.actual_card_holder, card_data, local_index, index)
+        card_data.setIndexInDataList(index)
+        card = Card(self.card_holder, card_data, local_index, index)
         
         card.set_border_selected_color(QColor(Qt.blue))
         #card.set_background_color(QColor(Qt.white))
@@ -140,17 +156,10 @@ class App(QWidget):
     def goesDeeper(self, mediaCollector):        
         mcl = mediaCollector.getMediaCollectorList()
         msl = mediaCollector.getMediaStorageList()
-        
-        self.actual_card_holder.refresh(mcl + msl)
-
-# !!!!!!!!!!!!!!!!!!!!!
-    def keyPressEvent(self, event):
-        if event.key() == QtCore.Qt.Key_Space:
-            print( "Main window-Space", event.key())
-#        
-#        return QWidget.keyPressEvent(self, event)
-# !!!!!!!!!!!!!!!!!!!!!
-    
+        sum_list = mcl + msl
+        if sum_list:
+            self.card_holder.refresh(sum_list)
+  
     def get_y_coordinate_by_reverse_index(self, reverse_index):
         """        
         """        
@@ -162,41 +171,7 @@ class App(QWidget):
         """
         return index * 4
 
-class MyPanel(QWidget):
-    
-    def __init__(self, card):
-        QWidget.__init__(self, card)
-        
-        self.card = card
-        card.card_data.getWidget()
-        
-        self.setAttribute(Qt.WA_StyledBackground, True)
 
- 
-        
-        
-
-        
-    def onLoadFinished(self, ok):
-        if ok:
-            pass                              
-        
-            self.self_layout = QVBoxLayout()
-            self.self_layout.setSpacing(0)
-            self.setLayout(self.self_layout)
-        
-            self.self_layout.addWidget(self.browser)
-        
-        
-    def mousePressEvent(self, event):
-        #if event.button() == Qt.LeftButton:
-        #    print(self.card.card_data, self.card.local_index, self.card.status)
-        event.ignore()
-
-    def mouseMoveEvent(self, event):
-        event.ignore()
-        
-  
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     ex = App()

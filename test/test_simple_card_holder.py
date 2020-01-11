@@ -34,25 +34,25 @@ class App(QWidget):
         self.scroll_layout.setSpacing(0)
         self.setLayout(self.scroll_layout)
         
-        self.actual_card_holder = CardHolder(            
+        self.card_holder = CardHolder(            
             self, 
             self.getNewCard,
             self.collectCards
         )
         
-        self.actual_card_holder.set_background_color(QColor(Qt.yellow))
-        self.actual_card_holder.set_border_width(10)
-        self.actual_card_holder.set_max_overlapped_cards(5)
-        self.actual_card_holder.set_y_coordinate_by_reverse_index_method(self.get_y_coordinate_by_reverse_index)
-        self.actual_card_holder.set_x_offset_by_index_method(self.get_x_offset_by_index)
-        self.scroll_layout.addWidget(self.actual_card_holder)
+        self.card_holder.set_background_color(QColor(Qt.yellow))
+        self.card_holder.set_border_width(10)
+        self.card_holder.set_max_overlapped_cards(5)
+        self.card_holder.set_y_coordinate_by_reverse_index_method(self.get_y_coordinate_by_reverse_index)
+        self.card_holder.set_x_offset_by_index_method(self.get_x_offset_by_index)
+        self.scroll_layout.addWidget(self.card_holder)
         
         next_button = QPushButton("next",self)
-        next_button.clicked.connect(self.actual_card_holder.button_animated_move_to_next)        
+        next_button.clicked.connect(self.card_holder.button_animated_move_to_next)        
         next_button.setFocusPolicy(Qt.NoFocus)
         
         previous_button = QPushButton("prev",self)
-        previous_button.clicked.connect(self.actual_card_holder.button_animated_move_to_previous)
+        previous_button.clicked.connect(self.card_holder.button_animated_move_to_previous)
         previous_button.setFocusPolicy(Qt.NoFocus)
 
         fill_up_button = QPushButton("fill up",self)
@@ -64,16 +64,16 @@ class App(QWidget):
         self.scroll_layout.addWidget(next_button)
         self.scroll_layout.addWidget(fill_up_button)
         
-        self.actual_card_holder.setFocus()
+        self.card_holder.setFocus()
 
         self.show()
 
     def change_spinner(self):
-        self.actual_card_holder.set_spinner(self.spinner_file_name)
+        self.card_holder.set_spinner(self.spinner_file_name)
 
         
     def fill_up(self):
-        self.actual_card_holder.start_card_collection([])
+        self.card_holder.start_card_collection([])
         
     def collectCards(self, paths):
         """
@@ -95,7 +95,7 @@ class App(QWidget):
         """
         
         """
-        card = Card(self.actual_card_holder, card_data, local_index, index)
+        card = Card(self.card_holder, card_data, local_index, index)
         
         card.set_border_selected_color(QColor(Qt.blue))
         #card.set_background_color(QColor(Qt.white))

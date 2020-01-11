@@ -16,13 +16,14 @@ from PyQt5.QtGui import QMovie
 
 from PyQt5 import QtCore
 
-from PyQt5.QtCore import Qt, QEvent
+from PyQt5.QtCore import Qt
 from PyQt5.QtCore import QThread
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import QPoint
 from PyQt5.QtCore import QByteArray
 
 from pkg_resources import resource_filename
+from math import copysign
  
 # =========================
 #
@@ -44,8 +45,10 @@ class CardHolder( QWidget ):
     DEFAULT_RATE_OF_CARD_WIDTH_DECLINE = 10
     DEFAULT_RATE_OF_CARD_Y_MULTIPLICATOR = 6
     
-    CARD_TRESHOLD = 6
+    CARD_TRESHOLD = 6  
     MAX_CARD_ROLLING_RATE = 10
+    
+    FAST_FORWARD_NUMBER = 5
     
     def __init__(self, 
                  parent, 
@@ -72,7 +75,7 @@ class CardHolder( QWidget ):
         self.get_collected_cards_method = get_collected_cards_method
         
         self.shown_card_list = []
-        self.card_descriptor_list = []
+        self.card_data_list = []
 
         self.set_max_overlapped_cards(CardHolder.DEFAULT_MAX_OVERLAPPED_CARDS, False)        
         self.set_border_width(CardHolder.DEFAULT_BORDER_WIDTH, False)
@@ -82,7 +85,6 @@ class CardHolder( QWidget ):
         self.self_layout = QVBoxLayout(self)
         self.setLayout(self.self_layout)
 
-#        self.actual_card_index = 0
         self.rate_of_movement = 0
         self.delta_rate = 0
         
@@ -103,8 +105,7 @@ class CardHolder( QWidget ):
 
         # The CardHolder will accept Focus by Tabbing and Clicking
         self.setFocusPolicy(Qt.StrongFocus)
-        self.setFocus()
-      
+        self.setFocus()      
             
     def set_y_coordinate_by_reverse_index_method(self, method):
         self.get_y_coordinate_by_reverse_index_method = method
@@ -189,18 +190,21 @@ class CardHolder( QWidget ):
     # -------------------------------------------------------
     # refresh card collection - used by the CollectCardsThread
     # -------------------------------------------------------
-    def refresh(self, filtered_card_list): 
+    def refresh(self, filtered_card_list, index = 0):
+        """
+        Fills up the CardHolder with Cards and pulls the <index>th Card to front
+        """
         self.stop_spinner()
         self.fill_up_card_descriptor_list(filtered_card_list)
-        self.select_index(0)
+        self.select_index(index)
 
     # ------------------------------------------------------
     # fill up card descriptor - used by the refresh() method
     # ------------------------------------------------------
     def fill_up_card_descriptor_list(self, filtered_card_list = []):        
-        self.card_descriptor_list = []
+        self.card_data_list = []
         for c in filtered_card_list:
-            self.card_descriptor_list.append(c)
+            self.card_data_list.append(c)
 
     def set_border_width(self, width, update=True):
         self.border_width = width
@@ -260,40 +264,30 @@ class CardHolder( QWidget ):
 
 
 
-#    def select_next_card(self):
-#        self.select_index(self.actual_card_index + 1)
-#
-#    def select_previous_card(self):
-#        self.select_index(self.actual_card_index - 1)
-        
-#    def select_actual_card(self):
-#        #self.select_index(self.actual_card_index)
-#        self.select_index(0)
     
     # --------------------------------------------------------------------------
     #
     # Select Index
     #
-    # It builds up from scratch the shown_card_list from the card_descriptor_list
-    # In the 0. position will be the Card identified by the "index" parameter
+    # It builds up from scratch the shown_card_list from the card_data_list
+    # In the 0. position (on front) will be the Card identified by the "index" parameter
     # The card in the 0. position will be indicated as the "selected"
     #
     # --------------------------------------------------------------------------
     def select_index(self, index):
-        index_corr = self.index_correction(index)
-#        self.actual_card_index = index_corr
+        index_corr = self.get_corrected_card_data_index(index)
         self.remove_all_cards()
         position = None
-        self.shown_card_list = [None for i in range(index_corr + min(self.max_overlapped_cards, len(self.card_descriptor_list)-1), index_corr - 1, -1) ]
+        self.shown_card_list = [None for i in range(index_corr + min(self.max_overlapped_cards, len(self.card_data_list)-1), index_corr - 1, -1) ]
         
-        for i in range( index_corr + min(self.max_overlapped_cards, len(self.card_descriptor_list)-1), index_corr - 1, -1):
+        for i in range( index_corr + min(self.max_overlapped_cards, len(self.card_data_list)-1), index_corr - 1, -1):
             
-            i_corr = self.index_correction(i)
+            i_corr = self.get_corrected_card_data_index(i)
             
-            if( i_corr < len(self.card_descriptor_list)):
+            if( i_corr < len(self.card_data_list)):
 
                 local_index = i-index_corr
-                card = self.get_new_card_method(self.card_descriptor_list[i_corr], local_index, i_corr )                                
+                card = self.get_new_card_method(self.card_data_list[i_corr], local_index, i_corr )                                
                 position = card.place(local_index)
                 
                 self.shown_card_list[local_index] = card
@@ -420,10 +414,7 @@ class CardHolder( QWidget ):
         self.animate = AnimateRolling.getInstance(relative_position * self.MAX_CARD_ROLLING_RATE, 1, sleep)
         if self.animate:
             self.animate.positionChanged.connect(self.rolling)
-            self.animate.start()
-        
-        
-        
+            self.animate.start()        
 
     # ---------------------------------------------------------------------
     #
@@ -465,9 +456,9 @@ class CardHolder( QWidget ):
         self.rate_of_movement = self.rate_of_movement + delta_rate
 
         # Did not start to roll
-        # if number of the shown cards are != min(max overlapped cards +1, len(self.card_descriptor_list))
+        # if number of the shown cards are != min(max overlapped cards +1, len(self.card_data_list))
         #if len(self.shown_card_list) <= self.get_max_overlapped_cards() + 1:
-        if len(self.shown_card_list) == min(self.max_overlapped_cards + 1, len(self.card_descriptor_list)):
+        if len(self.shown_card_list) == min(self.max_overlapped_cards + 1, len(self.card_data_list)):
             
             # indicates that the first card is not the selected anymore
             card = self.shown_card_list[0]
@@ -475,19 +466,15 @@ class CardHolder( QWidget ):
             
             # add new card to the beginning
             first_card = self.shown_card_list[0]                
-            first_card_index = self.index_correction(first_card.index - 1)
-            card = self.get_new_card_method(self.card_descriptor_list[first_card_index], -1, first_card_index ) 
+            first_card_index = self.get_corrected_card_data_index(first_card.getIndexInDataList() - 1)
+            card = self.get_new_card_method(self.card_data_list[first_card_index], -1, first_card_index ) 
             self.shown_card_list.insert(0, card)
-       
-            
-            
-            
             
             # add a new card to the end
             last_card = self.shown_card_list[len(self.shown_card_list)-1]                
-            last_card_index = self.index_correction(last_card.index + 1)
-            #card = self.get_new_card_method(self.card_descriptor_list[last_card_index], self.get_max_overlapped_cards() + 1, last_card_index ) 
-            card = self.get_new_card_method(self.card_descriptor_list[last_card_index], min(self.max_overlapped_cards + 1, len(self.card_descriptor_list)), last_card_index ) 
+            last_card_index = self.get_corrected_card_data_index(last_card.getIndexInDataList() + 1)
+            #card = self.get_new_card_method(self.card_data_list[last_card_index], self.get_max_overlapped_cards() + 1, last_card_index ) 
+            card = self.get_new_card_method(self.card_data_list[last_card_index], min(self.max_overlapped_cards + 1, len(self.card_data_list)), last_card_index ) 
             
             self.shown_card_list.append(card)
             
@@ -515,8 +502,6 @@ class CardHolder( QWidget ):
         for i, card in enumerate(self.shown_card_list):
             virtual_index = card.local_index - rate
             card.place(virtual_index, True)
-
-#print( [(c.local_index, c.card_data) for c in self.shown_card_list])
 
     def rolling_adjust_forward(self,rate):
         
@@ -567,9 +552,9 @@ class CardHolder( QWidget ):
     # that is how it actually accomplishes an endless loop
     #
     # -----------------------------------------------------------
-    def index_correction(self, index):
-        if self.card_descriptor_list:
-            return (len(self.card_descriptor_list) - abs(index) if index < 0 else index) % len(self.card_descriptor_list)
+    def get_corrected_card_data_index(self, index):
+        if self.card_data_list:
+            return (len(self.card_data_list) - abs(index) if index < 0 else index) % len(self.card_data_list)
         else:
             return index
 
@@ -602,6 +587,12 @@ class CardHolder( QWidget ):
         elif event.key() == QtCore.Qt.Key_Down:
             self.animated_move_to_previous(sleep=0.03)
 
+        elif event.key() == QtCore.Qt.Key_PageUp:
+            self.animated_move_to(FAST_FORWARD_NUMBER, 0.03)
+            
+        elif event.key() == QtCore.Qt.Key_PageDown:
+            self.animated_move_to(-FAST_FORWARD_NUMBER, 0.03)
+            
         # Goes Up in the hierarchy
         elif event.key() == QtCore.Qt.Key_Escape:
             
@@ -613,32 +604,34 @@ class CardHolder( QWidget ):
         
         # Select the actual Card
         elif event.key() == QtCore.Qt.Key_Space or event.key() == QtCore.Qt.Key_Return:
-            
+            if event.text().isdigit():
+                index = int(event.text())
+            else:
+                index = 0
+
+            if index > 0:
+                
+                # if the selected card is not in the front, it will be moved to the front
+                self.select_index(index)
+
+#            selected_card = self.getIndexedCard(index)
             selected_card = self.getFrontCard()
             if self.select_card_method:
                 self.select_card_method(selected_card)
             
                 # I do not want to propagate the ESC event to the parent
-                event.setAccepted(True)
-        
+                event.setAccepted(True)        
         else:
-
-            event.setAccepted(False)
-  
+            
+            event.setAccepted(False)  
         
     # --------------
     # MOUSE handling
-    # --------------
-        
+    # --------------        
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
             self.drag_start_position = event.pos()
         event.ignore()
-
-#            
-#            #QCursor.setPos( QCursor.pos().x() + 1, QCursor.pos().y() )
-#
-#
 
     def mouseMoveEvent(self, event):
         if event.buttons() == Qt.LeftButton:
@@ -752,7 +745,7 @@ class Card(QWidget):
         QWidget.__init__(self, card_holder)
 
         self.card_data = card_data
-        self.index = index
+        self._index = index
         self.local_index = local_index
         self.card_holder = card_holder
         self.actual_position = 0
@@ -797,6 +790,11 @@ class Card(QWidget):
         
         self.setAttribute(Qt.WA_StyledBackground, True)
 
+    def setIndexInDataList(self, index):
+        self._index = index
+        
+    def getIndexInDataList(self):
+        return self._index
         
     def set_selected(self):
         self.set_status(Card.STATUS_SELECTED, True)
@@ -855,10 +853,7 @@ class Card(QWidget):
         self.panel.set_border_radius(self.border_radius - self.border_width, update)
         if update:
             self.update()
-
-#    def set_rate_of_width_decline(self, rate, update=True):
-#        self.rate_of_width_decline = rate
-    
+   
     def getPanel(self):
         return self.panel
  
@@ -870,8 +865,7 @@ class Card(QWidget):
         qp.setBrush(self.border_color)
 
         qp.drawRoundedRect(0, 0, s.width(), s.height(), self.border_radius, self.border_radius)
-        qp.end()
- 
+        qp.end() 
  
     # --------------
     # MOUSE handling
@@ -889,17 +883,7 @@ class Card(QWidget):
     def mouseMoveEvent(self, event):
         if event.buttons() == Qt.LeftButton:
             self.already_mouse_pressed = False
-
-#            # Rolling Cards
-#            delta_y = event.pos().y() - self.drag_start_position.y()
-#            self.drag_start_position = event.pos()
-#
-#            if delta_y > 0:
-#                self.onMouseDragged.emit(1)
-#            elif delta_y < 0:
-#                self.onMouseDragged.emit(-1)
-        event.ignore()
-       
+        event.ignore()       
 
     def mouseReleaseEvent(self, event):
         if event.button() == Qt.LeftButton:
@@ -965,11 +949,8 @@ class Card(QWidget):
     #
     # ----------------------------------
     def get_y_coordinate(self, local_index):
-        max_card = min(self.card_holder.max_overlapped_cards, len(self.card_holder.card_descriptor_list) - 1)
+        max_card = min(self.card_holder.max_overlapped_cards, len(self.card_holder.card_data_list) - 1)
         reverse_index = max_card - min(local_index, max_card)  #0->most farther
-        #print(max_card)
-        #return ( max_card - min(local_index, max_card) ) * ( self.card_holder.get_max_overlapped_cards() - local_index ) * 16
-
         return self.card_holder.get_y_coordinate_by_reverse_index_method(reverse_index)
 
     
@@ -1070,9 +1051,9 @@ class AnimateRolling(QThread):
         
         # blocks to call again
         AnimateRolling.__run = True
-        for i in range(self.loop):
+        for i in range(abs(self.loop)):
             time.sleep(self.sleep)
-            self.positionChanged.emit(self.value)
+            self.positionChanged.emit(copysign(1, self.loop) * self.value)
         
         # release blocking
         AnimateRolling.__run = False
@@ -1107,7 +1088,5 @@ class CountDown(QThread):
             while CountDown.__timer > 0:
                 time.sleep(0.04)
                 CountDown.__timer = CountDown.__timer - 1
-                #print(CountDown.__timer)
                
-            #print("most emital")
             self.timeOver.emit()

@@ -70,28 +70,31 @@ class MediaStorage(MediaBase):
         self.media_container_list.sort(key=lambda arg: arg.getTitle()) 
 
     def getQLabelToHoldImage(self):
-        return MediaStorage.QLabelWithLinkToMedia(self.isSelected, self.getPathOfMedia())
+        class QLabelWithLinkToMedia( QLabelToLinkOnClick ):
+
+            def __init__(self, media, funcIsSelected, pathOfMedia):
+                super().__init__(media, None, funcIsSelected)
+                self.pathOfMedia = pathOfMedia
+
+#            def toDoOnClick(self):
+            def toDoSelection(self):
+        
+                if platform.system() == 'Darwin':                   # macOS
+                    subprocess.call(('open', self.pathOfMedia))
+                elif platform.system() == 'Windows':                # Windows
+                    os.startfile(filepath)
+                elif platform.system() == 'Linux':                  # Linux:
+                    subprocess.call(('xdg-open', self.pathOfMedia))
+                else:                                               # linux 
+                    subprocess.call(('xdg-open', self.pathOfMedia))
+
+        
+        return QLabelWithLinkToMedia(self, self.isSelected, self.getPathOfMedia())
 
     def setNextLevelListener(self, nextLevelListener):
         pass
     
-    class QLabelWithLinkToMedia( QLabelToLinkOnClick ):
-
-        def __init__(self, funcIsSelected, pathOfMedia):
-            super().__init__(None, funcIsSelected)
-            self.pathOfMedia = pathOfMedia
-
-        def toDoOnClick(self):
-        
-            if platform.system() == 'Darwin':                   # macOS
-                subprocess.call(('open', self.pathOfMedia))
-            elif platform.system() == 'Windows':                # Windows
-                os.startfile(filepath)
-            elif platform.system() == 'Linux':                  # Linux:
-                subprocess.call(('xdg-open', self.pathOfMedia))
-            else:                                               # linux 
-                subprocess.call(('xdg-open', self.pathOfMedia))
-        
+            
     def getJson(self):
         json = super().getJson();
         
