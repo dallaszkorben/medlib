@@ -95,15 +95,17 @@ class App(QWidget):
         This method is executed when a SPACE/ENTER button is clicked in the
         CardHolder Class or a mouse click was executed directly on the Image
         in the Media Widget 
-        """        
-        indexOfSelectedCard = selectedCard.getIndexInDataList()
+        """
+        selectedMediaIndex = selectedCard.getIndexInDataList()
         
-        print("index of selected: ", indexOfSelectedCard)
-        
+        # Identify the Collector of the selected Media
         selected_media = selectedCard.card_data
         parent_media_collector = selected_media.getParentCollector()
-        parent_media_collector.index_of_selected_media = indexOfSelectedCard
         
+        # Store the index of the selected Media to be able to recover
+        parent_media_collector.setSelectedMediaIndex( selectedMediaIndex )
+        
+        # Depending of the Media (Storage/Collector) needs to do different things
         panel = selectedCard.getPanel()
         layout = panel.getLayout()
         widget = layout.itemAt(0).widget()
@@ -119,12 +121,11 @@ class App(QWidget):
                 parent_collector = actual_collector.getParentCollector()
             
                 if parent_collector:
-                    indexOfSelectedCard = parent_collector.index_of_selected_media
-                    print("saved index: ", indexOfSelectedCard)
+                    indexOfSelectedCard = parent_collector.getSelectedMediaIndex()
                     mcl = parent_collector.getMediaCollectorList()
                     msl = parent_collector.getMediaStorageList()
                     self.card_holder.refresh(mcl + msl, indexOfSelectedCard)
-        
+
     #
     # Input parameter for CardHolder
     #

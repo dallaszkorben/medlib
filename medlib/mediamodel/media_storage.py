@@ -76,7 +76,6 @@ class MediaStorage(MediaBase):
                 super().__init__(media, None, funcIsSelected)
                 self.pathOfMedia = pathOfMedia
 
-#            def toDoOnClick(self):
             def toDoSelection(self):
         
                 if platform.system() == 'Darwin':                   # macOS

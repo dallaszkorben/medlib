@@ -39,8 +39,20 @@ class MediaCollector(MediaBase):
         self.nextLevelListener = None
         self.previousLevelListener = None
         
-        self.index_of_selected_media = 0
-  
+    def setSelectedMediaIndex(self, selectedMediaIndex):
+        """
+        Stores the index of the media (MediaStorage/MediaCollector) 
+        which was selected under this Collector
+        """
+        self.selected_media_index = selectedMediaIndex
+        
+    def getSelectedMediaIndex(self):
+        """
+        Returns the index of the media (MediaStorage/MediaCollector) 
+        which was selected under this Collector
+        """
+        return self.selected_media_index        
+        
     def getNameOfFolder(self):
         return self.pathsCollector.getNameOfFolder()
     
@@ -179,7 +191,6 @@ class MediaCollector(MediaBase):
             def __init__(self, collector):
                 super().__init__(collector, None, collector.isSelected)
 
-#            def toDoOnClick(self):
             def toDoSelection(self):
                 if self.media.nextLevelListener is not None:
                     self.media.nextLevelListener(self.media)

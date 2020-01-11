@@ -588,10 +588,10 @@ class CardHolder( QWidget ):
             self.animated_move_to_previous(sleep=0.03)
 
         elif event.key() == QtCore.Qt.Key_PageUp:
-            self.animated_move_to(FAST_FORWARD_NUMBER, 0.03)
+            self.animated_move_to(self.FAST_FORWARD_NUMBER, 0.03)
             
         elif event.key() == QtCore.Qt.Key_PageDown:
-            self.animated_move_to(-FAST_FORWARD_NUMBER, 0.03)
+            self.animated_move_to(-self.FAST_FORWARD_NUMBER, 0.03)
             
         # Goes Up in the hierarchy
         elif event.key() == QtCore.Qt.Key_Escape:
@@ -604,17 +604,18 @@ class CardHolder( QWidget ):
         
         # Select the actual Card
         elif event.key() == QtCore.Qt.Key_Space or event.key() == QtCore.Qt.Key_Return:
+            
+            # Comes from the MouseClick -> It could be any Card on the screen
             if event.text().isdigit():
-                index = int(event.text())
-            else:
-                index = 0
+                card_index = int(event.text())
 
-            if index > 0:
+                # Move the Card to the front
+                self.select_index(card_index)
                 
-                # if the selected card is not in the front, it will be moved to the front
-                self.select_index(index)
+            # Comes from SPACE/ENTER -> Only 
+            else:
+                pass
 
-#            selected_card = self.getIndexedCard(index)
             selected_card = self.getFrontCard()
             if self.select_card_method:
                 self.select_card_method(selected_card)
