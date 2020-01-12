@@ -13,6 +13,8 @@ from cardholder.cardholder import Card
 
 from medlib.input_output import collectCards
 from PyQt5 import QtCore
+from cardholder.card_data_interface import CardDataInterface
+import types
 
 class App(QWidget):
  
@@ -39,8 +41,8 @@ class App(QWidget):
             self, 
             self.getNewCard,
             self.collectCards,
-            self.selectCard,
-            self.goesHigher
+            None,               #self.selectCard,
+            None,               #self.goesHigher
         )
         
         self.card_holder.set_background_color(QColor(Qt.yellow))
@@ -81,8 +83,6 @@ class App(QWidget):
     # Input parameter for CardHolder
     #
     def collectCards(self, paths):
-        """
-        """
         collector = collectCards()
         collector.setNextLevelListener(self.goesDeeper)
      
@@ -90,52 +90,17 @@ class App(QWidget):
         
         return cdl
 
-    def selectCard(self, selectedCard):
-        """
-        This method is executed when a SPACE/ENTER button is clicked in the
-        CardHolder Class or a mouse click was executed directly on the Image
-        in the Media Widget 
-        """
-        selectedMediaIndex = selectedCard.getIndexInDataList()
-        
-        # Identify the Collector of the selected Media
-        selected_media = selectedCard.card_data
-        parent_media_collector = selected_media.getParentCollector()
-        
-        # Store the index of the selected Media to be able to recover
-        parent_media_collector.setSelectedMediaIndex( selectedMediaIndex )
-        
-        # Depending of the Media (Storage/Collector) needs to do different things
-        panel = selectedCard.getPanel()
-        layout = panel.getLayout()
-        widget = layout.itemAt(0).widget()
-        widget.image_widget.toDoSelection()
-        
-    #
-    # Input parameter for CardHolder
-    #
-    def goesHigher(self, actual_media):
-        if actual_media:
-            actual_collector = actual_media.getParentCollector()
-            if actual_collector:
-                parent_collector = actual_collector.getParentCollector()
-            
-                if parent_collector:
-                    indexOfSelectedCard = parent_collector.getSelectedMediaIndex()
-                    mcl = parent_collector.getMediaCollectorList()
-                    msl = parent_collector.getMediaStorageList()
-                    self.card_holder.refresh(mcl + msl, indexOfSelectedCard)
-
+ 
+    
     #
     # Input parameter for CardHolder
     #
     def getNewCard(self, card_data, local_index, index):
         """        
         """
-        card_data.setIndexInDataList(index)
         card = Card(self.card_holder, card_data, local_index, index)
         
-        card.set_border_selected_color(QColor(Qt.blue))
+        card.set_border_focused_color(QColor(Qt.blue))
         #card.set_background_color(QColor(Qt.white))
         #card.set_border_radius( 15 )
         #card.set_border_width(18)
@@ -177,4 +142,5 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     ex = App()
     #ex.start_card_holder()
+
     sys.exit(app.exec_())

@@ -97,7 +97,7 @@ class App(QWidget):
         """
         card = Card(self.card_holder, card_data, local_index, index)
         
-        card.set_border_selected_color(QColor(Qt.blue))
+        card.set_border_focused_color(QColor(Qt.blue))
         #card.set_background_color(QColor(Qt.white))
         #card.set_border_radius( 15 )
         #card.set_border_width(18)

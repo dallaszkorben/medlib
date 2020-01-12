@@ -48,9 +48,7 @@ class App(QWidget):
         
         mediaToShow.setNextLevelListener(self.goesDeeper)
         self.widget = mediaToShow.getWidget(self.scale)
-        
-        print(mediaToShow.getJson())
-
+                
         self.layout.addWidget(self.widget)
         self.show()
       

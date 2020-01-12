@@ -24,6 +24,7 @@ from PyQt5.QtCore import QByteArray
 
 from pkg_resources import resource_filename
 from math import copysign
+from cardholder.card_data_interface import CardDataInterface
  
 # =========================
 #
@@ -99,7 +100,7 @@ class CardHolder( QWidget ):
         self.set_x_offset_by_index_method(self.get_x_offset_by_index)
 
         # it hides the CardHolder until it is filled up with cards
-        self.select_index(0)
+        self.focus_index(0)
         
         self.setAttribute(Qt.WA_StyledBackground, True)
 
@@ -107,6 +108,12 @@ class CardHolder( QWidget ):
         self.setFocusPolicy(Qt.StrongFocus)
         self.setFocus()      
             
+    def setSelectedRootCardIndex(self, selected_root_card_index):
+        self.selected_root_card_index = selected_root_card_index
+        
+    def getSelectedRootCardIndex(self):
+        return self.selected_root_card_index        
+    
     def set_y_coordinate_by_reverse_index_method(self, method):
         self.get_y_coordinate_by_reverse_index_method = method
         
@@ -196,15 +203,15 @@ class CardHolder( QWidget ):
         """
         self.stop_spinner()
         self.fill_up_card_descriptor_list(filtered_card_list)
-        self.select_index(index)
+        self.focus_index(index)
 
     # ------------------------------------------------------
     # fill up card descriptor - used by the refresh() method
     # ------------------------------------------------------
-    def fill_up_card_descriptor_list(self, filtered_card_list = []):        
+    def fill_up_card_descriptor_list(self, filtered_card_list = []):             
         self.card_data_list = []
-        for c in filtered_card_list:
-            self.card_data_list.append(c)
+        for card_data in filtered_card_list:
+            self.card_data_list.append(card_data)
 
     def set_border_width(self, width, update=True):
         self.border_width = width
@@ -226,8 +233,8 @@ class CardHolder( QWidget ):
     def set_max_overlapped_cards(self, number, update=True):
         self.max_overlapped_cards = number
         if update:
-            #self.select_index(self.actual_card_index)
-            self.select_index(0)
+            #self.focus_index(self.actual_card_index)
+            self.focus_index(0)
         
     def set_border_radius(self, radius, update=True):
         self.border_radius = radius
@@ -267,14 +274,14 @@ class CardHolder( QWidget ):
     
     # --------------------------------------------------------------------------
     #
-    # Select Index
+    # Focus Index
     #
     # It builds up from scratch the shown_card_list from the card_data_list
     # In the 0. position (on front) will be the Card identified by the "index" parameter
-    # The card in the 0. position will be indicated as the "selected"
+    # The card in the 0. position will be indicated as the "focused"
     #
     # --------------------------------------------------------------------------
-    def select_index(self, index):
+    def focus_index(self, index):
         index_corr = self.get_corrected_card_data_index(index)
         self.remove_all_cards()
         position = None
@@ -299,7 +306,7 @@ class CardHolder( QWidget ):
             self.setMinimumHeight(position[0].y() + position[1].y() + self.border_width )
             self.setMaximumHeight(position[0].y() + position[1].y() + self.border_width )
         
-            # for indicating the selected (0) Card
+            # for indicating the focused (0) Card
             self.rolling(0)
             
         # if there is NO Card at all
@@ -460,9 +467,9 @@ class CardHolder( QWidget ):
         #if len(self.shown_card_list) <= self.get_max_overlapped_cards() + 1:
         if len(self.shown_card_list) == min(self.max_overlapped_cards + 1, len(self.card_data_list)):
             
-            # indicates that the first card is not the selected anymore
+            # indicates that the first card is not the focused anymore
             card = self.shown_card_list[0]
-            card.set_not_selected()
+            card.set_not_focused()
             
             # add new card to the beginning
             first_card = self.shown_card_list[0]                
@@ -491,11 +498,11 @@ class CardHolder( QWidget ):
         else:
             self.rolling_adjust_backward(rate)
 
-        # indicates that the first card is the selected            
+        # indicates that the first card is the focuseded            
         if self.rate_of_movement == 0:
             card = self.shown_card_list[0]
             
-            card.set_selected()
+            card.set_focused()
 
         # show the cards in the right position
         rate = self.rate_of_movement / self.MAX_CARD_ROLLING_RATE
@@ -568,7 +575,7 @@ class CardHolder( QWidget ):
         qp.drawRoundedRect(0, 0, s.width(), s.height(), self.border_radius, self.border_radius)
         qp.end()  
 
-    def getFrontCard(self):
+    def getFocusedCard(self):
         if self.shown_card_list:
             first_card = self.shown_card_list[0]
             return first_card
@@ -581,6 +588,7 @@ class CardHolder( QWidget ):
         self.rolling_wheel(value)
   
     def keyPressEvent(self, event):
+        
         if event.key() == QtCore.Qt.Key_Up:
             self.animated_move_to_next(sleep=0.03)
             
@@ -592,17 +600,38 @@ class CardHolder( QWidget ):
             
         elif event.key() == QtCore.Qt.Key_PageDown:
             self.animated_move_to(-self.FAST_FORWARD_NUMBER, 0.03)
-            
+          
+        #  
         # Goes Up in the hierarchy
+        #
         elif event.key() == QtCore.Qt.Key_Escape:
             
             if self.goes_higher_method:
-                self.goes_higher_method(self.getFrontCard().card_data)
+                self.goes_higher_method(self.getFocusedCard())
          
                 # I do not want to propagate the ESC event to the parent
                 event.setAccepted(True)
+            
+            else:
+
+                # The parent MediaCollector
+                parent_card_data = self.getFocusedCard().card_data.getParentCollector()
+                
+                # If the MediaCollector is not the root
+                if parent_card_data.getParentCollector():
+                    
+                    # Index of the parent - to be focused
+                    index_of_selected_card = parent_card_data.getIndex()
+                    
+                    # Collect the media_collectors and media_storages
+                    card_data_list = parent_card_data.getListOfCardDataInThisLevel()
+                    
+                    # Generate a new Card list
+                    self.refresh(card_data_list, index_of_selected_card)
         
-        # Select the actual Card
+        #
+        # Select a Card
+        #
         elif event.key() == QtCore.Qt.Key_Space or event.key() == QtCore.Qt.Key_Return:
             
             # Comes from the MouseClick -> It could be any Card on the screen
@@ -610,20 +639,32 @@ class CardHolder( QWidget ):
                 card_index = int(event.text())
 
                 # Move the Card to the front
-                self.select_index(card_index)
+                self.focus_index(card_index)
                 
             # Comes from SPACE/ENTER -> Only 
             else:
                 pass
 
-            selected_card = self.getFrontCard()
+            # Fetch the Card in the focus (in front)
+            selected_card = self.getFocusedCard()
+
             if self.select_card_method:
                 self.select_card_method(selected_card)
             
-                # I do not want to propagate the ESC event to the parent
-                event.setAccepted(True)        
-        else:
+            else:
+        
+                # Depending of the Media (Storage/Collector) needs to do different things
+                panel = selected_card.getPanel()
+                layout = panel.getLayout()
             
+                # the 0th item in the layout is the Image
+                widget = layout.itemAt(0).widget()
+                widget.image_widget.toDoSelection()
+
+            event.setAccepted(True)
+                    
+        else:
+           
             event.setAccepted(False)  
         
     # --------------
@@ -725,7 +766,7 @@ class Panel(QWidget):
 class Card(QWidget):
 
     STATUS_NORMAL = 0
-    STATUS_SELECTED = 1
+    STATUS_FOCUSED = 1
     DTATUS_DISABLED = 2
     
 #    DEFAULT_RATE_OF_WIDTH_DECLINE = 10
@@ -733,7 +774,7 @@ class Card(QWidget):
     DEFAULT_BORDER_RADIUS = 10
     
     DEFAULT_BORDER_NORMAL_COLOR = QColor(Qt.green)
-    DEFAULT_BORDER_SELECTED_COLOR = QColor(Qt.red)
+    DEFAULT_BORDER_FOCUSED_COLOR = QColor(Qt.red)
     DEFAULT_BORDER_DISABLED_COLOR = QColor(Qt.lightGray)
     
     DEFAULT_STATUS = STATUS_NORMAL
@@ -745,8 +786,14 @@ class Card(QWidget):
         #super().__init__(card_holder)
         QWidget.__init__(self, card_holder)
 
+        assert issubclass(card_data.__class__, CardDataInterface)
+
         self.card_data = card_data
-        self._index = index
+        self.card_data.setIndex(index)
+
+#        self.card_data.setCard(self)
+
+        self.index = index
         self.local_index = local_index
         self.card_holder = card_holder
         self.actual_position = 0
@@ -757,7 +804,7 @@ class Card(QWidget):
         self.self_layout.setSpacing(0)
         
         self.set_border_normal_color(Card.DEFAULT_BORDER_NORMAL_COLOR)
-        self.set_border_selected_color(Card.DEFAULT_BORDER_SELECTED_COLOR)
+        self.set_border_focused_color(Card.DEFAULT_BORDER_FOCUSED_COLOR)
         self.set_border_disabled_color(Card.DEFAULT_BORDER_DISABLED_COLOR)
         
         ## without this line it wont paint the background, but the children get the background color info
@@ -789,18 +836,28 @@ class Card(QWidget):
  
         self.already_mouse_pressed = False
         
-        self.setAttribute(Qt.WA_StyledBackground, True)
+        self.setAttribute(Qt.WA_StyledBackground, True)        
 
+#    def getParentCard(self):
+#        card_data_collector = self.card_data.getParentCollector()
+#        return card_data_collector.getCard()
+        
+#    def setSelectedChildCardIndex(self, index):
+#        self.selected_child_card_index = index
+#        
+#    def getSelectedChildCardIndex(self):
+#        return self.selected_child_card_index
+        
     def setIndexInDataList(self, index):
-        self._index = index
+        self.index = index
         
     def getIndexInDataList(self):
-        return self._index
+        return self.index
         
-    def set_selected(self):
-        self.set_status(Card.STATUS_SELECTED, True)
+    def set_focused(self):
+        self.set_status(Card.STATUS_FOCUSED, True)
         
-    def set_not_selected(self):
+    def set_not_focused(self):
         self.set_status(Card.STATUS_NORMAL, True)
         
     def set_status(self, status, update=False):
@@ -808,8 +865,8 @@ class Card(QWidget):
 
         if status == Card.STATUS_NORMAL:        
             self.set_border_color(self.get_border_normal_color(), update)
-        elif status == Card.STATUS_SELECTED:
-            self.set_border_color(self.get_border_selected_color(), update)
+        elif status == Card.STATUS_FOCUSED:
+            self.set_border_color(self.get_border_focused_color(), update)
         elif status == Card.STATUS_DISABLED:
             self.set_border_color(self.get_border_disabled_color(), update)
 
@@ -824,8 +881,8 @@ class Card(QWidget):
     def get_border_normal_color(self):
         return self.border_normal_color
     
-    def get_border_selected_color(self):
-        return self.border_selected_color
+    def get_border_focused_color(self):
+        return self.border_focused_color
     
     def get_border_disabled_color(self):
         return self.border_disabled_color
@@ -833,8 +890,8 @@ class Card(QWidget):
     def set_border_normal_color(self, color):
         self.border_normal_color = color
         
-    def set_border_selected_color(self, color):
-        self.border_selected_color = color
+    def set_border_focused_color(self, color):
+        self.border_focused_color = color
         
     def set_border_disabled_color(self, color):
         self.border_disabled_color = color

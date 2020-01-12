@@ -30,8 +30,9 @@ from medlib.card_ini import JSON_SECTION_LYRICS
 from medlib.card_ini import JSON_SECTION_CLASSIFICATION
 from medlib.card_ini import JSON_SECTION_CONTROL
 from medlib.card_ini import JSON_NODE_APPENDIXES
+from cardholder.card_data_interface import CardDataInterface
 
-class MediaBase(object):
+class MediaBase(CardDataInterface):
     """
     This object represents the MediaBase
     """
@@ -71,14 +72,34 @@ class MediaBase(object):
         self.widget = None
         self.grid_layout = None
         
-        self._index = 0
+        self.card = None
+        self.index = 0
+        
+# -
+    def setIndex(self, index):
+        self.index = index
+        
+    def getIndex(self):
+        return self.index
+    
+#    def setCard(self, card):
+#        self.card = card
+#        
+#    def getCard(self):
+#        return self.card
+        
+    def getListOfCardDataInThisLevel(self):
+        parent_collector = self.getParentCollector()
+        mcl = parent_collector.getMediaCollectorList()
+        msl = parent_collector.getMediaStorageList()
+        sum_list = mcl + msl
+        if sum_list:
+            return sum_list
+        else:
+            None
+# -
 
-    def setIndexInDataList(self, index):
-        self._index = index
-    
-    def getIndexInDataList(self):
-        return self._index
-    
+
     def search(self, withShift, forWho, byWhat):
         """
         searchFunction( forWho, byWhat )    - A search function when you click on a link on the card.

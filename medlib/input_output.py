@@ -604,11 +604,8 @@ def collectCardsFromJson(jsonForm, parentMediaCollector = None):
     """
         Recursively go through the jsonForm and fill up the MediaCollector
         _________________________________________________________________
-        input:
-                jsonForm            media cards collected in json form to
-                                    make MediaCollector
-        output:
-                MediaCollector
+        @param {dic} jsonForm:    media cards collected in json form to make MediaCollector
+        @return MediaCollector:   The root MediaCollector 
     """
     NoneType = type(None)
     assert issubclass(parentMediaCollector.__class__, (MediaCollector, MediaStorage, NoneType))
@@ -805,6 +802,7 @@ def collectCardsFromJson(jsonForm, parentMediaCollector = None):
     
         ini_path_storage = PathsStorage(name_of_folder, path_of_card, path_of_image, path_of_media)
         nextParent = MediaStorage(ini_path_storage, ini_titles, ini_control, ini_general, ini_classification)
+        
         parentMediaCollector.addMediaStorage(nextParent)
         
     #

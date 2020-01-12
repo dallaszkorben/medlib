@@ -1,12 +1,9 @@
-from medlib.constants import *
 from medlib.mediamodel.media_base import MediaBase
 from medlib.mediamodel.media_storage import MediaStorage
 from medlib.mediamodel.paths_collector import PathsCollector
 
 from medlib.mediamodel.qlabel_to_link_on_cllick import QLabelToLinkOnClick
-from PyQt5 import QtCore
-from PyQt5.QtGui import QKeyEvent
-from PyQt5.QtCore import QEvent, Qt
+from medlib.constants import COLLECTOR_BACKGROUND_COLOR
 
 class MediaCollector(MediaBase):
     """
@@ -37,22 +34,20 @@ class MediaCollector(MediaBase):
         self.media_storage_list = []
         
         self.nextLevelListener = None
-        self.previousLevelListener = None
-        
-    def setSelectedMediaIndex(self, selectedMediaIndex):
-        """
-        Stores the index of the media (MediaStorage/MediaCollector) 
-        which was selected under this Collector
-        """
-        self.selected_media_index = selectedMediaIndex
-        
-    def getSelectedMediaIndex(self):
-        """
-        Returns the index of the media (MediaStorage/MediaCollector) 
-        which was selected under this Collector
-        """
-        return self.selected_media_index        
-        
+#        self.previousLevelListener = None
+
+#    def doSelection(self):
+#        if self.hasNextLevelListener():
+#            self.media.getNextLevelListener()(self.media)
+#        elif self.getRoot().hasNextLevelListener():
+#            self.media.getRoot().getNextLevelListener()(self.media)
+#        else:
+#            mcl = self.getMediaCollectorList()
+#            msl = self.getMediaStorageList()
+#            sum_list = mcl + msl
+#            if sum_list:
+#                self.card_holder.refresh(sum_list)
+
     def getNameOfFolder(self):
         return self.pathsCollector.getNameOfFolder()
     
@@ -159,6 +154,15 @@ class MediaCollector(MediaBase):
             out += storage.getHierarchyTitle(space + "   ")        
         return out
 
+    def hasNextLevelListener(self):
+        if self.nextLevelListener:
+            return True
+        else:
+            return False
+        
+    def getNextLevelListener(self):
+        return self.nextLevelListener
+    
     def setNextLevelListener(self, nextLevelListener):
         """
             From outside, it is needed to provide a METHOD as the nextLevelListener parameter, 
@@ -170,16 +174,16 @@ class MediaCollector(MediaBase):
         """
         self.nextLevelListener = nextLevelListener
 
-    def setPreviousLevelListener(self, previousLevelListener):
-        """
-            From outside, it is needed to provide a METHOD as the previousLevelListener parameter, 
-            which will handle the Escape on the actual MediaCollector - goes one level higher 
-            ________________________________________
-            input:
-                    previousLevelListener    Function    handles the Escape
-
-        """
-        self.previousLevelListener = previousLevelListener
+#    def setPreviousLevelListener(self, previousLevelListener):
+#        """
+#            From outside, it is needed to provide a METHOD as the previousLevelListener parameter, 
+#            which will handle the Escape on the actual MediaCollector - goes one level higher 
+#            ________________________________________
+#            input:
+#                    previousLevelListener    Function    handles the Escape
+#
+#        """
+#        self.previousLevelListener = previousLevelListener
         
     def getQLabelToHoldImage(self):
         """
@@ -192,10 +196,11 @@ class MediaCollector(MediaBase):
                 super().__init__(collector, None, collector.isSelected)
 
             def toDoSelection(self):
-                if self.media.nextLevelListener is not None:
-                    self.media.nextLevelListener(self.media)
-                elif self.media.getRoot().nextLevelListener is not None:
-                    self.media.getRoot().nextLevelListener(self.media)
+#                self.media.doSelection()
+                if self.media.hasNextLevelListener():
+                    self.media.getNextLevelListener()(self.media)
+                elif self.media.getRoot().hasNextLevelListener():
+                    self.media.getRoot().getNextLevelListener()(self.media)
         
         return QLabelWithLinkToNextLevel(self)
 

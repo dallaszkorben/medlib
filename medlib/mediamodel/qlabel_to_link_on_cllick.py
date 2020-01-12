@@ -59,14 +59,16 @@ class QLabelToLinkOnClick(QLabel):
 #        self.toDoOnClick()
         
         """
-        I delegate the Click on the Image as a SPACE key press to up. 
-        I can catch it in the CardHolder as a SPACE key press
+        Delegate the Click on the Image as a SPACE key press to up. 
+        This event can be catched it in the higher level Widget as a SPACE key press
+        (for example in CardHolder)
 
         I could have made a direct selection in the media_collector/media_storage
         using the toDoOnClick() method, but I do not do this because in that case 
         I could not have the index of the selected Card  
         """
-        event = QKeyEvent(QEvent.KeyPress, QtCore.Qt.Key_Space, Qt.NoModifier, str(self.media.getIndexInDataList()))
+#        event = QKeyEvent(QEvent.KeyPress, QtCore.Qt.Key_Space, Qt.NoModifier, str(self.media.getCard().getIndexInDataList()))
+        event = QKeyEvent(QEvent.KeyPress, QtCore.Qt.Key_Space, Qt.NoModifier, str(self.media.getIndex()))
         QtCore.QCoreApplication.postEvent(self, event)
                 
         event.accept()
