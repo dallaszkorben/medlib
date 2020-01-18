@@ -92,11 +92,20 @@ class MediaBase(CardDataInterface):
 #    def getCard(self):
 #        return self.card
         
+    def getListOfChildCardData(self):
+        mcl = self.getMediaCollectorList()
+        msl = self.getMediaStorageList()
+        sum_list = mcl + msl
+        return sum_list        
+        
     def getListOfCardDataInThisLevel(self):
         parent_collector = self.getParentCollector()
-        mcl = parent_collector.getMediaCollectorList()
-        msl = parent_collector.getMediaStorageList()
-        sum_list = mcl + msl
+        if parent_collector:
+            mcl = parent_collector.getMediaCollectorList()
+            msl = parent_collector.getMediaStorageList()
+            sum_list = mcl + msl
+        else:
+            sum_list = None
         if sum_list:
             return sum_list
         else:
@@ -115,14 +124,18 @@ class MediaBase(CardDataInterface):
         """
         print("Search for '" + forWho + "' by " + byWhat, "With Shift" if withShift else "")
         
-    def getTranslatedTitleList(self, title_list):
-        title_list.append(self.getTranslatedTitle())
+    def getTranslatedTitleList(self, title_list, index = None):
+
+        title = self.getTranslatedTitle()
+        card_data_list = self.getListOfChildCardData()
+        
+        title_list.append({"title": title, "card-list": card_data_list, "index": index})
+        
         pc = self.getParentCollector()
         if pc:
-            return pc.getTranslatedTitleList(title_list)
+            return pc.getTranslatedTitleList(title_list, self.getIndex())
         else:
             return self
-        
         
     def getRoot(self):
         """
@@ -547,7 +560,7 @@ class MediaBase(CardDataInterface):
         raise NotImplementedError
     
     # TODO    
-    def isSelected(self):
+    def isInFocus(self):
         """
             It indicates that the actual media (MediaCollector/MediaStorage) is selected to 
             be controlled by mouse.

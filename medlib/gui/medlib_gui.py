@@ -201,37 +201,10 @@ class MedlibGui(QWidget):#, QObject):
         if sum_list:
             self.card_holder.refresh(sum_list)    
   
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
- 
-  
-  
-  
-  
- 
     def to_integer(self, value):         
         hours, minutes = map(int, (['0']+value.split(':'))[-2:])
         return hours * 60 + minutes
   
- 
-  
-  
-      
     def resizeEvent(self, event):
         """
         When the window resized, then the Hierarchy Title will be re-arranged.
@@ -254,28 +227,34 @@ class MedlibGui(QWidget):#, QObject):
   
 
 class LinkLabel(QLabel):
-    def __init__(self, text, parent, index):
-        QLabel.__init__(self, text, parent)
-        self.parent = parent
-        self.index = index        
-        self.setFont(QFont( LINK_TILE_FONT_TYPE, LINK_TILE_FONT_SIZE, weight=QFont.Bold if index else QFont.Normal))
+    def __init__(self, gui, label, card_list, index):
+        QLabel.__init__(self, label)
+        self.gui = gui
+        self.label = label
+        self.card_list = card_list
+        self.index = index
+        self.setFont(QFont( LINK_TILE_FONT_TYPE, LINK_TILE_FONT_SIZE, weight=QFont.Bold if index is not None else QFont.Normal))
 
     # Mouse Hover in
     def enterEvent(self, event):
-        if self.index:
+        if self.index is not None:
             QApplication.setOverrideCursor(Qt.PointingHandCursor)
         event.ignore()
 
     # Mouse Hover out
     def leaveEvent(self, event):
-        if self.index:
+        if self.index is not None:
             QApplication.restoreOverrideCursor()
         event.ignore()
 
     # Mouse Press
     def mousePressEvent(self, event):
-        if event.buttons() == Qt.LeftButton and self.index:
-            self.parent.panel.restore_previous_holder(self.index)
+        if event.buttons() == Qt.LeftButton: # and self.index:
+            QApplication.restoreOverrideCursor()
+
+            # Generate new Hierarchy Title        
+            self.gui.card_holder.refresh(self.card_list, self.index) 
+            
         event.ignore()
     
 
@@ -292,6 +271,7 @@ class HierarchyTitle(QWidget):
     def __init__(self, parent, panel):
         QWidget.__init__(self, parent)
 
+        self.parent = parent
         self.panel = panel
         
         self.self_layout = QHBoxLayout(self)
@@ -312,8 +292,7 @@ class HierarchyTitle(QWidget):
         self.text_layout.setContentsMargins(0, 0, 0, 0)
         self.text_layout.setSpacing(0)
 
-        self.text.setLayout(self.text_layout)
-        
+        self.text.setLayout(self.text_layout)        
         
         self.setBackgroundColor(QColor(HierarchyTitle.DEFAULT_BACKGROUND_COLOR), False)
         self.setBorderRadius(HierarchyTitle.DEFAULT_BORDER_RADIUS, False)
@@ -331,10 +310,10 @@ class HierarchyTitle(QWidget):
                 
         text_width = 0
         for title in reversed(title_list[1:]):
+#        for title in reversed(title_list):
             
-            label = QLabel(title)
-            label.setFont(QFont( LINK_TILE_FONT_TYPE, LINK_TILE_FONT_SIZE, weight=QFont.Bold ))
-            
+            # Generate text
+            label = LinkLabel(self.parent, title["title"], title["card-list"], title["index"])            
             text_width = text_width + self.get_width_in_pixels(label)
             if text_width > self.text.size().width():
                 self.text_layout.addWidget(one_line_container)
@@ -344,6 +323,7 @@ class HierarchyTitle(QWidget):
                 
             one_line_container_layout.addWidget(label)
 
+            # Generate separator
             label = QLabel(">")
             label.setFont(QFont( LINK_TILE_FONT_TYPE, LINK_TILE_FONT_SIZE, weight=QFont.Bold ))
 
@@ -355,10 +335,9 @@ class HierarchyTitle(QWidget):
                 text_width = self.get_width_in_pixels(label)                
 
             one_line_container_layout.addWidget(label)
-        
-        label = QLabel(title_list[0])
-        label.setFont(QFont( LINK_TILE_FONT_TYPE, LINK_TILE_FONT_SIZE, weight=QFont.Normal ))
-
+       
+       
+        label = LinkLabel(self.parent, title_list[0]["title"], title_list[0]["card-list"], title_list[0]["index"])       
         text_width = text_width + self.get_width_in_pixels(label)
         if text_width > self.text.size().width():
             self.text_layout.addWidget(one_line_container)

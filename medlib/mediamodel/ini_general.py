@@ -627,7 +627,7 @@ class IniGeneral(object):
         Link Widget to search Genre/Theme/Director/Maker/Writer/Actor/Performer/Lecturer/Contributor/Voice
         """
         def __init__(self, media, scale, translatedText, rawText, title_id):
-            super().__init__(media, translatedText, media.isSelected)
+            super().__init__(media, translatedText, media.isInFocus)
             self.media = media
             self.rawText = rawText
             self.title_id = title_id

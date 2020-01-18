@@ -195,7 +195,7 @@ class MediaCollector(MediaBase):
         """
         class QLabelWithLinkToNextLevel( QLabelToLinkOnClick ):
             def __init__(self, collector):
-                super().__init__(collector, None, collector.isSelected)
+                super().__init__(collector, None, collector.isInFocus)
 
             def toDoSelection(self):
                 if self.media.hasNextLevelListener():

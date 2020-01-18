@@ -69,13 +69,13 @@ class MediaAppendix(object):
             |______|__________________________________|
         """
         #widget = MediaAppendix.LinkWidget(self, scale)
-        widget = MediaAppendix.QLinkLabelToAppendixMedia(self.titles.getTranslatedTitle(), self.isSelected, self.getPathOfMedia(), scale)
+        widget = MediaAppendix.QLinkLabelToAppendixMedia(self.titles.getTranslatedTitle(), self.isInFocus, self.getPathOfMedia(), scale)
         return widget
     
     def getPathOfMedia(self):
         return self.pathsAppendix.getPathOfMedia()
     
-    def isSelected(self):
+    def isInFocus(self):
         return True
 
     class QLinkLabelToAppendixMedia( QLabelToLinkOnClick ):

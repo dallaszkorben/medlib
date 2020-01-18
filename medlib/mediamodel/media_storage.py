@@ -90,7 +90,7 @@ class MediaStorage(MediaBase):
                     subprocess.call(('xdg-open', self.pathOfMedia))
 
         
-        return QLabelWithLinkToMedia(self, self.isSelected, self.getPathOfMedia())
+        return QLabelWithLinkToMedia(self, self.isInFocus, self.getPathOfMedia())
 
     def setNextLevelListener(self, nextLevelListener):
         pass
