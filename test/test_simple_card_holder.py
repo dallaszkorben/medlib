@@ -40,8 +40,8 @@ class App(QWidget):
             self.collectCards
         )
         
-        self.card_holder.set_background_color(QColor(Qt.yellow))
-        self.card_holder.set_border_width(10)
+        self.card_holder.setBackgroundColor(QColor(Qt.yellow))
+        self.card_holder.setBorderWidth(10)
         self.card_holder.set_max_overlapped_cards(5)
         self.card_holder.set_y_coordinate_by_reverse_index_method(self.get_y_coordinate_by_reverse_index)
         self.card_holder.set_x_offset_by_index_method(self.get_x_offset_by_index)
@@ -97,10 +97,10 @@ class App(QWidget):
         """
         card = Card(self.card_holder, card_data, local_index, index)
         
-        card.set_border_focused_color(QColor(Qt.blue))
-        #card.set_background_color(QColor(Qt.white))
+        card.setBorderFocusedColor(QColor(Qt.blue))
+        #card.setBackgroundColor(QColor(Qt.white))
         #card.set_border_radius( 15 )
-        #card.set_border_width(18)
+        #card.setBorderWidth(18)
  
  
         panel = card.getPanel()

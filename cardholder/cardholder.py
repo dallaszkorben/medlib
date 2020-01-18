@@ -55,6 +55,7 @@ class CardHolder( QWidget ):
                  parent, 
                  get_new_card_method, 
                  get_collected_cards_method,
+                 refresh_list_listener = None,
                  select_card_method = None,
                  goes_higher_method = None          
                  ):
@@ -72,6 +73,7 @@ class CardHolder( QWidget ):
         self.parent = parent
         self.select_card_method = select_card_method
         self.goes_higher_method = goes_higher_method
+        self.refresh_list_listener = refresh_list_listener
         self.get_new_card_method = get_new_card_method
         self.get_collected_cards_method = get_collected_cards_method
         
@@ -79,9 +81,9 @@ class CardHolder( QWidget ):
         self.card_data_list = []
 
         self.set_max_overlapped_cards(CardHolder.DEFAULT_MAX_OVERLAPPED_CARDS, False)        
-        self.set_border_width(CardHolder.DEFAULT_BORDER_WIDTH, False)
-        self.set_border_radius(CardHolder.DEFAULT_BORDER_RADIUS, False)
-        self.set_background_color(CardHolder.DEFAULT_BACKGROUND_COLOR, False)
+        self.setBorderWidth(CardHolder.DEFAULT_BORDER_WIDTH, False)
+        self.setBorderRadius(CardHolder.DEFAULT_BORDER_RADIUS, False)
+        self.setBackgroundColor(CardHolder.DEFAULT_BACKGROUND_COLOR, False)
         
         self.self_layout = QVBoxLayout(self)
         self.setLayout(self.self_layout)
@@ -107,7 +109,7 @@ class CardHolder( QWidget ):
         # The CardHolder will accept Focus by Tabbing and Clicking
         self.setFocusPolicy(Qt.StrongFocus)
         self.setFocus()      
-            
+    
     def setSelectedRootCardIndex(self, selected_root_card_index):
         self.selected_root_card_index = selected_root_card_index
         
@@ -161,7 +163,7 @@ class CardHolder( QWidget ):
     def start_spinner(self):
 
         # remove all cards
-        self.refresh([])
+        self.refresh()
 
         self.collecting_spinner.move(
             (self.parent.geometry().width()-self.collecting_spinner.width()) / 2,
@@ -197,12 +199,18 @@ class CardHolder( QWidget ):
     # -------------------------------------------------------
     # refresh card collection - used by the CollectCardsThread
     # -------------------------------------------------------
-    def refresh(self, filtered_card_list, index = 0):
+    def refresh(self, card_data_list=[], index = 0):
         """
         Fills up the CardHolder with Cards and pulls the <index>th Card to front
         """
+        
+        # Listener of the refresh list
+        if self.refresh_list_listener and card_data_list:
+            parent_collector = card_data_list[0].getParentCollector()
+            self.refresh_list_listener(parent_collector)            
+        
         self.stop_spinner()
-        self.fill_up_card_descriptor_list(filtered_card_list)
+        self.fill_up_card_descriptor_list(card_data_list)
         self.focus_index(index)
 
     # ------------------------------------------------------
@@ -213,7 +221,7 @@ class CardHolder( QWidget ):
         for card_data in filtered_card_list:
             self.card_data_list.append(card_data)
 
-    def set_border_width(self, width, update=True):
+    def setBorderWidth(self, width, update=True):
         self.border_width = width
         if update:
             self.update()
@@ -221,7 +229,7 @@ class CardHolder( QWidget ):
     def get_border_width(self):
         return self.border_width
 
-    def set_background_color(self, color, update=True):
+    def setBackgroundColor(self, color, update=True):
         self.background_color = color
         ## without this line it wont paint the background, but the children get the background color info
         ## with this line, the rounded corners will be ruined
@@ -236,7 +244,7 @@ class CardHolder( QWidget ):
             #self.focus_index(self.actual_card_index)
             self.focus_index(0)
         
-    def set_border_radius(self, radius, update=True):
+    def setBorderRadius(self, radius, update=True):
         self.border_radius = radius
         if update:
             self.update()
@@ -469,7 +477,7 @@ class CardHolder( QWidget ):
             
             # indicates that the first card is not the focused anymore
             card = self.shown_card_list[0]
-            card.set_not_focused()
+            card.setNotFocused()
             
             # add new card to the beginning
             first_card = self.shown_card_list[0]                
@@ -498,11 +506,11 @@ class CardHolder( QWidget ):
         else:
             self.rolling_adjust_backward(rate)
 
-        # indicates that the first card is the focuseded            
+        # indicates that the first card is the focus            
         if self.rate_of_movement == 0:
             card = self.shown_card_list[0]
             
-            card.set_focused()
+            card.setFocused()
 
         # show the cards in the right position
         rate = self.rate_of_movement / self.MAX_CARD_ROLLING_RATE
@@ -585,21 +593,21 @@ class CardHolder( QWidget ):
     def wheelEvent(self, event):
         modifiers = QApplication.keyboardModifiers()
         value = event.angleDelta().y()/8/15   # in normal case it is +1 or -1
-        self.rolling_wheel(value)
+        self.rolling_wheel(-value)
   
     def keyPressEvent(self, event):
         
         if event.key() == QtCore.Qt.Key_Up:
-            self.animated_move_to_next(sleep=0.03)
+            self.animated_move_to_next(sleep=0.04)
             
         elif event.key() == QtCore.Qt.Key_Down:
-            self.animated_move_to_previous(sleep=0.03)
+            self.animated_move_to_previous(sleep=0.04)
 
         elif event.key() == QtCore.Qt.Key_PageUp:
-            self.animated_move_to(self.FAST_FORWARD_NUMBER, 0.03)
+            self.animated_move_to(self.FAST_FORWARD_NUMBER, 0.04)
             
         elif event.key() == QtCore.Qt.Key_PageDown:
-            self.animated_move_to(-self.FAST_FORWARD_NUMBER, 0.03)
+            self.animated_move_to(-self.FAST_FORWARD_NUMBER, 0.04)
           
         #  
         # Goes Up in the hierarchy
@@ -714,30 +722,31 @@ class Panel(QWidget):
         QWidget.__init__(self, parent)
         
         self.self_layout = QVBoxLayout()
+        self.self_layout.setContentsMargins(0, 0, 0, 0)
         self.self_layout.setSpacing(1)
         self.setLayout(self.self_layout)
 
-        self.set_background_color(Panel.DEFAULT_BACKGROUND_COLOR, False)        
-        self.set_border_width(Panel.DEFAULT_BORDER_WIDTH, False)
-        #self.set_border_radius(border_radius, False)
+        self.setBackgroundColor(Panel.DEFAULT_BACKGROUND_COLOR, False)        
+        self.setBorderWidth(Panel.DEFAULT_BORDER_WIDTH, False)
+        #self.setBorderRadius(border_radius, False)
 
         self.setAttribute(Qt.WA_StyledBackground, True)
 
     def getLayout(self):
         return self.self_layout
     
-    def set_border_radius(self, radius, update=True):
+    def setBorderRadius(self, radius, update=True):
         self.border_radius = radius
         if update:
             self.update()
         
-    def set_border_width(self, width, update=True):
+    def setBorderWidth(self, width, update=True):
         self.border_width = width
         self.self_layout.setContentsMargins( self.border_width, self.border_width, self.border_width, self.border_width )
         if update:
             self.update()
 
-    def set_background_color(self, color, update=True):
+    def setBackgroundColor(self, color, update=True):
         self.background_color = color
         
         ## without this line it wont paint the background, but the children get the background color info
@@ -801,11 +810,12 @@ class Card(QWidget):
         self.self_layout = QVBoxLayout(self)
         self.setLayout(self.self_layout)
         #self.self_layout.setContentsMargins(self.border_width,self.border_width,self.border_width,self.border_width)
+        self.self_layout.setContentsMargins(0, 0, 0, 0)
         self.self_layout.setSpacing(0)
         
-        self.set_border_normal_color(Card.DEFAULT_BORDER_NORMAL_COLOR)
-        self.set_border_focused_color(Card.DEFAULT_BORDER_FOCUSED_COLOR)
-        self.set_border_disabled_color(Card.DEFAULT_BORDER_DISABLED_COLOR)
+        self.setBorderNormalColor(Card.DEFAULT_BORDER_NORMAL_COLOR)
+        self.setBorderFocusedColor(Card.DEFAULT_BORDER_FOCUSED_COLOR)
+        self.setBorderDisabledColor(Card.DEFAULT_BORDER_DISABLED_COLOR)
         
         ## without this line it wont paint the background, but the children get the background color info
         ## with this line, the rounded corners will be ruined
@@ -818,8 +828,8 @@ class Card(QWidget):
         self.self_layout.addWidget(self.panel)
         
         self.border_radius = Card.DEFAULT_BORDER_RADIUS
-        self.set_border_width(Card.DEFAULT_BORDER_WIDTH, False)
-        self.set_border_radius(Card.DEFAULT_BORDER_RADIUS, False)        
+        self.setBorderWidth(Card.DEFAULT_BORDER_WIDTH, False)
+        self.setBorderRadius(Card.DEFAULT_BORDER_RADIUS, False)        
         #self.set_rate_of_width_decline(Card.DEFAULT_RATE_OF_WIDTH_DECLINE, False)
         
         self.set_status(Card.STATUS_NORMAL)
@@ -854,10 +864,10 @@ class Card(QWidget):
     def getIndexInDataList(self):
         return self.index
         
-    def set_focused(self):
+    def setFocused(self):
         self.set_status(Card.STATUS_FOCUSED, True)
         
-    def set_not_focused(self):
+    def setNotFocused(self):
         self.set_status(Card.STATUS_NORMAL, True)
         
     def set_status(self, status, update=False):
@@ -887,28 +897,28 @@ class Card(QWidget):
     def get_border_disabled_color(self):
         return self.border_disabled_color
     
-    def set_border_normal_color(self, color):
+    def setBorderNormalColor(self, color):
         self.border_normal_color = color
         
-    def set_border_focused_color(self, color):
+    def setBorderFocusedColor(self, color):
         self.border_focused_color = color
         
-    def set_border_disabled_color(self, color):
+    def setBorderDisabledColor(self, color):
         self.border_disabled_color = color
  
-    def set_background_color(self, color):
-        self.panel.set_background_color(color)
+    def setBackgroundColor(self, color):
+        self.panel.setBackgroundColor(color)
 
-    def set_border_width(self, width, update=True):
+    def setBorderWidth(self, width, update=True):
         self.border_width = width
         self.self_layout.setContentsMargins(self.border_width,self.border_width,self.border_width,self.border_width)
-        self.panel.set_border_radius(self.border_radius - self.border_width, update)
+        self.panel.setBorderRadius(self.border_radius - self.border_width, update)
         if update:
             self.update()
 
-    def set_border_radius(self, radius, update=True):
+    def setBorderRadius(self, radius, update=True):
         self.border_radius = radius
-        self.panel.set_border_radius(self.border_radius - self.border_width, update)
+        self.panel.setBorderRadius(self.border_radius - self.border_width, update)
         if update:
             self.update()
    

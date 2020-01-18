@@ -8,6 +8,12 @@ from PyQt5.QtCore import QPoint
 from PyQt5.QtWidgets import QLayout
 from PyQt5.QtWidgets import QSizePolicy
 
+def clearLayout(layout):
+    while layout.count():
+        child = layout.takeAt(0)
+        if child.widget():
+            child.widget().deleteLater() 
+
 class QHLine(QFrame):
     def __init__(self):
         super(QHLine, self).__init__()

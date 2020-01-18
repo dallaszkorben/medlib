@@ -4,7 +4,9 @@ import platform
 from medlib.constants import *
 from medlib.handle_property import _
 
-from medlib.mediamodel.media_base import MediaBase
+from medlib.mediamodel.media_base import MediaBase 
+from medlib.mediamodel.media_base import FOLDER_TYPE_STORAGE
+
 from medlib.mediamodel.paths_storage import PathsStorage
 
 from medlib.mediamodel.qlabel_to_link_on_cllick import QLabelToLinkOnClick
@@ -50,7 +52,7 @@ class MediaStorage(MediaBase):
         return STORAGE_BACKGROUND_COLOR
 
     def getFolderType(self):
-        return "storage" 
+        return FOLDER_TYPE_STORAGE 
     
     def getHierarchyTitle(self, space):
         return space + "<S> " + self.getTranslatedTitle() + "\n"

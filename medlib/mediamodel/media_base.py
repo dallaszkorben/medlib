@@ -1,6 +1,7 @@
 import locale
 
-from medlib.constants import PANEL_HEIGHT, PANEL_FONT_TYPE, PANEL_FONT_SIZE
+from medlib.constants import PANEL_HEIGHT, PANEL_FONT_TYPE, PANEL_FONT_SIZE,\
+    MAIN_BACKGROUND_COLOR
 
 from builtins import object
 
@@ -31,6 +32,9 @@ from medlib.card_ini import JSON_SECTION_CLASSIFICATION
 from medlib.card_ini import JSON_SECTION_CONTROL
 from medlib.card_ini import JSON_NODE_APPENDIXES
 from cardholder.card_data_interface import CardDataInterface
+
+FOLDER_TYPE_COLLECTOR='collector'
+FOLDER_TYPE_STORAGE='storage'
 
 class MediaBase(CardDataInterface):
     """
@@ -110,6 +114,15 @@ class MediaBase(CardDataInterface):
                                                  directors: title_director or actors: title_actor ...
         """
         print("Search for '" + forWho + "' by " + byWhat, "With Shift" if withShift else "")
+        
+    def getTranslatedTitleList(self, title_list):
+        title_list.append(self.getTranslatedTitle())
+        pc = self.getParentCollector()
+        if pc:
+            return pc.getTranslatedTitleList(title_list)
+        else:
+            return self
+        
         
     def getRoot(self):
         """
@@ -453,7 +466,8 @@ class MediaBase(CardDataInterface):
 
                 self.setLayout(self.grid_layout)
 
-                self.setStyleSheet('background: ' + media.getBackgroundColor())                 
+                self.setStyleSheet('background: ' + media.getBackgroundColor())
+                                 
                 self.setAttribute(Qt.WA_StyledBackground, True)
             
                 self.neededTagField = False

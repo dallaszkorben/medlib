@@ -148,7 +148,7 @@ class IniClassification(object):
                 self.classification_layout.setSpacing(20 * scale)
 
                 # margin around the widget
-                self.classification_layout.setContentsMargins(0, 5, 5, 5)
+                self.classification_layout.setContentsMargins(0, 5, 12, 5)
 
                 self.setLayout(self.classification_layout)
                 
@@ -470,8 +470,8 @@ class IniClassification(object):
                 layout.setContentsMargins(0, 0, self.iconBorder, 0)
                 layout.addWidget(label_icon, alignment=QtCore.Qt.AlignRight)
 
-                # calculate text width
-                self.setFixedWidth(self.fm.width(self.text()) + 10)
+                # calculate text_widget width
+                self.setFixedWidth(self.fm.width(self.text_widget()) + 10)
                 self.setFixedHeight(self.fm.height())
 
                 label_icon.clicked.connect(self.on_delete)            
@@ -524,7 +524,7 @@ class IniClassification(object):
                 self.setStyleSheet( "color:black; background:'" + CLASSIFICATION_TAG_FIELD_BACKGROUND_COLOR + "'")
                 fm = QFontMetrics(self.font())
 
-                # calculate text width
+                # calculate text_widget width
                 self.setFixedWidth(fm.width("WWWWWWW") + 10)
                 self.setFixedHeight(fm.height())            
              
@@ -546,7 +546,7 @@ class IniClassification(object):
 
                 # press ENTER on the TAG FIELD                    
                 elif event.key() == Qt.Key_Return:
-                    text = self.text().strip()
+                    text = self.text_widget().strip()
                 
                     if text and text not in tag_list:
 

@@ -1,5 +1,4 @@
-import sys
-from medlib import test
+from medlib.gui import medlib_gui
 
 if __name__ == "__main__":
-    test.main()
+    medlib_gui.main()

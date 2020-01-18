@@ -1,4 +1,6 @@
 from medlib.mediamodel.media_base import MediaBase
+from medlib.mediamodel.media_base import FOLDER_TYPE_COLLECTOR
+
 from medlib.mediamodel.media_storage import MediaStorage
 from medlib.mediamodel.paths_collector import PathsCollector
 
@@ -61,7 +63,7 @@ class MediaCollector(MediaBase):
         return COLLECTOR_BACKGROUND_COLOR
         
     def getFolderType(self):
-        return "collector" 
+        return FOLDER_TYPE_COLLECTOR 
         
     def addMediaCollector(self, mediaCollector):
         """
@@ -196,7 +198,6 @@ class MediaCollector(MediaBase):
                 super().__init__(collector, None, collector.isSelected)
 
             def toDoSelection(self):
-#                self.media.doSelection()
                 if self.media.hasNextLevelListener():
                     self.media.getNextLevelListener()(self.media)
                 elif self.media.getRoot().hasNextLevelListener():
