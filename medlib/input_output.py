@@ -138,7 +138,7 @@ def collectCards():
     
     jsonForm = CardListJson.getInstance().read()
 
-    if not jsonForm:            
+    if not jsonForm:
         mainCollector = collectCardsFromFileSystem(media_path)
         saveJson(mainCollector)
     else: 
@@ -166,7 +166,7 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
     # Collect files and and dirs in the current directory
     file_list = [f for f in os.listdir(actualDir) if os.path.isfile(os.path.join(actualDir, f))] if os.path.exists(actualDir) else []
     dir_list = [d for d in os.listdir(actualDir) if os.path.isdir(os.path.join(actualDir, d))] if os.path.exists(actualDir) else []
-
+    
     card_path = None
     media_path = None
     image_path = None

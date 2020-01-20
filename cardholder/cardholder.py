@@ -65,17 +65,21 @@ class CardHolder( QWidget ):
             parent:                        The widget which contains this CardHolder
             get_new_card_method:           Method to create the appearing Card
             get_collected_cards_method:    Method to collect the contents of the Cards
+            
+            refresh_list_listener
+            select_card_method
             goes_higher_method:            Method to go to the previous level           
         """
         #super(CardHolder, self).__init__(parent)
         QWidget.__init__(self, parent)
 
         self.parent = parent
-        self.select_card_method = select_card_method
-        self.goes_higher_method = goes_higher_method
-        self.refresh_list_listener = refresh_list_listener
         self.get_new_card_method = get_new_card_method
         self.get_collected_cards_method = get_collected_cards_method
+        
+        self.refresh_list_listener = refresh_list_listener
+        self.select_card_method = select_card_method        
+        self.goes_higher_method = goes_higher_method
         
         self.shown_card_list = []
         self.card_data_list = []
@@ -164,14 +168,17 @@ class CardHolder( QWidget ):
 
         # remove all cards
         self.refresh()
-
-        self.collecting_spinner.move(
-            (self.parent.geometry().width()-self.collecting_spinner.width()) / 2,
-            (self.parent.geometry().height()-self.collecting_spinner.width()) / 2
-        )
+        self.alignSpinner(self.parent.geometry().width(), self.parent.geometry().height())
         self.spinner_movie.start()
         self.collecting_spinner.setHidden(False)        
 
+    def alignSpinner(self, windowWidth, windowHeight):
+        self.collecting_spinner.move(
+            (windowWidth-self.collecting_spinner.width()) / 2,
+            (windowHeight-self.collecting_spinner.width()) / 2
+        )
+        
+        
     # ------------------------------
     # Hides the spinner
     # ------------------------------
@@ -187,7 +194,7 @@ class CardHolder( QWidget ):
     # this method should be called when you want a new collection of cards
     #
     # ---------------------------------------------------------------------
-    def start_card_collection(self, parameters):
+    def startCardCollection(self, parameters):
 
         self.start_spinner()
 
@@ -1074,6 +1081,7 @@ class CollectCardsThread(QtCore.QThread):
         ####
         
         card_list = self.collect_cards_method( self.paths)
+        
         self.cards_collected.emit(card_list)
         CollectCardsThread.__run = False
 

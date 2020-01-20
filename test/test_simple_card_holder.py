@@ -73,7 +73,7 @@ class App(QWidget):
 
         
     def fill_up(self):
-        self.card_holder.start_card_collection([])
+        self.card_holder.startCardCollection([])
         
     def collectCards(self, paths):
         """

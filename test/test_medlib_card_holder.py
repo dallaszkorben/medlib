@@ -77,7 +77,7 @@ class App(QWidget):
         self.card_holder.set_spinner(self.spinner_file_name)
         
     def fill_up(self):
-        self.card_holder.start_card_collection([])
+        self.card_holder.startCardCollection([])
 
     #
     # Input parameter for CardHolder

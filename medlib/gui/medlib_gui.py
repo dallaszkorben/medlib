@@ -111,7 +111,7 @@ class MedlibGui(QWidget):#, QObject):
         # --- Window ---
         sp=getSetupIni()
         self.setWindowTitle(sp['name'] + '-' + sp['version'])
-        self.setWindowIcon(QIcon(resource_filename(__name__,os.path.join("imgages", IMG_WINDOW)))) 
+        self.setWindowIcon(QIcon(resource_filename(__name__,os.path.join("images", IMG_WINDOW)))) 
         #self.setGeometry(300, 300, 300, 200)
         self.resize(WIDTH_WINDOW, HEIGHT_WINDOW )
         self.center()
@@ -128,7 +128,7 @@ class MedlibGui(QWidget):#, QObject):
         """
         Start Card Holder        
         """
-        self.card_holder.start_card_collection([])        
+        self.card_holder.startCardCollection([])        
        
     def get_y_coordinate_by_reverse_index(self, reverse_index):
         """        
@@ -215,7 +215,7 @@ class MedlibGui(QWidget):#, QObject):
             # refresh the Hierarchy Title
             self.hierarchy_title.setTitle(self.mediaCollector) 
             
-  
+        self.card_holder.alignSpinner(self.geometry().width(), self.geometry().height())
   
   
   
