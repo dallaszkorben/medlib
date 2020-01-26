@@ -189,7 +189,7 @@ class MediaCollector(MediaBase):
         
     def getQLabelToHoldImage(self):
         """
-            Gives back a class extending QLabel which will keep the image.
+            Gives back a class extending QLabel which will store the image.
             This class has to implement the 'toDoOnClick' method which
             handles the selection of this MediaCollector
         """
@@ -204,8 +204,6 @@ class MediaCollector(MediaBase):
                     self.media.getRoot().getNextLevelListener()(self.media)
         
         return QLabelWithLinkToNextLevel(self)
-
-
 
     def getJson(self):
         json = super().getJson();

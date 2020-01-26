@@ -621,28 +621,35 @@ class CardHolder( QWidget ):
         #
         elif event.key() == QtCore.Qt.Key_Escape:
             
-            if self.goes_higher_method:
-                self.goes_higher_method(self.getFocusedCard())
-         
+            if self.goesHigher():
+                
                 # I do not want to propagate the ESC event to the parent
                 event.setAccepted(True)
             
-            else:
-
-                # The parent MediaCollector
-                parent_card_data = self.getFocusedCard().card_data.getParentCollector()
-                
-                # If the MediaCollector is not the root
-                if parent_card_data.getParentCollector():
-                    
-                    # Index of the parent - to be focused
-                    index_of_selected_card = parent_card_data.getIndex()
-                    
-                    # Collect the media_collectors and media_storages
-                    card_data_list = parent_card_data.getListOfCardDataInThisLevel()
-                    
-                    # Generate a new Card list
-                    self.refresh(card_data_list, index_of_selected_card)
+            
+            
+#            if self.goes_higher_method:
+#                self.goes_higher_method(self.getFocusedCard())
+#         
+#                # I do not want to propagate the ESC event to the parent
+#                event.setAccepted(True)
+#            
+#            else:
+#
+#                # The parent MediaCollector
+#                parent_card_data = self.getFocusedCard().card_data.getParentCollector()
+#                
+#                # If the MediaCollector is not the root
+#                if parent_card_data.getParentCollector():
+#                    
+#                    # Index of the parent - to be focused
+#                    index_of_selected_card = parent_card_data.getIndex()
+#                    
+#                    # Collect the media_collectors and media_storages
+#                    card_data_list = parent_card_data.getListOfCardDataInThisLevel()
+#                    
+#                    # Generate a new Card list
+#                    self.refresh(card_data_list, index_of_selected_card)
         
         #
         # Select a Card
@@ -681,7 +688,39 @@ class CardHolder( QWidget ):
         else:
            
             event.setAccepted(False)  
+    
+    def goesHigher(self):
+        if self.goes_higher_method:
+            self.goes_higher_method(self.getFocusedCard())
+         
+            return True
         
+        else:
+
+            # The parent MediaCollector
+            parent_card_data = self.getFocusedCard().card_data.getParentCollector()
+                
+            # If the MediaCollector is not the root
+            if parent_card_data.getParentCollector():
+                    
+                # Index of the parent - to be focused
+                index_of_selected_card = parent_card_data.getIndex()
+                    
+                # Collect the media_collectors and media_storages
+                card_data_list = parent_card_data.getListOfCardDataInThisLevel()
+                    
+                # Generate a new Card list
+                self.refresh(card_data_list, index_of_selected_card)
+ 
+            return False
+
+    def goesDeeper(self, mediaCollector):               
+        mcl = mediaCollector.getMediaCollectorList()
+        msl = mediaCollector.getMediaStorageList()
+        sum_list = mcl + msl
+        if sum_list:
+            self.refresh(sum_list)   
+            
     # --------------
     # MOUSE handling
     # --------------        
