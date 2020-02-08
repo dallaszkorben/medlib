@@ -10,6 +10,9 @@ from medlib.mediamodel.media_base import FOLDER_TYPE_STORAGE
 from medlib.mediamodel.paths_storage import PathsStorage
 
 from medlib.mediamodel.qlabel_to_link_on_cllick import QLabelToLinkOnClick
+from PyQt5.QtGui import QKeyEvent
+from PyQt5 import QtCore
+from PyQt5.QtCore import QEvent
 
 class MediaStorage(MediaBase):
     """
@@ -78,23 +81,41 @@ class MediaStorage(MediaBase):
                 super().__init__(media, None, funcIsSelected)
                 self.pathOfMedia = pathOfMedia
 
+            def toDoOnClick(self):
+                """
+                When the user Left-Mouse-Click on the Image
+                
+                Delegate the Click on the Image as a SPACE key press to up. 
+                This event can be caught it in the higher level Widget as a SPACE key press
+                (for example in CardHolder)
+
+                I could have made a direct selection in the media_collector/media_storage
+                using the toDoOnClick() method, but I do not do this because in that case 
+                I could not have the index of the selected Card  
+                """
+#        event = QKeyEvent(QEvent.KeyPress, QtCore.Qt.Key_Space, Qt.NoModifier, str(self.media.getCard().getIndexInDataList()))
+                event = QKeyEvent(QEvent.KeyPress, QtCore.Qt.Key_Space, Qt.NoModifier, str(self.media.getIndex()))
+                QtCore.QCoreApplication.postEvent(self, event)
+ 
             def toDoSelection(self):
-        
+                """
+                In the CardHolder the Space/Enter triggers
+                Plays the media regarding on the configuration in the OS
+                """
+
                 if platform.system() == 'Darwin':                   # macOS
                     subprocess.call(('open', self.pathOfMedia))
                 elif platform.system() == 'Windows':                # Windows
-                    os.startfile(filepath)
+                    os.startfile(self.pathOfMedia)
                 elif platform.system() == 'Linux':                  # Linux:
                     subprocess.call(('xdg-open', self.pathOfMedia))
                 else:                                               # linux 
                     subprocess.call(('xdg-open', self.pathOfMedia))
-
         
         return QLabelWithLinkToMedia(self, self.isInFocus, self.getPathOfMedia())
 
     def setNextLevelListener(self, nextLevelListener):
-        pass
-    
+        pass    
             
     def getJson(self):
         json = super().getJson();

@@ -47,7 +47,7 @@ class IniTitles(object):
         
     def getTranslatedTitle(self):
         """
-        Returns back the title.
+        Returns back the raw title.
         If the title does not exists on the specific language, then the 'original' title will be returned
         _________________________________________________________________________________________________
         input:
@@ -56,6 +56,63 @@ class IniTitles(object):
         if not title:
             title=self.getOrigTitle()
         return title
+    
+    def getFormattedTitle(self, media):
+        """
+        Returns back the modified title with episodes and seasons if there is
+        
+        If Season-Collector:
+            "Season n" regardless the getTranslatedTitle()
+        If MiniSeries (episode is set but the parent Collector has no season):
+            If keep-hierarchy:
+                getTranslatedTitle() - Part n
+            else
+                parentCollector.getTranslatedTitle() - getTranslatedTitle() - Part n
+        If Series (episode is set and parentCollector has season):
+            If keep-hierarchy:
+                S{season}E{episode} - getTranslatedTitle()
+            else
+                SeriesTitle - S{season}E{episode} - getTranslatedTitle()
+        """
+        formatted_title = self.getTranslatedTitle()
+        
+        episode = media.general.getEpisode()
+        season = media.general.getSeason()
+        
+        parent_collector = media.getParentCollector()
+        
+        if parent_collector:
+            parent_season = parent_collector.general.getSeason()
+        
+            # Season-Collector
+            if season:
+                formatted_title = _("title_season").format(season)
+        
+            # Miniseries
+            elif episode and not parent_season:
+                formatted_title = formatted_title + "-" + _("title_part").format(episode)
+
+                parent_title = parent_collector.getTranslatedTitle()
+                        
+                # bulk list - The series title is not visible and 
+                # the raw title of the episode is not the same as the row title of the Container's title - you have to attache it
+                if config_ini["keep_hierarchy"] == "n" and parent_title != self.getTranslatedTitle():
+                    formatted_title = parent_title + ": " + formatted_title
+            # series
+            elif episode and parent_season:
+                formatted_title = "(S" + parent_season.zfill(2) + "E" + episode.zfill(2) + ") " + formatted_title
+
+                parent_parent_collector = parent_collector.getParentCollector()
+                series_title = parent_parent_collector.getTranslatedTitle()
+            
+                # bulk list - The series title is not visible - you have to attache it
+                if config_ini["keep_hierarchy"] == "n":
+                    formatted_title = series_title + ": " + formatted_title
+            
+        return formatted_title    
+          
+            
+            
     
     def getJson(self):
         json = {}
@@ -109,12 +166,23 @@ class IniTitles(object):
         # Title
         #
         
-        series = media.general.getSeries()
-        episode = media.general.getEpisode()
-        titleWidget = QLabel(
-            ("S" + series + "E" + episode + "-" if episode is not None and series is not None else "") + 
-            self.getTranslatedTitle() + 
-            ("-"+_("title_part").format(episode) if episode is not None and series is None else "") )
+#        season = media.general.getSeason()
+#        episode = media.general.getEpisode()
+        
+        
+        # Storage-Series/Miniseries
+#        if episode:
+            
+        # Container
+#        elif season:
+        
+        
+        titleWidget = QLabel(self.getFormattedTitle(media))
+        
+#        titleWidget = QLabel(
+#            ("S" + season + "E" + episode + "-" if episode is not None and season is not None else "") + 
+#            self.getTranslatedTitle() + 
+#            ("-"+_("title_part").format(episode) if episode is not None and season is None else "") )
         titleWidget.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * scale * 1.8, weight=QFont.Bold))
 
         title_layout.addWidget(titleWidget)

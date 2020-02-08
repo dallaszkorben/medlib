@@ -6,6 +6,9 @@ from medlib.mediamodel.paths_collector import PathsCollector
 
 from medlib.mediamodel.qlabel_to_link_on_cllick import QLabelToLinkOnClick
 from medlib.constants import COLLECTOR_BACKGROUND_COLOR
+from PyQt5.QtGui import QKeyEvent
+from PyQt5.QtCore import QEvent, Qt
+from PyQt5 import QtCore
 
 class MediaCollector(MediaBase):
     """
@@ -197,7 +200,28 @@ class MediaCollector(MediaBase):
             def __init__(self, collector):
                 super().__init__(collector, None, collector.isInFocus)
 
+            def toDoOnClick(self):
+                """
+                When the user Left-Mouse-Click on the Image
+                
+                Delegate the Click on the Image as a SPACE key press to up. 
+                This event can be caught it in the higher level Widget as a SPACE key press
+                (for example in CardHolder)
+
+                I could have made a direct selection in the media_collector/media_storage
+                using the toDoOnClick() method, but I do not do this because in that case 
+                I could not have the index of the selected Card  
+                """
+                
+#               event = QKeyEvent(QEvent.KeyPress, QtCore.Qt.Key_Space, Qt.NoModifier, str(self.media.getCard().getIndexInDataList()))
+                event = QKeyEvent(QEvent.KeyPress, QtCore.Qt.Key_Space, Qt.NoModifier, str(self.media.getIndex()))
+                QtCore.QCoreApplication.postEvent(self, event)
+                 
             def toDoSelection(self):
+                """
+                In the CardHolder the Space/Enter triggers
+                Goes deeper in the hierarchy
+                """
                 if self.media.hasNextLevelListener():
                     self.media.getNextLevelListener()(self.media)
                 elif self.media.getRoot().hasNextLevelListener():

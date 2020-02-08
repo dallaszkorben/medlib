@@ -48,7 +48,7 @@ from medlib.card_ini import KEY_GENERAL_THEME
 from medlib.card_ini import KEY_GENERAL_SUB
 from medlib.card_ini import KEY_GENERAL_SOUND
 from medlib.card_ini import KEY_GENERAL_COUNTRY
-from medlib.card_ini import KEY_GENERAL_SERIES
+from medlib.card_ini import KEY_GENERAL_SEASON
 from medlib.card_ini import KEY_GENERAL_EPISODE
 
 from medlib.card_ini import JSON_KEY_GENERAL_YEAR
@@ -66,7 +66,7 @@ from medlib.card_ini import JSON_KEY_GENERAL_THEME
 from medlib.card_ini import JSON_KEY_GENERAL_SUB
 from medlib.card_ini import JSON_KEY_GENERAL_SOUND
 from medlib.card_ini import JSON_KEY_GENERAL_COUNTRY
-from medlib.card_ini import JSON_KEY_GENERAL_SERIES
+from medlib.card_ini import JSON_KEY_GENERAL_SEASON
 from medlib.card_ini import JSON_KEY_GENERAL_EPISODE
 
 from medlib.card_ini import KEY_CONTROL_ORDERBY
@@ -460,9 +460,9 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
                         country_list.append(country.strip())
                     general.setCountries(country_list)
                     
-                # - series - #
-                elif key == KEY_GENERAL_SERIES and getPatternNumber().match( value ):
-                    general.setSeries(value)
+                # - season - #
+                elif key == KEY_GENERAL_SEASON and getPatternNumber().match( value ):
+                    general.setSeason(value)
                 
                 # - episode - #
                 elif key == KEY_GENERAL_EPISODE and getPatternNumber().match( value ):
@@ -697,7 +697,7 @@ def collectCardsFromJson(jsonForm, parentMediaCollector = None):
         sub = general.get(JSON_KEY_GENERAL_SUB)
         sound = general.get(JSON_KEY_GENERAL_SOUND)
         country = general.get(JSON_KEY_GENERAL_COUNTRY)
-        series = general.get(JSON_KEY_GENERAL_SERIES)
+        season = general.get(JSON_KEY_GENERAL_SEASON)
         episode = general.get(JSON_KEY_GENERAL_EPISODE)
             
         if year:
@@ -730,8 +730,8 @@ def collectCardsFromJson(jsonForm, parentMediaCollector = None):
             ini_general.setSounds(sound)
         if country:
             ini_general.setCountries(country)
-        if series:
-            ini_general.setSeries(series)
+        if season:
+            ini_general.setSeason(season)
         if episode:
             ini_general.setEpisode(episode)
 

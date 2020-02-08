@@ -26,7 +26,7 @@ from medlib.card_ini import JSON_KEY_GENERAL_YEAR, JSON_KEY_GENERAL_LENGTH,\
     JSON_KEY_GENERAL_LECTURER, JSON_KEY_GENERAL_CONTRIBUTOR,\
     JSON_KEY_GENERAL_VOICE, JSON_KEY_GENERAL_SOUND, JSON_KEY_GENERAL_SUB,\
     JSON_KEY_GENERAL_COUNTRY, JSON_KEY_GENERAL_GENRE, JSON_KEY_GENERAL_THEME,\
-    JSON_KEY_GENERAL_SERIES, JSON_KEY_GENERAL_EPISODE
+    JSON_KEY_GENERAL_SEASON, JSON_KEY_GENERAL_EPISODE
 
 class IniGeneral(object):
     """
@@ -64,7 +64,7 @@ class IniGeneral(object):
             topic            storyLine
             lyrics           storyLine
             
-            series          integer       index of the series
+            season          integer       index of the season
             episode         integer       index of the episode
         """
         self.year = None 
@@ -89,7 +89,7 @@ class IniGeneral(object):
         self.topic = IniStorylines()
         self.lyrics = IniStorylines()
         
-        self.series = None
+        self.season = None
         self.episode = None
     
     def setYear(self, year):
@@ -149,8 +149,8 @@ class IniGeneral(object):
     def setLyrics(self, lyrics):
         self.lyrics = lyrics
         
-    def setSeries(self, series):
-        self.series = series
+    def setSeason(self, season):
+        self.season = season
 
     def setEpisode(self, episode):
         self.episode = episode
@@ -254,8 +254,8 @@ class IniGeneral(object):
     def getLyrics(self):
         return self.lyrics
     
-    def getSeries(self):
-        return self.series
+    def getSeason(self):
+        return self.season
     
     def getEpisode(self):
         return self.episode
@@ -282,7 +282,7 @@ class IniGeneral(object):
         json.update({} if self.genres is None or not self.genres else {JSON_KEY_GENERAL_GENRE: self.genres})
         json.update({} if self.themes is None or not self.themes else {JSON_KEY_GENERAL_THEME: self.themes})
         
-        json.update({} if self.series is None or not self.series else {JSON_KEY_GENERAL_SERIES: self.series})
+        json.update({} if self.season is None or not self.season else {JSON_KEY_GENERAL_SEASON: self.season})
         json.update({} if self.episode is None or not self.episode else {JSON_KEY_GENERAL_EPISODE: self.episode})        
         
         return json

@@ -183,11 +183,10 @@ class ConfigIni( Property ):
     # (section, key, default)
     DEFAULT_LANGUAGE = ("general", "language", "hu")
     DEFAULT_SHOW_ORIGINAL_TITLE = ("general", "show-original-title", "n")
+    DEFAULT_KEEP_HIERARCHY = ("general", "keep-hierarchy", "y")
     DEFAULT_SCALE = ("general", "scale", 1)
 
-    DEFAULT_MEDIA_PATH = ("media", "media-path", ".")
-    
-    
+    DEFAULT_MEDIA_PATH = ("media", "media-path", ".")    
     
     DEFAULT_MEDIA_PLAYER_VIDEO = ("media", "player-video", "mplayer")
     DEFAULT_MEDIA_PLAYER_VIDEO_PARAM = ("media", "player-video-param", "-zoom -fs -framedrop")
@@ -227,6 +226,9 @@ class ConfigIni( Property ):
 
     def getShowOriginalTitle(self):
         return self.get(self.DEFAULT_SHOW_ORIGINAL_TITLE[0], self.DEFAULT_SHOW_ORIGINAL_TITLE[1], self.DEFAULT_SHOW_ORIGINAL_TITLE[2])
+
+    def getKeepHierarchy(self):
+        return self.get(self.DEFAULT_KEEP_HIERARCHY[0], self.DEFAULT_KEEP_HIERARCHY[1], self.DEFAULT_KEEP_HIERARCHY[2])
 
     def getScale(self):
         return self.get(self.DEFAULT_SCALE[0], self.DEFAULT_SCALE[1], self.DEFAULT_SCALE[2])
@@ -354,8 +356,9 @@ def reReadConfigIni():
     
     # Read config.ini    
     config_ini['language'] = ci.getLanguage()
-    config_ini['show_original_title'] = ci.getShowOriginalTitle()
     config_ini['scale'] = ci.getScale()
+    config_ini['show_original_title'] = ci.getShowOriginalTitle()
+    config_ini['keep_hierarchy'] = ci.getKeepHierarchy()
     config_ini['media_path'] = ci.getMediaPath()
     
     

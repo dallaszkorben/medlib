@@ -45,6 +45,16 @@ class MediaBase(CardDataInterface):
     def sort_key(arg):
         """
         """
+
+#        if arg.control.getOrderBy() == 'title':
+#            constructed_name = arg.getTranslatedTitle()
+#        else:
+#            constructed_name = arg.getNameOfFolder()
+#            
+#        if arg.general.getEpisode():
+#            constructed_name = arg.general.getEpisode().zfill(2) + constructed_name
+            
+        
         return locale.strxfrm(arg.getTranslatedTitle()) if arg.control.getOrderBy() == 'title' else arg.getNameOfFolder() if arg.control.getOrderBy() == 'folder' else arg.getNameOfFolder() 
     
     def __init__(self, titles, control, general=None, classification=None):
@@ -137,6 +147,21 @@ class MediaBase(CardDataInterface):
         else:
             return self
         
+    def getFormattedTitleList(self, title_list, index = None):
+        
+        title = self.getFormattedTitle()
+        card_data_list = self.getListOfChildCardData()
+        
+        title_list.append({"title": title, "card-list": card_data_list, "index": index})
+        
+        pc = self.getParentCollector()
+        if pc:
+            return pc.getFormattedTitleList(title_list, self.getIndex())
+        else:
+            return self
+        
+            
+        
     def getRoot(self):
         """
             Gives back the root of the media hierarchy
@@ -171,6 +196,9 @@ class MediaBase(CardDataInterface):
             
     def getTranslatedTitle(self):
         return self.titles.getTranslatedTitle()
+    
+    def getFormattedTitle(self):
+        return self.titles.getFormattedTitle(self)
     
     def getTranslatedStoryline(self, storyline):
         return storyline.getTranslatedStoryline()
@@ -392,7 +420,7 @@ class MediaBase(CardDataInterface):
             layout.addWidget(QHLine())
 
         for media_appendix in self.getMediaAppendixList():
-            layout.addWidget(media_appendix.getWidget(sizeRate))
+            layout.addWidget(media_appendix.getWidget(self, sizeRate))
         
         return widget
     

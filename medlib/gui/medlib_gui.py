@@ -48,6 +48,7 @@ from PyQt5.QtGui import QPainter
 from medlib.input_output import collectCards
 from medlib.mediamodel.media_base import FOLDER_TYPE_STORAGE
 from PyQt5 import QtCore, QtGui
+from medlib.handle_property import get_config_ini
 
 class MedlibGui(QWidget):#, QObject):
     """
@@ -255,6 +256,8 @@ class MedlibGui(QWidget):#, QObject):
         panel = card.getPanel()
         layout = panel.getLayout()
         
+#        config_ini = get_config_ini()
+#        config_ini.getScale()
         myPanel = card.card_data.getWidget(1)
 
         layout.addWidget(myPanel)
@@ -407,11 +410,8 @@ class HierarchyTitle(QWidget):
     
     def setTitle(self, collector):
         clearLayout(self.text_layout)
-#        print(self.height())
-#        print(self.minimumHeight())
-#        print()
         title_list = []
-        collector.getTranslatedTitleList(title_list)
+        collector.getFormattedTitleList(title_list)
 
         one_line_container, one_line_container_layout = self.get_one_line_container()
                 

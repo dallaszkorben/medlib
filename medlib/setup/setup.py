@@ -8,8 +8,8 @@ def getSetupIni():
     parser.read( file, encoding='utf-8' )
 
     version = "0.0.0"
-    name = "akoteka"
-    title = 'akoTeka'
+    name = "medlib"
+    title = 'medLib'
 
     try:
         version = parser.get("DEFAULT", 'version')
