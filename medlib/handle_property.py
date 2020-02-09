@@ -188,20 +188,20 @@ class ConfigIni( Property ):
 
     DEFAULT_MEDIA_PATH = ("media", "media-path", ".")    
     
-    DEFAULT_MEDIA_PLAYER_VIDEO = ("media", "player-video", "mplayer")
-    DEFAULT_MEDIA_PLAYER_VIDEO_PARAM = ("media", "player-video-param", "-zoom -fs -framedrop")
-    DEFAULT_MEDIA_PLAYER_VIDEO_EXT = ("media", "player-video-ext", "flv,divx,mkv,avi,mp4,webm")
-    DEFAULT_MEDIA_PLAYER_AUDIO = ("media", "player-audio", "rhythmbox")
-    DEFAULT_MEDIA_PLAYER_AUDIO_PARAM = ("media", "player-audio-param", "")
-    DEFAULT_MEDIA_PLAYER_AUDIO_EXT = ("media", "player-audio-ext", "mp3,ogg")
-
-    DEFAULT_MEDIA_PLAYER_ODT = ("media", "player-odt", "libreoffice")
-    DEFAULT_MEDIA_PLAYER_ODT_PARAM = ("media", "player-odt-param", "--writer --quickstart --nofirststartwizard --view")
-    DEFAULT_MEDIA_PLAYER_ODT_EXT = ("media", "player-odt-ext", "odt")
-
-    DEFAULT_MEDIA_PLAYER_PDF = ("media", "player-pdf", "okular")
-    DEFAULT_MEDIA_PLAYER_PDF_PARAM = ("media", "player-pdf-param", "--presentation --page 1 --unique")
-    DEFAULT_MEDIA_PLAYER_PDF_EXT = ("media", "player-pdf-ext", "pdf")
+#    DEFAULT_MEDIA_PLAYER_VIDEO = ("media", "player-video", "mplayer")
+#    DEFAULT_MEDIA_PLAYER_VIDEO_PARAM = ("media", "player-video-param", "-zoom -fs -framedrop")
+#    DEFAULT_MEDIA_PLAYER_VIDEO_EXT = ("media", "player-video-ext", "flv,divx,mkv,avi,mp4,webm")
+#    DEFAULT_MEDIA_PLAYER_AUDIO = ("media", "player-audio", "rhythmbox")
+#    DEFAULT_MEDIA_PLAYER_AUDIO_PARAM = ("media", "player-audio-param", "")
+#    DEFAULT_MEDIA_PLAYER_AUDIO_EXT = ("media", "player-audio-ext", "mp3,ogg")
+#
+#    DEFAULT_MEDIA_PLAYER_ODT = ("media", "player-odt", "libreoffice")
+#    DEFAULT_MEDIA_PLAYER_ODT_PARAM = ("media", "player-odt-param", "--writer --quickstart --nofirststartwizard --view")
+#    DEFAULT_MEDIA_PLAYER_ODT_EXT = ("media", "player-odt-ext", "odt")
+#
+#    DEFAULT_MEDIA_PLAYER_PDF = ("media", "player-pdf", "okular")
+#    DEFAULT_MEDIA_PLAYER_PDF_PARAM = ("media", "player-pdf-param", "--presentation --page 1 --unique")
+#    DEFAULT_MEDIA_PLAYER_PDF_EXT = ("media", "player-pdf-ext", "pdf")
     
     __instance = None    
 
@@ -240,68 +240,68 @@ class ConfigIni( Property ):
 
 
 
-    def getMediaPlayerWithParameters(self, media, extension):
-        """
-            Returns a tuple with the player name and the necessary parameters
-            according to the 'media' and the file's extension
-            
-            This method assumes that config.ini file exist for the user
-            If it does not then the file will be created.
-            If the section or the key does not
-        """
-
-        default_player = self.get('player', media, None)
-        specific_player = self.get('player', media + "-" + extension, None)
-        
-        # if not the general neither the specific player does not exists
-        if specific_player is None and default_player is None:
-            return None
-                
-        if specific_player is not None:
-            result=specific_player.split(",")
-        else:
-            result=default_player.split(",")
-
-        return (result[0], result[1] if len(result) > 1 else None)
-            
-
-
-    def get_media_player_video(self):
-        return self.get(self.DEFAULT_MEDIA_PLAYER_VIDEO[0], self.DEFAULT_MEDIA_PLAYER_VIDEO[1], self.DEFAULT_MEDIA_PLAYER_VIDEO[2])
-
-    def get_media_player_video_param(self):
-        return self.get(self.DEFAULT_MEDIA_PLAYER_VIDEO_PARAM[0], self.DEFAULT_MEDIA_PLAYER_VIDEO_PARAM[1], self.DEFAULT_MEDIA_PLAYER_VIDEO_PARAM[2])
-
-    def get_media_player_video_ext(self):
-        return self.get(self.DEFAULT_MEDIA_PLAYER_VIDEO_EXT[0], self.DEFAULT_MEDIA_PLAYER_VIDEO_EXT[1], self.DEFAULT_MEDIA_PLAYER_VIDEO_EXT[2])
-
-    def get_media_player_audio(self):
-        return self.get(self.DEFAULT_MEDIA_PLAYER_AUDIO[0], self.DEFAULT_MEDIA_PLAYER_AUDIO[1], self.DEFAULT_MEDIA_PLAYER_AUDIO[2])
-
-    def get_media_player_audio_param(self):
-        return self.get(self.DEFAULT_MEDIA_PLAYER_AUDIO_PARAM[0], self.DEFAULT_MEDIA_PLAYER_AUDIO_PARAM[1], self.DEFAULT_MEDIA_PLAYER_AUDIO_PARAM[2])
-
-    def get_media_player_audio_ext(self):
-        return self.get(self.DEFAULT_MEDIA_PLAYER_AUDIO_EXT[0], self.DEFAULT_MEDIA_PLAYER_AUDIO_EXT[1], self.DEFAULT_MEDIA_PLAYER_AUDIO_EXT[2])
-
-
-    def get_media_player_odt(self):
-        return self.get(self.DEFAULT_MEDIA_PLAYER_ODT[0], self.DEFAULT_MEDIA_PLAYER_ODT[1], self.DEFAULT_MEDIA_PLAYER_ODT[2])
-
-    def get_media_player_odt_param(self):
-        return self.get(self.DEFAULT_MEDIA_PLAYER_ODT_PARAM[0], self.DEFAULT_MEDIA_PLAYER_ODT_PARAM[1], self.DEFAULT_MEDIA_PLAYER_ODT_PARAM[2])
-
-    def get_media_player_odt_ext(self):
-        return self.get(self.DEFAULT_MEDIA_PLAYER_ODT_EXT[0], self.DEFAULT_MEDIA_PLAYER_ODT_EXT[1], self.DEFAULT_MEDIA_PLAYER_ODT_EXT[2])
-
-    def get_media_player_pdf(self):
-        return self.get(self.DEFAULT_MEDIA_PLAYER_PDF[0], self.DEFAULT_MEDIA_PLAYER_PDF[1], self.DEFAULT_MEDIA_PLAYER_PDF[2])
-
-    def get_media_player_pdf_param(self):
-        return self.get(self.DEFAULT_MEDIA_PLAYER_PDF_PARAM[0], self.DEFAULT_MEDIA_PLAYER_PDF_PARAM[1], self.DEFAULT_MEDIA_PLAYER_PDF_PARAM[2])
-
-    def get_media_player_pdf_ext(self):
-        return self.get(self.DEFAULT_MEDIA_PLAYER_PDF_EXT[0], self.DEFAULT_MEDIA_PLAYER_PDF_EXT[1], self.DEFAULT_MEDIA_PLAYER_PDF_EXT[2])
+#    def getMediaPlayerWithParameters(self, media, extension):
+#        """
+#            Returns a tuple with the player name and the necessary parameters
+#            according to the 'media' and the file's extension
+#            
+#            This method assumes that config.ini file exist for the user
+#            If it does not then the file will be created.
+#            If the section or the key does not
+#        """
+#
+#        default_player = self.get('player', media, None)
+#        specific_player = self.get('player', media + "-" + extension, None)
+#        
+#        # if not the general neither the specific player does not exists
+#        if specific_player is None and default_player is None:
+#            return None
+#                
+#        if specific_player is not None:
+#            result=specific_player.split(",")
+#        else:
+#            result=default_player.split(",")
+#
+#        return (result[0], result[1] if len(result) > 1 else None)
+#            
+#
+#
+#    def get_media_player_video(self):
+#        return self.get(self.DEFAULT_MEDIA_PLAYER_VIDEO[0], self.DEFAULT_MEDIA_PLAYER_VIDEO[1], self.DEFAULT_MEDIA_PLAYER_VIDEO[2])
+#
+#    def get_media_player_video_param(self):
+#        return self.get(self.DEFAULT_MEDIA_PLAYER_VIDEO_PARAM[0], self.DEFAULT_MEDIA_PLAYER_VIDEO_PARAM[1], self.DEFAULT_MEDIA_PLAYER_VIDEO_PARAM[2])
+#
+#    def get_media_player_video_ext(self):
+#        return self.get(self.DEFAULT_MEDIA_PLAYER_VIDEO_EXT[0], self.DEFAULT_MEDIA_PLAYER_VIDEO_EXT[1], self.DEFAULT_MEDIA_PLAYER_VIDEO_EXT[2])
+#
+#    def get_media_player_audio(self):
+#        return self.get(self.DEFAULT_MEDIA_PLAYER_AUDIO[0], self.DEFAULT_MEDIA_PLAYER_AUDIO[1], self.DEFAULT_MEDIA_PLAYER_AUDIO[2])
+#
+#    def get_media_player_audio_param(self):
+#        return self.get(self.DEFAULT_MEDIA_PLAYER_AUDIO_PARAM[0], self.DEFAULT_MEDIA_PLAYER_AUDIO_PARAM[1], self.DEFAULT_MEDIA_PLAYER_AUDIO_PARAM[2])
+#
+#    def get_media_player_audio_ext(self):
+#        return self.get(self.DEFAULT_MEDIA_PLAYER_AUDIO_EXT[0], self.DEFAULT_MEDIA_PLAYER_AUDIO_EXT[1], self.DEFAULT_MEDIA_PLAYER_AUDIO_EXT[2])
+#
+#
+#    def get_media_player_odt(self):
+#        return self.get(self.DEFAULT_MEDIA_PLAYER_ODT[0], self.DEFAULT_MEDIA_PLAYER_ODT[1], self.DEFAULT_MEDIA_PLAYER_ODT[2])
+#
+#    def get_media_player_odt_param(self):
+#        return self.get(self.DEFAULT_MEDIA_PLAYER_ODT_PARAM[0], self.DEFAULT_MEDIA_PLAYER_ODT_PARAM[1], self.DEFAULT_MEDIA_PLAYER_ODT_PARAM[2])
+#
+#    def get_media_player_odt_ext(self):
+#        return self.get(self.DEFAULT_MEDIA_PLAYER_ODT_EXT[0], self.DEFAULT_MEDIA_PLAYER_ODT_EXT[1], self.DEFAULT_MEDIA_PLAYER_ODT_EXT[2])
+#
+#    def get_media_player_pdf(self):
+#        return self.get(self.DEFAULT_MEDIA_PLAYER_PDF[0], self.DEFAULT_MEDIA_PLAYER_PDF[1], self.DEFAULT_MEDIA_PLAYER_PDF[2])
+#
+#    def get_media_player_pdf_param(self):
+#        return self.get(self.DEFAULT_MEDIA_PLAYER_PDF_PARAM[0], self.DEFAULT_MEDIA_PLAYER_PDF_PARAM[1], self.DEFAULT_MEDIA_PLAYER_PDF_PARAM[2])
+#
+#    def get_media_player_pdf_ext(self):
+#        return self.get(self.DEFAULT_MEDIA_PLAYER_PDF_EXT[0], self.DEFAULT_MEDIA_PLAYER_PDF_EXT[1], self.DEFAULT_MEDIA_PLAYER_PDF_EXT[2])
 
 
 
@@ -313,6 +313,9 @@ class ConfigIni( Property ):
     def setShowOriginal_title(self, show):
         self.update(self.DEFAULT_SHOW_ORIGINAL_TITLE[0], self.DEFAULT_SHOW_ORIGINAL_TITLE[1], show)
 
+    def setKeepHierarchy(self, keep):
+        self.update(self.DEFAULT_KEEP_HIERARCHY[0], self.DEFAULT_KEEP_HIERARCHY[1], keep)
+
     def setScale(self, scale):
         self.update(self.DEFAULT_SCALE[0], self.DEFAULT_SCALE[1], scale)
 
@@ -323,36 +326,36 @@ class ConfigIni( Property ):
 
 
 
-    def set_media_player_video(self, player):
-        self.update(self.DEFAULT_MEDIA_PLAYER_VIDEO[0], self.DEFAULT_MEDIA_PLAYER_VIDEO[1], player)
-
-    def set_media_player_video_param(self, param):
-        self.update(self.DEFAULT_MEDIA_PLAYER_VIDEO_PARAM[0], self.DEFAULT_MEDIA_PLAYER_VIDEO_PARAM[1], param)
-
-    def set_media_player_video_ext(self, param):
-        self.update(self.DEFAULT_MEDIA_PLAYER_VIDEO_EXT[0], self.DEFAULT_MEDIA_PLAYER_VIDEO_EXT[1], param)
-
-    def set_media_player_audio(self, player):
-        self.update(self.DEFAULT_MEDIA_PLAYER_AUDIO[0], self.DEFAULT_MEDIA_PLAYER_AUDIO[1], player)
-
-    def set_media_player_audio_param(self, param):
-        self.update(self.DEFAULT_MEDIA_PLAYER_AUDIO_PARAM[0], self.DEFAULT_MEDIA_PLAYER_AUDIO_PARAM[1], param)
-
-    def set_media_player_audio_ext(self, param):
-        self.update(self.DEFAULT_MEDIA_PLAYER_AUDIO_EXT[0], self.DEFAULT_MEDIA_PLAYER_AUDIO_EXT[1], param)
+#    def set_media_player_video(self, player):
+#        self.update(self.DEFAULT_MEDIA_PLAYER_VIDEO[0], self.DEFAULT_MEDIA_PLAYER_VIDEO[1], player)
+#
+#    def set_media_player_video_param(self, param):
+#        self.update(self.DEFAULT_MEDIA_PLAYER_VIDEO_PARAM[0], self.DEFAULT_MEDIA_PLAYER_VIDEO_PARAM[1], param)
+#
+#    def set_media_player_video_ext(self, param):
+#        self.update(self.DEFAULT_MEDIA_PLAYER_VIDEO_EXT[0], self.DEFAULT_MEDIA_PLAYER_VIDEO_EXT[1], param)
+#
+#    def set_media_player_audio(self, player):
+#        self.update(self.DEFAULT_MEDIA_PLAYER_AUDIO[0], self.DEFAULT_MEDIA_PLAYER_AUDIO[1], player)
+#
+#    def set_media_player_audio_param(self, param):
+#        self.update(self.DEFAULT_MEDIA_PLAYER_AUDIO_PARAM[0], self.DEFAULT_MEDIA_PLAYER_AUDIO_PARAM[1], param)
+#
+#    def set_media_player_audio_ext(self, param):
+#        self.update(self.DEFAULT_MEDIA_PLAYER_AUDIO_EXT[0], self.DEFAULT_MEDIA_PLAYER_AUDIO_EXT[1], param)
 
 def updateCardIni(card_ini_path, section, key, value):
     card_ini = Property(card_ini_path, True)
     card_ini.update(section, key, value)
 
-def get_config_ini():
+def getConfigIni():
     return ConfigIni.getInstance()
 
 def reReadConfigIni():
     global config_ini
     global dic
     
-    ci = get_config_ini()
+    ci = getConfigIni()
     
     # Read config.ini    
     config_ini['language'] = ci.getLanguage()
@@ -363,21 +366,20 @@ def reReadConfigIni():
     
     
     
-    config_ini['media_player_video'] = ci.get_media_player_video()
-    config_ini['media_player_video_param'] = ci.get_media_player_video_param()
-    config_ini['media_player_video_ext'] = ci.get_media_player_video_ext()
-    config_ini['media_player_audio'] = ci.get_media_player_audio()
-    config_ini['media_player_audio_param'] = ci.get_media_player_audio_param()
-    config_ini['media_player_audio_ext'] = ci.get_media_player_audio_ext()
-
-    config_ini['media_player_odt'] = ci.get_media_player_odt()
-    config_ini['media_player_odt_param'] = ci.get_media_player_odt_param()
-    config_ini['media_player_odt_ext'] = ci.get_media_player_odt_ext()
-
-    config_ini['media_player_pdf'] = ci.get_media_player_pdf()
-    config_ini['media_player_pdf_param'] = ci.get_media_player_pdf_param()
-    config_ini['media_player_pdf_ext'] = ci.get_media_player_pdf_ext()
-
+#    config_ini['media_player_video'] = ci.get_media_player_video()
+#    config_ini['media_player_video_param'] = ci.get_media_player_video_param()
+#    config_ini['media_player_video_ext'] = ci.get_media_player_video_ext()
+#    config_ini['media_player_audio'] = ci.get_media_player_audio()
+#    config_ini['media_player_audio_param'] = ci.get_media_player_audio_param()
+#    config_ini['media_player_audio_ext'] = ci.get_media_player_audio_ext()
+#
+#    config_ini['media_player_odt'] = ci.get_media_player_odt()
+#    config_ini['media_player_odt_param'] = ci.get_media_player_odt_param()
+#    config_ini['media_player_odt_ext'] = ci.get_media_player_odt_ext()
+#
+#    config_ini['media_player_pdf'] = ci.get_media_player_pdf()
+#    config_ini['media_player_pdf_param'] = ci.get_media_player_pdf_param()
+#    config_ini['media_player_pdf_ext'] = ci.get_media_player_pdf_ext()
 
 
     # Get the dictionary

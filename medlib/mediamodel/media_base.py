@@ -45,17 +45,7 @@ class MediaBase(CardDataInterface):
     def sort_key(arg):
         """
         """
-
-#        if arg.control.getOrderBy() == 'title':
-#            constructed_name = arg.getTranslatedTitle()
-#        else:
-#            constructed_name = arg.getNameOfFolder()
-#            
-#        if arg.general.getEpisode():
-#            constructed_name = arg.general.getEpisode().zfill(2) + constructed_name
-            
-        
-        return locale.strxfrm(arg.getTranslatedTitle()) if arg.control.getOrderBy() == 'title' else arg.getNameOfFolder() if arg.control.getOrderBy() == 'folder' else arg.getNameOfFolder() 
+        return locale.strxfrm(arg.getFormattedTitle()) if arg.control.getOrderBy() == 'title' else arg.getNameOfFolder() if arg.control.getOrderBy() == 'folder' else arg.getNameOfFolder() 
     
     def __init__(self, titles, control, general=None, classification=None):
         """
@@ -148,11 +138,19 @@ class MediaBase(CardDataInterface):
             return self
         
     def getFormattedTitleList(self, title_list, index = None):
+        """
+        Returns a list gathered in the hierarchy from the actual collector till root
+        One element in the list:
+            "title"
+            "collector"
+            "card-list"
+            "index"        
+        """
         
         title = self.getFormattedTitle()
         card_data_list = self.getListOfChildCardData()
         
-        title_list.append({"title": title, "card-list": card_data_list, "index": index})
+        title_list.append({"title": title, "collector": self, "card-list": card_data_list, "index": index})
         
         pc = self.getParentCollector()
         if pc:

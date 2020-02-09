@@ -9,7 +9,7 @@ from pkg_resources import resource_string, resource_filename
 from functools import cmp_to_key
 import locale
 
-from PyQt5.QtGui import QCursor
+from PyQt5.QtGui import QCursor, QPixmap
 from PyQt5.QtGui import QIcon
 
 from PyQt5.QtCore import QThread
@@ -20,8 +20,9 @@ from PyQt5.QtWidgets import QWidget
 from PyQt5.QtWidgets import QHBoxLayout
 from PyQt5.QtWidgets import QPushButton
 
-from medlib.constants import ON, CONTROL_IMG_FOLDER
+from medlib.constants import ON, CONTROL_IMG_FOLDER, OFF
 from medlib.constants import CONTROL_IMG_BACK_BUTTON
+from medlib.constants import CONTROL_IMG_HIERARCHY_BUTTON
 from medlib.constants import CONTROL_IMG_EXTENTION
 from medlib.constants import CONTROL_IMG_SIZE
 
@@ -61,7 +62,10 @@ class ControlButtonsHolder(QWidget):
         back_button.setFocusPolicy(Qt.NoFocus)
         back_button.clicked.connect(self.back_button_on_click)
         
-        back_button.setIcon( QIcon( resource_filename(__name__,os.path.join(CONTROL_IMG_FOLDER, CONTROL_IMG_BACK_BUTTON + "-" + ON + "." + CONTROL_IMG_EXTENTION)) ))
+        back_icon = QIcon()
+        back_icon.addPixmap(QPixmap( resource_filename(__name__,os.path.join(CONTROL_IMG_FOLDER, CONTROL_IMG_BACK_BUTTON + "-" + ON + "." + CONTROL_IMG_EXTENTION)) ), QIcon.Active)
+        back_icon.addPixmap(QPixmap( resource_filename(__name__,os.path.join(CONTROL_IMG_FOLDER, CONTROL_IMG_BACK_BUTTON + "-" + OFF + "." + CONTROL_IMG_EXTENTION)) ), QIcon.Disabled)
+        back_button.setIcon(back_icon )
         back_button.setIconSize(QSize(CONTROL_IMG_SIZE, CONTROL_IMG_SIZE))
         back_button.setCursor(QCursor(Qt.PointingHandCursor))
         back_button.setStyleSheet("background:transparent; border:none") 
@@ -144,6 +148,29 @@ class ControlButtonsHolder(QWidget):
         # ================================================
         # ================================================        
                 
+        # ----------------
+        #
+        # Hierarchy Button
+        #
+        # ----------------                  
+        self.hierarchy_button_method = None
+        
+        self.hierarchy_button = QPushButton()
+        self.hierarchy_button.setFocusPolicy(Qt.NoFocus)
+        self.hierarchy_button.setCheckable(True)
+        self.hierarchy_button.toggled.connect(self.hierarchy_button_on_toggle)
+        
+        hierarchy_icon = QIcon()
+        hierarchy_icon.addPixmap(QPixmap( resource_filename(__name__,os.path.join(CONTROL_IMG_FOLDER, CONTROL_IMG_HIERARCHY_BUTTON + "-" + ON + "." + CONTROL_IMG_EXTENTION)) ), QIcon.Normal, QIcon.On)
+        hierarchy_icon.addPixmap(QPixmap( resource_filename(__name__,os.path.join(CONTROL_IMG_FOLDER, CONTROL_IMG_HIERARCHY_BUTTON + "-" + OFF + "." + CONTROL_IMG_EXTENTION)) ), QIcon.Normal, QIcon.Off)
+        self.hierarchy_button.setIcon(hierarchy_icon )
+        self.hierarchy_button.setIconSize(QSize(CONTROL_IMG_SIZE, CONTROL_IMG_SIZE))
+        self.hierarchy_button.setCursor(QCursor(Qt.PointingHandCursor))
+        self.hierarchy_button.setStyleSheet("background:transparent; border:none") 
+
+        # Back button on the left
+        self_layout.addWidget(self.hierarchy_button)
+
         # -------------------
         #
         # Fast Search Button
@@ -305,14 +332,31 @@ class ControlButtonsHolder(QWidget):
     def setBackButtonMethod(self, back_button_method):
         self.back_button_method = back_button_method
         
+    def setHierarchyButtonMethod(self, hierarchy_button_method):
+        self.hierarchy_button_method = hierarchy_button_method
+    
+    def setHierarchy(self, show):
+        self.hierarchy_button.setChecked(show)
+        
     # -------------------
     #
     # Back Button Clicked
     #
     # -------------------
     def back_button_on_click(self):
-        if self.back_button_method:
+        if self.back_button_method:            
             self.back_button_method()
+            
+            
+    # -------------------
+    #
+    # Back Button Clicked
+    #
+    # -------------------
+    def hierarchy_button_on_toggle(self, checked):
+        if self.hierarchy_button_method:
+            self.hierarchy_button_method(checked)
+            
 
     # -----------------------
     #

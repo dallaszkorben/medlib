@@ -25,6 +25,7 @@ from PyQt5.QtCore import QByteArray
 from pkg_resources import resource_filename
 from math import copysign
 from cardholder.card_data_interface import CardDataInterface
+from medlib.mediamodel.media_collector import MediaCollector
  
 # =========================
 #
@@ -202,23 +203,6 @@ class CardHolder( QWidget ):
         if self.cc:
             self.cc.cards_collected.connect(self.refresh)
             self.cc.start()   
-        
-    # -------------------------------------------------------
-    # refresh card collection - used by the CollectCardsThread
-    # -------------------------------------------------------
-    def refresh(self, card_data_list=[], index = 0):
-        """
-        Fills up the CardHolder with Cards and pulls the <index>th Card to front
-        """
-        
-        # Listener of the refresh list
-        if self.refresh_list_listener and card_data_list:
-            parent_collector = card_data_list[0].getParentCollector()
-            self.refresh_list_listener(parent_collector)            
-        
-        self.stop_spinner()
-        self.fill_up_card_descriptor_list(card_data_list)
-        self.focus_index(index)
 
     # ------------------------------------------------------
     # fill up card descriptor - used by the refresh() method
@@ -689,38 +673,118 @@ class CardHolder( QWidget ):
            
             event.setAccepted(False)  
     
+    # -------------------------------------------------------
+    # refresh card collection - used by the CollectCardsThread
+    # -------------------------------------------------------
+#    def refresh(self, card_data_list=[], index = 0):
+#        """
+#        Fills up the CardHolder with Cards and pulls the <index>th Card to front
+#        """
+#        
+#        # Listener of the refresh list
+#        if self.refresh_list_listener and card_data_list:
+#            parent_collector = card_data_list[0].getParentCollector()
+#            self.refresh_list_listener(parent_collector)            
+#        
+#        self.stop_spinner()
+#        self.fill_up_card_descriptor_list(card_data_list)
+#        self.focus_index(index)
+        
+    def collectMediaStorageWithoutHierarchy(self, sum_list, parent_collector):
+        mcl = parent_collector.getMediaCollectorList()
+        sum_list += parent_collector.getMediaStorageList()
+        for media_collector in mcl:
+            self.collectMediaStorageWithoutHierarchy(sum_list, media_collector)
+        return sum_list
+        
+        
+    def refresh(self, parent_collector=None, index=0):
+        """
+        Fills up the CardHolder with Cards and pulls the <index>th Card to front
+        """
+       
+        if parent_collector:
+
+            # Listener of the refresh list
+            self.refresh_list_listener(parent_collector)            
+        
+            # Without hierarchy
+            if not self.parent.isSwitchKeepHierarchy():
+                sum_list = self.collectMediaStorageWithoutHierarchy([], parent_collector)
+                sum_list.sort(key=lambda arg: MediaCollector.sort_key(arg))
+                
+            # With hierarchy
+            else:        
+                mcl = parent_collector.getMediaCollectorList()
+                msl = parent_collector.getMediaStorageList()
+                sum_list = mcl + msl
+
+            self.fill_up_card_descriptor_list(sum_list)                
+#            self.focus_index(parent_collector.getIndex())
+            self.focus_index(index)
+
+        self.stop_spinner()
+
+
     def goesHigher(self):
         if self.goes_higher_method:
-            self.goes_higher_method(self.getFocusedCard())
+            #self.goes_higher_method(self.getFocusedCard())
+            self.goes_higher_method()
          
             return True
-        
         else:
 
-            # The parent MediaCollector
-            parent_card_data = self.getFocusedCard().card_data.getParentCollector()
-                
-            # If the MediaCollector is not the root
-            if parent_card_data.getParentCollector():
-                    
-                # Index of the parent - to be focused
-                index_of_selected_card = parent_card_data.getIndex()
-                    
-                # Collect the media_collectors and media_storages
-                card_data_list = parent_card_data.getListOfCardDataInThisLevel()
-                    
-                # Generate a new Card list
-                self.refresh(card_data_list, index_of_selected_card)
- 
+            collector, index = self.parent.getHierarchyTitle().getOneLevelHigher()
+            if collector and index >= 0:
+                self.refresh(collector, index)
+#            # The parent MediaCollector
+#            parent_card_data = self.getFocusedCard().card_data.getParentCollector()
+#
+#            parent_collector = parent_card_data.getParentCollector()
+#                
+#            # If the MediaCollector is not the root
+#            if parent_collector:            
+#            
+#                self.refresh(parent_collector, parent_card_data.getIndex())
+# 
             return False
 
+
+   
+#    def goesHigher(self):
+#        if self.goes_higher_method:
+#            self.goes_higher_method(self.getFocusedCard())
+#         
+#            return True
+#        else:
+#
+#            # The parent MediaCollector
+#            parent_card_data = self.getFocusedCard().card_data.getParentCollector()
+#                
+#            # If the MediaCollector is not the root
+#            if parent_card_data.getParentCollector():
+#                    
+#                # Index of the parent - to be focused
+#                index_of_selected_card = parent_card_data.getIndex()
+#                    
+#                # Collect the media_collectors and media_storages
+#                card_data_list = parent_card_data.getListOfCardDataInThisLevel()
+#                    
+#                # Generate a new Card list
+#                self.refresh(card_data_list, index_of_selected_card)
+# 
+#            return False
+
+#    def goesDeeper(self, mediaCollector):               
+#        mcl = mediaCollector.getMediaCollectorList()
+#        msl = mediaCollector.getMediaStorageList()
+#        sum_list = mcl + msl
+#        if sum_list:
+#            self.refresh(sum_list)   
+ 
     def goesDeeper(self, mediaCollector):               
-        mcl = mediaCollector.getMediaCollectorList()
-        msl = mediaCollector.getMediaStorageList()
-        sum_list = mcl + msl
-        if sum_list:
-            self.refresh(sum_list)   
-            
+        self.refresh(mediaCollector)
+           
     # --------------
     # MOUSE handling
     # --------------        
@@ -1088,7 +1152,7 @@ class Card(QWidget):
 #
 # ========================= 
 class CollectCardsThread(QtCore.QThread):
-    cards_collected = pyqtSignal(list)
+    cards_collected = pyqtSignal(MediaCollector)
     __instance = None
     __run = False
 

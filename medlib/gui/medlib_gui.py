@@ -45,10 +45,12 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtGui import QFont
 from PyQt5.QtGui import QPainter
 
+from medlib.handle_property import config_ini
+from medlib.handle_property import getConfigIni
+from medlib.handle_property import reReadConfigIni
 from medlib.input_output import collectCards
 from medlib.mediamodel.media_base import FOLDER_TYPE_STORAGE
 from PyQt5 import QtCore, QtGui
-from medlib.handle_property import get_config_ini
 
 class MedlibGui(QWidget):#, QObject):
     """
@@ -86,6 +88,7 @@ class MedlibGui(QWidget):#, QObject):
 #        QObject.__init__(self)
        
         self.mediaCollector = None
+        self.switchKeepHierarchy = config_ini["keep_hierarchy"] == "y"
 
         # It is important not to use the 'setStylesheet' because on that case
         # the rounded corner will fail to be painted               
@@ -103,7 +106,9 @@ class MedlibGui(QWidget):#, QObject):
         
         # tool panel to top of the box_layout
         self.control_panel = ControlPanel(self)
+        self.control_panel.setHierarchy(self.switchKeepHierarchy)
         self.control_panel.setBackButtonMethod(self.goesHigher)
+        self.control_panel.setHierarchyButtonMethod(self.changeKeepHierarchy)
         box_layout.addWidget( self.control_panel)
         
         
@@ -188,6 +193,12 @@ class MedlibGui(QWidget):#, QObject):
         self.center()
         self.show()
         
+    def isSwitchKeepHierarchy(self):
+        return self.switchKeepHierarchy
+    
+    def setSwitchKeepHierarchy(self, keep):
+        self.switchKeepHierarchy = keep
+        
     def center(self):
         """Aligns the window to middle on the screen"""
         fg=self.frameGeometry()
@@ -227,7 +238,7 @@ class MedlibGui(QWidget):#, QObject):
         collector = collectCards()
         collector.setNextLevelListener(self.goesDeeper)     
         cdl = collector.getMediaCollectorList()        
-        return cdl
+        return collector
         
     #
     # Input parameter for CardHolder
@@ -256,7 +267,7 @@ class MedlibGui(QWidget):#, QObject):
         panel = card.getPanel()
         layout = panel.getLayout()
         
-#        config_ini = get_config_ini()
+#        config_ini = getConfigIni()
 #        config_ini.getScale()
         myPanel = card.card_data.getWidget(1)
 
@@ -264,6 +275,10 @@ class MedlibGui(QWidget):#, QObject):
         
         return card
         
+        
+    def getHierarchyTitle(self):
+        return self.hierarchy_title
+    
     #
     # Input parameter for MediaCollector
     #
@@ -280,6 +295,13 @@ class MedlibGui(QWidget):#, QObject):
         self.card_holder.goesHigher()
         
         
+    def changeKeepHierarchy(self, keep):
+        config_ini_function = getConfigIni()
+        config_ini_function.setKeepHierarchy("y" if keep else "n")
+        self.setSwitchKeepHierarchy(keep)
+        self.card_holder.refresh(self.mediaCollector)
+        reReadConfigIni()
+       
 #    def to_integer(self, value):         
 #        hours, minutes = map(int, (['0']+value.split(':'))[-2:])
 #        return hours * 60 + minutes
@@ -306,11 +328,12 @@ class MedlibGui(QWidget):#, QObject):
   
 
 class LinkLabel(QLabel):
-    def __init__(self, gui, label, card_list, index):
+    def __init__(self, gui, label, collector, card_list, index):
         QLabel.__init__(self, label)
         self.gui = gui
         self.label = label
         self.card_list = card_list
+        self.collector = collector
         self.index = index
         self.setFont(QFont( LINK_TILE_FONT_TYPE, LINK_TILE_FONT_SIZE, weight=QFont.Bold if index is not None else QFont.Normal))
 
@@ -332,7 +355,7 @@ class LinkLabel(QLabel):
             QApplication.restoreOverrideCursor()
 
             # Generate new Hierarchy Title        
-            self.gui.card_holder.refresh(self.card_list, self.index) 
+            self.gui.card_holder.refresh(self.collector, self.index) 
             
         event.ignore()
     
@@ -410,18 +433,24 @@ class HierarchyTitle(QWidget):
     
     def setTitle(self, collector):
         clearLayout(self.text_layout)
-        title_list = []
-        collector.getFormattedTitleList(title_list)
+        self.title_list = []
+        
+        #One element in the title_list:
+        #    "title"
+        #    "collector"
+        #    "card-list"
+        #    "index"    
+        collector.getFormattedTitleList(self.title_list)
 
         one_line_container, one_line_container_layout = self.get_one_line_container()
                 
         text_width = 0
         self.lines = 1
-        for title in reversed(title_list[1:]):
+        for title in reversed(self.title_list[1:]):
 #        for title in reversed(title_list):
             
             # Generate text
-            label = LinkLabel(self.parent, title["title"], title["card-list"], title["index"])            
+            label = LinkLabel(self.parent, title["title"], title["collector"], title["card-list"], title["index"])            
             text_width = text_width + self.get_width_in_pixels(label)
             if text_width > self.text_holder.size().width():
                 self.lines = self.lines + 1
@@ -447,7 +476,7 @@ class HierarchyTitle(QWidget):
             one_line_container_layout.addWidget(label)
        
        
-        label = LinkLabel(self.parent, title_list[0]["title"], title_list[0]["card-list"], title_list[0]["index"])       
+        label = LinkLabel(self.parent, self.title_list[0]["title"], self.title_list[0]["collector"], self.title_list[0]["card-list"], self.title_list[0]["index"])
         text_width = text_width + self.get_width_in_pixels(label)
         if text_width > self.text_holder.size().width():
             self.lines = self.lines + 1
@@ -486,6 +515,12 @@ class HierarchyTitle(QWidget):
         
 #    def push_new_line_container(self):
 #        self.text_layout.addWidget(self.one_line_container)
+        
+    def getOneLevelHigher(self):
+        if len(self.title_list) >= 2:
+            return (self.title_list[1]["collector"], self.title_list[1]["index"])
+        else:
+            return (None,None)
         
     def get_width_in_pixels(self, cw):
         initialRect = cw.fontMetrics().boundingRect(cw.text());
@@ -578,6 +613,12 @@ class ControlPanel(QWidget):
     def setBackButtonMethod(self, method):
         self.control_buttons_holder.setBackButtonMethod(method)
 
+    def setHierarchyButtonMethod(self, method):
+        self.control_buttons_holder.setHierarchyButtonMethod(method)
+        
+    def setHierarchy(self, show):
+        self.control_buttons_holder.setHierarchy(show)
+        
 #    def apaintEvent(self, event):
 #        s = self.size()
 #        qp = QPainter()
