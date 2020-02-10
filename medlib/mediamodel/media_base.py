@@ -45,7 +45,7 @@ class MediaBase(CardDataInterface):
     def sort_key(arg):
         """
         """
-        return locale.strxfrm(arg.getFormattedTitle()) if arg.control.getOrderBy() == 'title' else arg.getNameOfFolder() if arg.control.getOrderBy() == 'folder' else arg.getNameOfFolder() 
+        return locale.strxfrm(arg.getOrderTitle()) if arg.control.getOrderBy() == 'title' else arg.getNameOfFolder() if arg.control.getOrderBy() == 'folder' else arg.getNameOfFolder() 
     
     def __init__(self, titles, control, general=None, classification=None):
         """
@@ -197,6 +197,9 @@ class MediaBase(CardDataInterface):
     
     def getFormattedTitle(self):
         return self.titles.getFormattedTitle(self)
+
+    def getOrderTitle(self):
+        return self.titles.getOrderTitle(self)
     
     def getTranslatedStoryline(self, storyline):
         return storyline.getTranslatedStoryline()

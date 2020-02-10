@@ -299,8 +299,9 @@ class MedlibGui(QWidget):#, QObject):
         config_ini_function = getConfigIni()
         config_ini_function.setKeepHierarchy("y" if keep else "n")
         self.setSwitchKeepHierarchy(keep)
-        self.card_holder.refresh(self.mediaCollector)
         reReadConfigIni()
+        self.card_holder.refresh(self.mediaCollector)
+        
        
 #    def to_integer(self, value):         
 #        hours, minutes = map(int, (['0']+value.split(':'))[-2:])

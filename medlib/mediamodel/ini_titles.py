@@ -57,22 +57,64 @@ class IniTitles(object):
             title=self.getOrigTitle()
         return title
     
+    def getOrderTitle(self, media):
+        """
+        Returns back the modified title with episodes and seasons if there is
+        
+        if no season no episode (simple movie)
+            getTranslatedTitle()
+        
+        if episode + no season in the parent Collector (miniseries/saga)
+            Parents_Collector.getTranslatedTitle() {episode} getTranslatedTitle()
+            
+        if episode + season in the parent Collector (series)
+            Parent's_Parent's_Collector.getTranslatedTitle() (S{season}E{episode}) getTranslatedTitle()
+        """
+        formatted_title = self.getTranslatedTitle()
+        
+        episode = media.general.getEpisode()
+        season = media.general.getSeason()
+        
+        parent_collector = media.getParentCollector()
+        
+        if parent_collector:
+            parent_season = parent_collector.general.getSeason()
+        
+            # Season-Collector
+            if season:
+                formatted_title = _("title_season").format(season)
+        
+            # Miniseries
+            elif episode and not parent_season:
+                parent_title = parent_collector.getTranslatedTitle()
+                
+                formatted_title = parent_title + episode.zfill(2) + formatted_title
+
+            # series
+            elif episode and parent_season:
+
+                parent_parent_collector = parent_collector.getParentCollector()
+                series_title = parent_parent_collector.getTranslatedTitle()
+
+                formatted_title = series_title + parent_season.zfill(2) + episode.zfill(2) + formatted_title
+            
+        return formatted_title    
+    
     def getFormattedTitle(self, media):
         """
         Returns back the modified title with episodes and seasons if there is
         
-        If Season-Collector:
-            "Season n" regardless the getTranslatedTitle()
-        If MiniSeries (episode is set but the parent Collector has no season):
-            If keep-hierarchy:
-                getTranslatedTitle() - Part n
+        if no season no episode (simple movie)
+            getTranslatedTitle()
+        
+        if episode + no season in the parent Collector (miniseries/saga)
+            getTranslatedTitle()-{episode}.Part
+            
+        if episode + season in the parent Collector (series)
+            if keepHierarchy
+                (S{season}E{episode}) getTranslatedTitle() -                 
             else
-                parentCollector.getTranslatedTitle() - getTranslatedTitle() - Part n
-        If Series (episode is set and parentCollector has season):
-            If keep-hierarchy:
-                S{season}E{episode} - getTranslatedTitle()
-            else
-                SeriesTitle - S{season}E{episode} - getTranslatedTitle()
+                Parent's_Parent's_Collector.getTranslatedTitle(): (S{season}E{episode}) getTranslatedTitle()
         """
         formatted_title = self.getTranslatedTitle()
         
