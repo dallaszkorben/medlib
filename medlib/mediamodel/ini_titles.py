@@ -82,7 +82,7 @@ class IniTitles(object):
         
             # Season-Collector
             if season:
-                formatted_title = _("title_season").format(season)
+                formatted_title = _("title_season").format(season.zfill(2))
         
             # Miniseries
             elif episode and not parent_season:
@@ -126,11 +126,11 @@ class IniTitles(object):
         if parent_collector:
             parent_season = parent_collector.general.getSeason()
         
-            # Season-Collector
+            # The actual media is Collector - Season
             if season:
                 formatted_title = _("title_season").format(season)
         
-            # Miniseries
+            # The actual media is Storage - Miniseries
             elif episode and not parent_season:
                 formatted_title = formatted_title + "-" + _("title_part").format(episode)
 
@@ -140,9 +140,10 @@ class IniTitles(object):
                 # the raw title of the episode is not the same as the row title of the Container's title - you have to attache it
                 if config_ini["keep_hierarchy"] == "n" and parent_title != self.getTranslatedTitle():
                     formatted_title = parent_title + ": " + formatted_title
-            # series
+
+            # The actual meida is Storage - Series
             elif episode and parent_season:
-                formatted_title = "(S" + parent_season.zfill(2) + "E" + episode.zfill(2) + ") " + formatted_title
+                formatted_title = formatted_title + " (S" + parent_season.zfill(2) + "E" + episode.zfill(2) + ")"
 
                 parent_parent_collector = parent_collector.getParentCollector()
                 series_title = parent_parent_collector.getTranslatedTitle()
