@@ -1,4 +1,5 @@
 from medlib.handle_property import config_ini
+import json
 
 class IniStorylines(object):
     """
@@ -16,6 +17,12 @@ class IniStorylines(object):
         self.orig_storyline = orig_storyline if orig_storyline else ""
         self.storyline_list_by_language = storyline_list_by_language if storyline_list_by_language else {}
     
+    def __str__(self):
+        return (
+            json.dumps(self.getJson(), indent=4, sort_keys=True) + "\n"
+            "Translated: " + self.getTranslatedStoryline()
+        )
+        
     def getOrigStoryline(self):
         return self.orig_storyline
         

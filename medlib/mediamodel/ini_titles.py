@@ -25,7 +25,6 @@ from PyQt5.QtGui import QPixmap
 
 from PyQt5.QtCore import Qt
 
-
 class IniTitles(object):
     """
     This class represents the [titles] section in the card.ini file
@@ -42,6 +41,9 @@ class IniTitles(object):
         self.orig_title = orig_title
         self.title_list_by_language = title_list_by_language if title_list_by_language else {}
     
+    def __str__(self):
+        return self.getTranslatedTitle()
+        
     def getOrigTitle(self):
         return self.orig_title
         
@@ -71,67 +73,115 @@ class IniTitles(object):
             Parent's_Parent's_Collector.getTranslatedTitle() (S{season}E{episode}) getTranslatedTitle()
         """
         formatted_title = self.getTranslatedTitle()
-        
-        episode = media.general.getEpisode()
-        season = media.general.getSeason()
-        
         parent_collector = media.getParentCollector()
         
         if parent_collector:
-            parent_season = parent_collector.general.getSeason()
-        
-            # Season-Collector
-            if season:
-                formatted_title = _("title_season").format(season.zfill(2))
-        
-            # Miniseries
-            elif episode and not parent_season:
-                parent_title = parent_collector.getTranslatedTitle()
-                
-                formatted_title = parent_title + episode.zfill(2) + formatted_title
+            episode = media.general.getEpisode()
+            track = media.general.getTrack()
 
-            # series
+            parent_season = parent_collector.general.getSeason()
+            parent_album = parent_collector.general.getAlbum().zfill(4) + parent_collector.getTranslatedTitle() if parent_collector.general.getAlbum() else None
+            parent_parent_collector = parent_collector.getParentCollector()        
+        
+            from medlib.mediamodel.media_collector import MediaCollector
+        
+            # if media is Collector
+            if issubclass(media.__class__, MediaCollector):
+                season = media.general.getSeason()
+                album = media.general.getAlbum()
+        
+                # Album
+                if album:
+                    formatted_title = album + "-" + formatted_title
+                
+                # Season (the season real title is omitted)
+                elif season:      
+                    formatted_title = _("title_season").format(season.zfill(4))          
+        
+            # The actual media is Storage - There is Episode but not in Season => Miniseries
+            elif episode and not parent_season:
+                
+                parent_title = parent_collector.getTranslatedTitle()
+                        
+                formatted_title = parent_title + episode.zfill(4) + formatted_title                
+
+            # The actual media is Storage and Episode in Season
             elif episode and parent_season:
 
-                parent_parent_collector = parent_collector.getParentCollector()
                 series_title = parent_parent_collector.getTranslatedTitle()
-
-                formatted_title = series_title + parent_season.zfill(2) + episode.zfill(2) + formatted_title
             
+                formatted_title = series_title + parent_season.zfill(4) + episode.zfill(4) + formatted_title
+
+            # The actual media is Storage - but not Album
+            elif track and not parent_album:
+                parent_title = parent_collector.getTranslatedTitle()
+                        
+                formatted_title = parent_title + track.zfill(4) + formatted_title                
+            
+            # The actual media is Storage and Track in Album
+            elif track and parent_album:
+                
+                performer_title = parent_parent_collector.getTranslatedTitle()
+                
+                formatted_title = performer_title + parent_album + track.zfill(4) + formatted_title
+                
         return formatted_title    
     
     def getFormattedTitle(self, media):
         """
         Returns back the modified title with episodes and seasons if there is
         
-        if no season no episode (simple movie)
+        if no season no episode (simple movie or collector)
             getTranslatedTitle()
         
         if episode + no season in the parent Collector (miniseries/saga)
             getTranslatedTitle()-{episode}.Part
+
+        if track + no album in the parent Collector (music without album)
+            getTranslatedTitle()
             
         if episode + season in the parent Collector (series)
             if keepHierarchy
                 (S{season}E{episode}) getTranslatedTitle() -                 
             else
                 Parent's_Parent's_Collector.getTranslatedTitle(): (S{season}E{episode}) getTranslatedTitle()
+
+        if track + album in the parent Collector (music in album)
+            if keepHierarchy
+                ({track}. getTranslatedTitle() -                 
+            else
+                Parent's_Parent's_Collector.getTranslatedTitle(): {album(year)}-{album title} {track}. - getTranslatedTitle()
         """
+        
         formatted_title = self.getTranslatedTitle()
-        
-        episode = media.general.getEpisode()
-        season = media.general.getSeason()
-        
         parent_collector = media.getParentCollector()
         
         if parent_collector:
+            episode = media.general.getEpisode()
+            track = media.general.getTrack()
+
             parent_season = parent_collector.general.getSeason()
+            parent_album = parent_collector.general.getAlbum() + "-" + parent_collector.getTranslatedTitle() if parent_collector.general.getAlbum() else None
         
-            # The actual media is Collector - Season
-            if season:
-                formatted_title = _("title_season").format(season)
+            from medlib.mediamodel.media_collector import MediaCollector
         
-            # The actual media is Storage - Miniseries
+            # if media is Collector
+            if issubclass(media.__class__, MediaCollector):
+                season = media.general.getSeason()
+                album = media.general.getAlbum()
+        
+                # Album
+                if album:
+                    formatted_title = album + "-" + formatted_title
+                
+                # Season
+                elif season:                
+                    formatted_title = _("title_season").format(season)
+        
+            # The actual media is Storage - There is Episode but not in Season => Miniseries
             elif episode and not parent_season:
+                
+                #TODO if MUSIC
                 formatted_title = formatted_title + "-" + _("title_part").format(episode)
 
                 parent_title = parent_collector.getTranslatedTitle()
@@ -141,7 +191,7 @@ class IniTitles(object):
                 if config_ini["keep_hierarchy"] == "n" and parent_title != self.getTranslatedTitle():
                     formatted_title = parent_title + ": " + formatted_title
 
-            # The actual meida is Storage - Series
+            # The actual media is Storage and Episode in Season
             elif episode and parent_season:
                 formatted_title = formatted_title + " (S" + parent_season.zfill(2) + "E" + episode.zfill(2) + ")"
 
@@ -152,6 +202,27 @@ class IniTitles(object):
                 if config_ini["keep_hierarchy"] == "n":
                     formatted_title = series_title + ": " + formatted_title
             
+            # The actual media is Storage - but not Album
+            elif track and not parent_album:
+                parent_title = parent_collector.getTranslatedTitle()
+
+                formatted_title = formatted_title + " #" + track                
+                        
+                if config_ini["keep_hierarchy"] == "n":
+                    formatted_title = parent_title + ": " + formatted_title #+ " " + track                
+            
+            # The actual media is Storage and Track in Album
+            elif track and parent_album:
+                
+                formatted_title = track + ". " + formatted_title
+
+                parent_parent_collector = parent_collector.getParentCollector()
+                performer_title = parent_parent_collector.getTranslatedTitle()
+                
+                # bulk list - The Album title is not visible - you have to attache it
+                if config_ini["keep_hierarchy"] == "n":
+                    formatted_title = performer_title + ": (" + parent_album + ") " + formatted_title
+                
         return formatted_title    
           
             

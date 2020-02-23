@@ -21,7 +21,8 @@ from medlib.mediamodel.ini_classification import IniClassification
 from medlib.handle_property import config_ini 
 from medlib.handle_property import Property 
 
-from medlib.card_ini import CardIni
+from medlib.card_ini import CardIni, KEY_GENERAL_ALBUM, KEY_GENERAL_TRACK,\
+    JSON_KEY_GENERAL_ALBUM, JSON_KEY_GENERAL_TRACK
 from medlib.card_ini import JSON_KEY_CLASSIFICATION_NEW
 from medlib.card_ini import JSON_KEY_CLASSIFICATION_FAVORITE
 from medlib.card_ini import JSON_KEY_CLASSIFICATION_TAG
@@ -209,7 +210,7 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
             con_orderby = card_ini.get(SECTION_CONTROL, KEY_CONTROL_ORDERBY, CardIni.getOrderByList()[0], False)
             #con_orderby = parser.get("control", "orderby")
             #con_orderby = con_orderby if con_orderby in CardIni.getOrderByList() else ""
-            con_orderby = con_orderby if con_orderby in CardIni.getOrderByList() else CardIni.getOrderByList()[0]
+            con_orderby = con_orderby if con_orderby in CardIni.getOrderByList() else ""
         except (configparser.NoSectionError, configparser.NoOptionError):
             #con_orderby = ""
             con_orderby = CardIni.getOrderByList()[0]
@@ -218,16 +219,17 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
             con_media = card_ini.get(SECTION_CONTROL, KEY_CONTROL_MEDIA, CardIni.getMediaList()[0], False)
             #con_media = parser.get("control", "media")
             #con_media = con_media if con_media in CardIni.getMediaList() else ""
-            con_media = con_media if con_media in CardIni.getMediaList() else CardIni.getMediaList()[0]
+            con_media = con_media if con_media in CardIni.getMediaList() else ""
         except (configparser.NoSectionError, configparser.NoOptionError):
             #con_media = ""
             con_media = CardIni.getMediaList()[0]
         
         try:
-            con_category = card_ini.get(SECTION_CONTROL, KEY_CONTROL_CATEGORY, CardIni.getCategoryListByMedia(con_media)[0], False)
+#            con_category = card_ini.get(SECTION_CONTROL, KEY_CONTROL_CATEGORY, CardIni.getCategoryListByMedia(con_media)[0], False)
+            con_category = card_ini.get(SECTION_CONTROL, KEY_CONTROL_CATEGORY, None, False)
             #con_category = parser.get("control", "category")            
             #con_category = con_category if con_category in CardIni.getCategoryListByMedia(con_media) else ""
-            con_category = con_category if con_category in CardIni.getCategoryListByMedia(con_media) else CardIni.getCategoryListByMedia(con_media)[0]
+            con_category = con_category if con_category in CardIni.getCategoryListByMedia(con_media) else ""
         except (configparser.NoSectionError, configparser.NoOptionError):
             #con_category = ""
             con_category = CardIni.getCategoryListByMedia(con_media)[0]
@@ -467,6 +469,15 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
                 # - episode - #
                 elif key == KEY_GENERAL_EPISODE and getPatternNumber().match( value ):
                     general.setEpisode(value)
+
+                # - album - #
+                elif key == KEY_GENERAL_ALBUM and getPatternNumber().match( value ):
+                    general.setAlbum(value)
+                
+                # - track - #
+                elif key == KEY_GENERAL_TRACK and getPatternNumber().match( value ):
+                    general.setTrack(value)
+                    
             
             if storyline:
                 general.setStoryline(storyline);
@@ -581,6 +592,10 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
             recentMedia = MediaAppendix(pathAppendix, titles)
             parentMediaCollector.addMediaAppendix(recentMedia)
 
+        else:
+            
+            return parentMediaCollector
+            
     # ################################## #
     #                                    #
     # Go through all SUB-FOLDERS in the  #
@@ -699,6 +714,8 @@ def collectCardsFromJson(jsonForm, parentMediaCollector = None):
         country = general.get(JSON_KEY_GENERAL_COUNTRY)
         season = general.get(JSON_KEY_GENERAL_SEASON)
         episode = general.get(JSON_KEY_GENERAL_EPISODE)
+        album = general.get(JSON_KEY_GENERAL_ALBUM)
+        track = general.get(JSON_KEY_GENERAL_TRACK)
             
         if year:
             ini_general.setYear(year)
@@ -734,6 +751,10 @@ def collectCardsFromJson(jsonForm, parentMediaCollector = None):
             ini_general.setSeason(season)
         if episode:
             ini_general.setEpisode(episode)
+        if album:
+            ini_general.setAlbum(album)
+        if track:
+            ini_general.setTrack(track)
 
     #--- CLASSIFICATION --- #
     classification = jsonForm.get(JSON_SECTION_CLASSIFICATION)

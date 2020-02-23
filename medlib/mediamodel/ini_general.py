@@ -20,13 +20,17 @@ from medlib.constants import PANEL_FONT_SIZE
 from builtins import object
 
 from medlib.mediamodel.qlabel_to_link_on_cllick import QLabelToLinkOnClick
+
 from medlib.card_ini import JSON_KEY_GENERAL_YEAR, JSON_KEY_GENERAL_LENGTH,\
     JSON_KEY_GENERAL_DIRECTOR, JSON_KEY_GENERAL_MAKER, JSON_KEY_GENERAL_WRITER,\
     JSON_KEY_GENERAL_AUTHOR, JSON_KEY_GENERAL_ACTOR, JSON_KEY_GENERAL_PERFORMER,\
     JSON_KEY_GENERAL_LECTURER, JSON_KEY_GENERAL_CONTRIBUTOR,\
     JSON_KEY_GENERAL_VOICE, JSON_KEY_GENERAL_SOUND, JSON_KEY_GENERAL_SUB,\
     JSON_KEY_GENERAL_COUNTRY, JSON_KEY_GENERAL_GENRE, JSON_KEY_GENERAL_THEME,\
-    JSON_KEY_GENERAL_SEASON, JSON_KEY_GENERAL_EPISODE
+    JSON_KEY_GENERAL_SEASON, JSON_KEY_GENERAL_EPISODE, JSON_KEY_GENERAL_ALBUM,\
+    JSON_KEY_GENERAL_TRACK
+
+import json
 
 class IniGeneral(object):
     """
@@ -89,9 +93,40 @@ class IniGeneral(object):
         self.topic = IniStorylines()
         self.lyrics = IniStorylines()
         
-        self.season = None
+        # Movie
+        self.season = None        
         self.episode = None
+        
+        # Music
+        self.album = None
+        self.track = None
     
+    def __str__(self):
+        return json.dumps(self.getJson(), indent=4, sort_keys=True)
+#        return ("\n" + 
+#            ("Storyline:   " + self.storyline.__str__() + "\n" if self.storyline.__str__() else "") +
+#            ("Topic:       " + self.topic.__str__() + "\n" if self.topic.__str__() else "") +
+#            ("Lyrics:      " + self.lyrics.__str__() + "\n" if self.lyrics.__str__() else "") +
+#            "---\n" +
+#            ("Year:        " + self.year + "\n" if self.year else "") +  
+#            ("Director:    " + self.directors + "\n" if self.directors else "") +
+#            ("Maker:       " + self.makers + "\n" if self.makers else "") +
+#            ("Writer:      " + self.writers + "\n" if self.writers else "") +
+#            ("Authoer:     " + self.authors + "\n" if self.authors else "") +
+#            ("Actors:      " + self.actors + "\n" if self.actors else "") +
+#            ("Performers:  " + self.performers + "\n" if self.performers else "") +
+#            ("Lecturer:    " + self.lecturer + "\n" if self.lecturer else "") + 
+#            ("Contributor: " + self.contributor + "\n" if self.contributor else "") +
+#            ("Voice:       " + self.voice + "\n" if self.voice else "") +
+#            "---\n" +
+#            ("Length:      " + self.length + "\n" if self.length else "") +
+#            ("Sound:       " + self.sounds + "\n" if self.sounds else "") +
+#            ("Subtitles:   " + self.subs + "\n" if self.subs else "") +
+#            ("Genre:       " + self.genres + "\n" if self.genres else "") +
+#            ("Theme:       " + self.themes + "\n" if self.themes else "") +
+#            ("Countries:   " + self.countries + "\n" if self.countries else "")
+#        )
+        
     def setYear(self, year):
         self.year = year
         
@@ -154,6 +189,12 @@ class IniGeneral(object):
 
     def setEpisode(self, episode):
         self.episode = episode
+
+    def setAlbum(self, album):
+        self.album = album
+        
+    def setTrack(self, track):
+        self.track = track
    
     # ---
     
@@ -259,6 +300,12 @@ class IniGeneral(object):
     
     def getEpisode(self):
         return self.episode
+    
+    def getAlbum(self):
+        return self.album
+    
+    def getTrack(self):
+        return self.track
 
     def getJson(self):        
         json = {}
@@ -284,6 +331,8 @@ class IniGeneral(object):
         
         json.update({} if self.season is None or not self.season else {JSON_KEY_GENERAL_SEASON: self.season})
         json.update({} if self.episode is None or not self.episode else {JSON_KEY_GENERAL_EPISODE: self.episode})        
+        json.update({} if self.album is None or not self.album else {JSON_KEY_GENERAL_ALBUM: self.album})
+        json.update({} if self.track is None or not self.track else {JSON_KEY_GENERAL_TRACK: self.track})        
         
         return json
     

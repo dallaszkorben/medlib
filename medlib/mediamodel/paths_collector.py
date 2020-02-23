@@ -16,6 +16,13 @@ class PathsCollector(object):
         self.pathCard = pathCard
         self.pathImage = pathImage
         
+    def __str__(self):
+        return(
+            "\nnameFolder: " + self.getNameOfFolder() + "\n" +
+            "pathCard:   " + self.getPathOfCard() + "\n" +
+            "pathImage:  " + self.getPathOfImage()
+        )
+        
     def getNameOfFolder(self):
         return self.nameFolder
         

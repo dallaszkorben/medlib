@@ -49,6 +49,9 @@ section_dict = {
         {'country': (True, 'setThemes',)},
         {'season': (True, 'setSeason',)},
         {'episode': (True, 'setEpiside',)},
+        {'album': (True, 'setAlbum',)},
+        {'track': (True, 'setTrack',)},
+
         ),
 
 
@@ -141,6 +144,8 @@ KEY_GENERAL_SOUND = list(section_dict['general'][14].keys())[0]
 KEY_GENERAL_COUNTRY = list(section_dict['general'][15].keys())[0]
 KEY_GENERAL_SEASON = list(section_dict['general'][16].keys())[0]
 KEY_GENERAL_EPISODE = list(section_dict['general'][17].keys())[0]
+KEY_GENERAL_ALBUM = list(section_dict['general'][18].keys())[0]
+KEY_GENERAL_TRACK = list(section_dict['general'][19].keys())[0]
 
 # ---
 
@@ -202,4 +207,6 @@ JSON_KEY_GENERAL_SOUND = KEY_GENERAL_SOUND
 JSON_KEY_GENERAL_COUNTRY = KEY_GENERAL_COUNTRY
 JSON_KEY_GENERAL_SEASON = KEY_GENERAL_SEASON
 JSON_KEY_GENERAL_EPISODE = KEY_GENERAL_EPISODE
+JSON_KEY_GENERAL_ALBUM = KEY_GENERAL_ALBUM
+JSON_KEY_GENERAL_TRACK = KEY_GENERAL_TRACK
 

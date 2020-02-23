@@ -60,6 +60,8 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import QSize
 
+import json
+
 class IniClassification(object):
     """
     This class represents the [classification] section in the card.ini file
@@ -83,6 +85,16 @@ class IniClassification(object):
         self.tag_list = tag_list if tag_list else []
         self.favorite = favorite
         self.new = new
+        
+    def __str__(self):
+        return json.dumps(self.getJson(), indent=4, sort_keys=True)
+#        return (
+#            "\nRate:     " + (str(self.getRate()) + "\n" if self.getRate() else "") +
+#            "Favorite: " + (str(self.getFavorite()) + "\n" if self.getFavorite() is not None else "")+
+#            "New:      " + (str(self.getNew()) + "\n" if self.getNew() is not None else "") +
+#            "Tags:     " + (self.getTagList() + "\n" if self.getTagList() else "")
+#        )
+        
         
     def getRate(self):
         return self.rate
@@ -111,9 +123,9 @@ class IniClassification(object):
     def getJson(self):        
         json = {}
         json.update({} if self.rate is None else {JSON_KEY_CLASSIFICATION_RATE: self.rate})
-        json.update({} if self.tag_list is None or not self.tag_list else {JSON_KEY_CLASSIFICATION_TAG: self.tag_list})
         json.update({} if self.favorite is None else {JSON_KEY_CLASSIFICATION_FAVORITE : "y" if self.favorite else "n"})
         json.update({} if self.new is None else {JSON_KEY_CLASSIFICATION_NEW: "y" if self.new else "n"})
+        json.update({} if self.tag_list is None or not self.tag_list else {JSON_KEY_CLASSIFICATION_TAG: self.tag_list})
         
         return json    
     
@@ -470,8 +482,8 @@ class IniClassification(object):
                 layout.setContentsMargins(0, 0, self.iconBorder, 0)
                 layout.addWidget(label_icon, alignment=QtCore.Qt.AlignRight)
 
-                # calculate text_widget width
-                self.setFixedWidth(self.fm.width(self.text_widget()) + 10)
+                # calculate text width
+                self.setFixedWidth(self.fm.width(self.text()) + 10)
                 self.setFixedHeight(self.fm.height())
 
                 label_icon.clicked.connect(self.on_delete)            
@@ -524,7 +536,7 @@ class IniClassification(object):
                 self.setStyleSheet( "color:black; background:'" + CLASSIFICATION_TAG_FIELD_BACKGROUND_COLOR + "'")
                 fm = QFontMetrics(self.font())
 
-                # calculate text_widget width
+                # calculate text width
                 self.setFixedWidth(fm.width("WWWWWWW") + 10)
                 self.setFixedHeight(fm.height())            
              
@@ -546,7 +558,7 @@ class IniClassification(object):
 
                 # press ENTER on the TAG FIELD                    
                 elif event.key() == Qt.Key_Return:
-                    text = self.text_widget().strip()
+                    text = self.text().strip()
                 
                     if text and text not in tag_list:
 

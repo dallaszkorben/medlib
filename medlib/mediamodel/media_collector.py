@@ -10,6 +10,8 @@ from PyQt5.QtGui import QKeyEvent
 from PyQt5.QtCore import QEvent, Qt
 from PyQt5 import QtCore
 
+import json
+
 class MediaCollector(MediaBase):
     """
     This object represents the MediaCollector
@@ -41,6 +43,16 @@ class MediaCollector(MediaBase):
         self.nextLevelListener = None
 #        self.previousLevelListener = None
 
+    def __str__(self):
+        return json.dumps(self.getJson(), indent=4, sort_keys=True)
+#        return( 
+#            "\ntitles:        " + self.getTitles().__str__() + "\n" +
+#            "general:       " + self.getGeneral().__str__() + "\n" +
+#            "control:       " + self.getControl().__str__() + "\n" +
+#            "pathCollector: " + self.getPathsCollector().__str__() + "\n" +
+#            "\n ".join(str(x) for x in self.getMediaCollectorList()) + "\n --- \n" + "\n ".join(str(x) for x in self.getMediaStorageList())
+#        )
+        
 #    def doSelection(self):
 #        if self.hasNextLevelListener():
 #            self.media.getNextLevelListener()(self.media)
