@@ -50,6 +50,9 @@ class MediaStorage(MediaBase):
     
     def getPathOfCard(self):
         return self.pathsStorage.getPathOfCard()
+    
+    def getPathOfIcon(self):
+        return self.pathsStorage.getPathOfIcon()
 
     def getBackgroundColor(self):
         return STORAGE_BACKGROUND_COLOR

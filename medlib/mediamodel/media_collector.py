@@ -74,6 +74,9 @@ class MediaCollector(MediaBase):
     def getPathOfCard(self):
         return self.pathsCollector.getPathOfCard()
     
+    def getPathOfIcon(self):
+        return self.pathsCollector.getPathOfIcon()
+
     def getBackgroundColor(self):
         return COLLECTOR_BACKGROUND_COLOR
         

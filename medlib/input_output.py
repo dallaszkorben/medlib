@@ -22,7 +22,8 @@ from medlib.handle_property import config_ini
 from medlib.handle_property import Property 
 
 from medlib.card_ini import CardIni, KEY_GENERAL_ALBUM, KEY_GENERAL_TRACK,\
-    JSON_KEY_GENERAL_ALBUM, JSON_KEY_GENERAL_TRACK
+    JSON_KEY_GENERAL_ALBUM, JSON_KEY_GENERAL_TRACK,\
+    JSON_KEY_COLLECTOR_PATH_OF_ICON, JSON_KEY_STORAGE_PATH_OF_ICON
 from medlib.card_ini import JSON_KEY_CLASSIFICATION_NEW
 from medlib.card_ini import JSON_KEY_CLASSIFICATION_FAVORITE
 from medlib.card_ini import JSON_KEY_CLASSIFICATION_TAG
@@ -73,6 +74,7 @@ from medlib.card_ini import JSON_KEY_GENERAL_EPISODE
 from medlib.card_ini import KEY_CONTROL_ORDERBY
 from medlib.card_ini import KEY_CONTROL_MEDIA
 from medlib.card_ini import KEY_CONTROL_CATEGORY
+from medlib.card_ini import KEY_CONTROL_ICONKEY
 
 from medlib.card_ini import JSON_SECTION_STORYLINE
 from medlib.card_ini import JSON_SECTION_TITLES
@@ -116,6 +118,9 @@ from medlib.card_ini import SECTION_CLASSIFICATION
 def getPatternImage():
     return re.compile( '^image[.](jp(eg|g)|png)$' )
 
+def getPatternIcon():
+    return re.compile( '^icon[.](png)$' )
+
 def getPatternRate():
     return re.compile('^([1][0])|([0-9])$')
 
@@ -133,8 +138,7 @@ def collectCards():
         Reads the Cards. First try to read from the json file.
         If there is no json file then it reads it from the file system and
         then save it to the json file 
-    """
-    
+    """    
     media_path = config_ini['media_path']
     
     jsonForm = CardListJson.getInstance().read()
@@ -171,6 +175,7 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
     card_path = None
     media_path = None
     image_path = None
+    icon_path = None
     media_name = None
     
     # ####################################
@@ -189,6 +194,10 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
         if getPatternImage().match( file_name ):
             image_path = os.path.join(actualDir, file_name)
 
+        # find the Icon
+        if getPatternIcon().match(file_name):
+            icon_path = os.path.join(actualDir, file_name)
+            
 #        # find the Media (video or audio or odt or pdf)
 #        if getPatternAudio().match(file_name) or getPatternVideo().match(file_name) or getPatternOdt().match(file_name) or getPatternPdf().match(file_name):
 #            media_path = os.path.join(actualDir, file_name)
@@ -199,9 +208,7 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
         
         # Read the Card.ini file
         card_ini = Property(card_path, True)
-#        card_ini.update(section, key, value)
-        
-        
+#        card_ini.update(section, key, value)        
 #        parser = configparser.RawConfigParser()
 #        parser.read(card_path, encoding='utf-8')
         
@@ -233,8 +240,14 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
         except (configparser.NoSectionError, configparser.NoOptionError):
             #con_category = ""
             con_category = CardIni.getCategoryListByMedia(con_media)[0]
+
+        try:
+            con_iconkey = card_ini.get(SECTION_CONTROL, KEY_CONTROL_ICONKEY, None, False)
+#           con_iconkey = con_iconkey if con_iconkey in CardIni.getCategoryListByMedia(con_media) else ""
+        except (configparser.NoSectionError, configparser.NoOptionError):
+            con_iconkey = ""
                     
-        control = IniControl(con_orderby, con_media, con_category) 
+        control = IniControl(con_orderby, con_media, con_category, con_iconkey) 
  
         for file_name in file_list:
              
@@ -567,7 +580,7 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
         # If MediaCollector - under MediaCollector or Root
         #      
         if card_path and not media_path and dir_list and issubclass(parentMediaCollector.__class__, (MediaCollector, NoneType)):
-            pathCollector = PathsCollector(os.path.dirname(card_path), card_path, image_path)            
+            pathCollector = PathsCollector(os.path.dirname(card_path), card_path, image_path, icon_path)            
             recentMedia = MediaCollector(pathCollector, titles, control, general, classification)
             
             # If it has parent -> add it to parent, otherwise it will be the parent
@@ -580,7 +593,7 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
         # If MediaStorage - Under MediaCollector
         #
         elif card_path and media_path and issubclass(parentMediaCollector.__class__, MediaCollector):
-            pathStorage = PathsStorage(os.path.dirname(card_path), card_path, image_path, media_path)            
+            pathStorage = PathsStorage(os.path.dirname(card_path), card_path, image_path, icon_path, media_path)            
             recentMedia = MediaStorage(pathStorage, titles, control, general, classification)
             parentMediaCollector.addMediaStorage(recentMedia)
 
@@ -605,7 +618,7 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
     # ################################## #    
     for name in dir_list:
         subfolder_path_os = os.path.join(actualDir, name)
-        collectCardsFromFileSystem( subfolder_path_os, recentMedia )        
+        collectCardsFromFileSystem( subfolder_path_os, recentMedia )
 
     # If no media found at all #
     if parentMediaCollector is None:
@@ -778,11 +791,13 @@ def collectCardsFromJson(jsonForm, parentMediaCollector = None):
     con_orderby = ""
     con_media = ""
     con_category = ""
+    con_iconkey = ""
     if control:
         con_orderby = control.get(KEY_CONTROL_ORDERBY)
         con_media = control.get(KEY_CONTROL_MEDIA)
         con_category = control.get(KEY_CONTROL_CATEGORY)
-    ini_control = IniControl(con_orderby, con_media, con_category) 
+        con_iconkey = control.get(KEY_CONTROL_ICONKEY)
+    ini_control = IniControl(con_orderby, con_media, con_category, con_iconkey) 
  
     # --- MEDIA --- #
     
@@ -803,8 +818,9 @@ def collectCardsFromJson(jsonForm, parentMediaCollector = None):
         name_of_folder = path_collector.get(JSON_KEY_COLLECTOR_NAME_OF_FOLDER)
         path_of_card = path_collector.get(JSON_KEY_COLLECTOR_PATH_OF_CARD)
         path_of_image = path_collector.get(JSON_KEY_COLLECTOR_PATH_OF_IMAGE)
+        path_of_icon = path_collector.get(JSON_KEY_COLLECTOR_PATH_OF_ICON)
         
-        ini_path_collector = PathsCollector(name_of_folder, path_of_card, path_of_image)
+        ini_path_collector = PathsCollector(name_of_folder, path_of_card, path_of_image, path_of_icon)
         nextParent = MediaCollector(ini_path_collector, ini_titles, ini_control, ini_general, ini_classification)
     
         if parentMediaCollector:
@@ -820,8 +836,9 @@ def collectCardsFromJson(jsonForm, parentMediaCollector = None):
         path_of_card = path_storage.get(JSON_KEY_STORAGE_PATH_OF_CARD)
         path_of_image = path_storage.get(JSON_KEY_STORAGE_PATH_OF_IMAGE)
         path_of_media = path_storage.get(JSON_KEY_STORAGE_PATH_OF_MEDIA)
+        path_of_icon = path_storage.get(JSON_KEY_STORAGE_PATH_OF_ICON)
     
-        ini_path_storage = PathsStorage(name_of_folder, path_of_card, path_of_image, path_of_media)
+        ini_path_storage = PathsStorage(name_of_folder, path_of_card, path_of_image, path_of_icon, path_of_media)
         nextParent = MediaStorage(ini_path_storage, ini_titles, ini_control, ini_general, ini_classification)
         
         parentMediaCollector.addMediaStorage(nextParent)

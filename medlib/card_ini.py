@@ -3,22 +3,22 @@ import re
 media_dict = {
     'video': {
         'ext': ('mkv', 'mp4', 'flv', 'divx', 'avi', 'webm'), 
-        'category': ('movie', 'music', 'show', 'presentation', 'alternative', 'miscellaneous', 'appendix')},
+        'category': ('movie', 'music', 'show', 'presentation', 'alternative', 'miscellaneous', 'elearning', 'family', 'appendix')},
     'audio': {
         'ext': ('mp3', 'ogg'), 
-        'category': ('radioplay', 'music', 'show', 'presentation', 'audiobook', 'appendix')},
+        'category': ('radioplay', 'music', 'show', 'presentation', 'audiobook', 'elearning', 'appendix')},
     'text': {
         'ext': ('doc', 'odt', 'pdf', 'epub', 'mobi', 'azw', 'azw3', 'iba', 'txt'), 
-        'category': ('book', 'presentation', 'quiz', 'appendix')},
+        'category': ('book', 'presentation', 'quiz', 'elearning', 'appendix')},
     'dia': {
         'ext': (), 
         'category': ()},
     'picture': {
         'ext': (), 
-        'category': ()},
+        'category': ('elearning',)},
     'link' : {
         'ext': (), 
-        'category': ('appendix',)},
+        'category': ('appendix','elearning')},
     '': {
         'ext': (), 
         'category': ()}
@@ -57,7 +57,7 @@ section_dict = {
 
     'classification': ('rate', 'tag', 'new','favorite'),
     
-    'control': ('orderby', 'media', 'category'),
+    'control': ('orderby', 'media', 'category', 'iconkey'),
     
     'media': ('link', 'file'),
     
@@ -125,6 +125,7 @@ KEY_CLASSIFICATION_FAVORITE = section_dict[SECTION_CLASSIFICATION][3]
 KEY_CONTROL_ORDERBY = section_dict[SECTION_CONTROL][0]
 KEY_CONTROL_MEDIA = section_dict[SECTION_CONTROL][1]
 KEY_CONTROL_CATEGORY = section_dict[SECTION_CONTROL][2]
+KEY_CONTROL_ICONKEY = section_dict[SECTION_CONTROL][3]
 
 KEY_GENERAL_LENGTH = list(section_dict['general'][0].keys())[0]
 KEY_GENERAL_YEAR = list(section_dict['general'][1].keys())[0]
@@ -165,15 +166,16 @@ JSON_NODE_PATH_COLLECTOR = 'paths-collector'
 JSON_NODE_PATH_STORAGE = 'paths-storage'
 JSON_NODE_PATH_APPENDIX = 'paths-appendix'
 
-
 JSON_KEY_COLLECTOR_NAME_OF_FOLDER = 'name-of-folder'
 JSON_KEY_COLLECTOR_PATH_OF_CARD = 'path-of-card'
 JSON_KEY_COLLECTOR_PATH_OF_IMAGE = 'path-of-image'
+JSON_KEY_COLLECTOR_PATH_OF_ICON = 'path-of-icon'
 
 JSON_KEY_STORAGE_NAME_OF_FOLDER = 'name-of-folder'
 JSON_KEY_STORAGE_PATH_OF_CARD = 'path-of-card'
 JSON_KEY_STORAGE_PATH_OF_IMAGE = 'path-of-image'
 JSON_KEY_STORAGE_PATH_OF_MEDIA = 'path-of-media'
+JSON_KEY_STORAGE_PATH_OF_ICON = 'path-of-icon'
 
 JSON_KEY_APPENDIX_NAME_OF_FOLDER = 'name-of-folder'
 JSON_KEY_APPENDIX_PATH_OF_CARD = 'path-of-card'
@@ -188,6 +190,7 @@ JSON_KEY_CLASSIFICATION_FAVORITE = KEY_CLASSIFICATION_FAVORITE
 JSON_KEY_CONTROL_ORDERBY = KEY_CONTROL_ORDERBY
 JSON_KEY_CONTROL_MEDIA = KEY_CONTROL_MEDIA
 JSON_KEY_CONTROL_CATEGORY = KEY_CONTROL_CATEGORY
+JSON_KEY_CONTROL_ICONKEY = KEY_CONTROL_ICONKEY
 
 JSON_KEY_GENERAL_LENGTH = KEY_GENERAL_LENGTH
 JSON_KEY_GENERAL_YEAR = KEY_GENERAL_YEAR

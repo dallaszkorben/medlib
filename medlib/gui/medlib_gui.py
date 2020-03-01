@@ -273,8 +273,7 @@ class MedlibGui(QWidget):#, QObject):
 
         layout.addWidget(myPanel)
         
-        return card
-        
+        return card       
         
     def getHierarchyTitle(self):
         return self.hierarchy_title

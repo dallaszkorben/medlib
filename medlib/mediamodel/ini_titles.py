@@ -223,10 +223,7 @@ class IniTitles(object):
                 if config_ini["keep_hierarchy"] == "n":
                     formatted_title = performer_title + ": (" + parent_album + ") " + formatted_title
                 
-        return formatted_title    
-          
-            
-            
+        return formatted_title
     
     def getJson(self):
         json = {}
@@ -236,8 +233,7 @@ class IniTitles(object):
             {key: value for key, value in self.title_list_by_language.items()} if self.title_list_by_language else {}
             )
        
-        return json
-    
+        return json    
     
     def getWidget(self, media, scale):
         """  _________________________________________
@@ -258,12 +254,30 @@ class IniTitles(object):
 
         #
         # Icon
-        # 
-        # media-{collector/storage}-{media}-{category}.png
         #
-        iconFileName = TITLE_ICON_PREFIX + "-" + media.getFolderType() + ( "-" + media.control.getMedia() if media.control.getMedia() else "" ) + ( "-" + media.control.getCategory() if media.control.getCategory() else "" ) + "." + TITLE_ICON_EXTENSION
-        pathToFile = resource_filename(__name__, os.path.join(TITLE_ICON_FOLDER, iconFileName))       
-        pixmap = QPixmap( pathToFile )
+        pixmap = None
+        pathToFile = media.getPathOfIcon()
+        if pathToFile:
+            pixmap = QPixmap( pathToFile )
+
+        if not pixmap:
+        
+            #media-(collector/storage)
+            iconFileName = TITLE_ICON_PREFIX + "-" + media.getFolderType()
+        
+            # media-(collector/storage)-{iconKey}
+            if media.control.getIconKey():
+                iconFileName += "-" + media.control.getIconKey()  
+            # media-(collector/storage)-{media}        
+            elif media.control.getMedia() and not media.control.getCategory():
+                iconFileName += "-" + media.control.getMedia()
+            # media-(collector/storage)-{media}-{category}                
+            elif media.control.getMedia() and media.control.getCategory():
+                iconFileName += ( "-" + media.control.getMedia() if media.control.getMedia() else "" ) + ( "-" + media.control.getCategory() if media.control.getCategory() else "" )
+        
+            iconFileName += "." + TITLE_ICON_EXTENSION               
+            pathToFile = resource_filename(__name__, os.path.join(TITLE_ICON_FOLDER, iconFileName))                   
+            pixmap = QPixmap( pathToFile )
 
         if pixmap.isNull():            
             smaller_pixmap = QPixmap(TITLE_ICON_HEIGHT * scale, TITLE_ICON_HEIGHT * scale)
@@ -279,24 +293,7 @@ class IniTitles(object):
         #
         # Title
         #
-        
-#        season = media.general.getSeason()
-#        episode = media.general.getEpisode()
-        
-        
-        # Storage-Series/Miniseries
-#        if episode:
-            
-        # Container
-#        elif season:
-        
-        
         titleWidget = QLabel(self.getFormattedTitle(media))
-        
-#        titleWidget = QLabel(
-#            ("S" + season + "E" + episode + "-" if episode is not None and season is not None else "") + 
-#            self.getTranslatedTitle() + 
-#            ("-"+_("title_part").format(episode) if episode is not None and season is None else "") )
         titleWidget.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * scale * 1.8, weight=QFont.Bold))
 
         title_layout.addWidget(titleWidget)
