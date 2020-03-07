@@ -705,19 +705,28 @@ class CardHolder( QWidget ):
        
         if parent_collector:
 
-            # Listener of the refresh list
-            self.refresh_list_listener(parent_collector)            
+#            # Listener of the refresh list
+#            # Here you refresh the self.mediaCollector object in the medlib_gui
+#            self.refresh_list_listener(parent_collector)            
         
             # Without hierarchy
             if not self.parent.isSwitchKeepHierarchy():
                 sum_list = self.collectMediaStorageWithoutHierarchy([], parent_collector)
                 sum_list.sort(key=lambda arg: MediaCollector.sort_key(arg))
+
+                # Listener of the refresh list
+                # Here you refresh the self.mediaCollector object in the medlib_gui
+                self.refresh_list_listener(parent_collector, sum_list)            
                 
             # With hierarchy
             else:        
                 mcl = parent_collector.getMediaCollectorList()
                 msl = parent_collector.getMediaStorageList()
                 sum_list = mcl + msl
+
+                # Listener of the refresh list
+                # Here you refresh the self.mediaCollector object in the medlib_gui
+                self.refresh_list_listener(parent_collector, msl)            
 
             self.fill_up_card_descriptor_list(sum_list)                
 #            self.focus_index(parent_collector.getIndex())

@@ -89,14 +89,14 @@ class MediaAppendix(object):
         def toDoOnClick(self):
         
             if platform.system() == 'Darwin':                   # macOS
-                subprocess.call(('open', self.pathOfMedia))
+                subprocess.run(('open', self.pathOfMedia))
             elif platform.system() == 'Windows':                # Windows
                 os.startfile(self.pathOfMedia)
             elif platform.system() == 'Linux':                  # Linux:
-                subprocess.call(('xdg-open', self.pathOfMedia))
+                subprocess.run(('xdg-open', self.pathOfMedia))
             else:                                               # linux 
-                subprocess.call(('xdg-open', self.pathOfMedia))
-
+                subprocess.run(('xdg-open', self.pathOfMedia))
+                
         def enterEvent(self, event):
             super().enterEvent(event)
             font = self.font()

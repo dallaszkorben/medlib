@@ -16,17 +16,19 @@ from PyQt5.QtCore import QThread
 from PyQt5.QtCore import Qt
 from PyQt5.QtCore import QSize
 
-from PyQt5.QtWidgets import QWidget
+from PyQt5.QtWidgets import QWidget, QComboBox
 from PyQt5.QtWidgets import QHBoxLayout
 from PyQt5.QtWidgets import QPushButton
 
-from medlib.constants import ON, CONTROL_IMG_FOLDER, OFF
+from medlib.constants import ON
+from medlib.constants import OFF
+from medlib.constants import CONTROL_IMG_FOLDER
+from medlib.constants import CONTROL_IMG_PLAY_BUTTON
+from medlib.constants import CONTROL_IMG_STOP_BUTTON
 from medlib.constants import CONTROL_IMG_BACK_BUTTON
 from medlib.constants import CONTROL_IMG_HIERARCHY_BUTTON
 from medlib.constants import CONTROL_IMG_EXTENTION
 from medlib.constants import CONTROL_IMG_SIZE
-
-
 
 # ================================
 #
@@ -37,8 +39,19 @@ from medlib.constants import CONTROL_IMG_SIZE
 #           Play Sequentially
 #           Fast Search Button
 #           Advanced Search Button
+#           Hierarchy on/off
 # ================================
 class ControlButtonsHolder(QWidget):
+    """
+        +---- Control ButtonsHolder (QWidget) -----------------+
+        | +---- self_layout (QHBoxLayout) -------------------+ |
+        | | +----+       +----++--------------+       +----+ | |
+        | | |Back|       |Play||     List     |       |Hier| | |
+        | | +----+       +----++--------------+       +----+ | |
+        | +--------------------------------------------------+ |
+        +------------------------------------------------------+
+    
+    """
     def __init__(self, control_panel):
         super().__init__()
        
@@ -85,36 +98,40 @@ class ControlButtonsHolder(QWidget):
         #
         # -------------------
 
-#        self.play_continously_button = QPushButton()
-#        self.play_continously_button.setFocusPolicy(Qt.NoFocus)
-#        self.play_continously_button.clicked.connect(self.play_continously_button_on_click)
-#        
-#        play_continously_icon = QIcon()
-#        play_continously_icon.addPixmap(QPixmap( resource_filename(__name__,os.path.join("img", IMG_PLAY_CONTINOUSLY_BUTTON_ON)) ), QIcon.Normal, QIcon.On)
-##        play_continously_icon.addPixmap(QPixmap( resource_filename(__name__,os.path.join("img", IMG_PLAY_CONTINOUSLY_BUTTON_OFF)) ), QIcon.Normal, QIcon.Off)
-#        self.play_continously_button.setIcon( play_continously_icon )
-#        self.play_continously_button.setIconSize(QSize(25,25))
-#        self.play_continously_button.setCursor(QCursor(Qt.PointingHandCursor))
-#        self.play_continously_button.setStyleSheet("background:transparent; border:none") 
-#        self_layout.addWidget( self.play_continously_button )
+        self.play_continously_button = QPushButton()
+        self.play_continously_button.setFocusPolicy(Qt.NoFocus)
+        self.play_continously_button.clicked.connect(self.play_continously_button_on_click)
+        
+        play_continously_icon = QIcon()
+        play_continously_icon.addPixmap(QPixmap( resource_filename(__name__,os.path.join(CONTROL_IMG_FOLDER, CONTROL_IMG_PLAY_BUTTON + "." + CONTROL_IMG_EXTENTION)) ), QIcon.Normal, QIcon.On)
+#        play_continously_icon.addPixmap(QPixmap( resource_filename(__name__,os.path.join(CONTROL_IMG_FOLDER, CONTROL_IMG_PLAY_BUTTON + "-" + ON + "." + CONTROL_IMG_EXTENTION)) ), QIcon.Normal, QIcon.On)
+        self.play_continously_button.setIcon( play_continously_icon )
+        self.play_continously_button.setIconSize(QSize(25,25))
+        self.play_continously_button.setCursor(QCursor(Qt.PointingHandCursor))
+        self.play_continously_button.setStyleSheet("background:transparent; border:none") 
+        
+        # Play button on the middle
+        self_layout.addWidget( self.play_continously_button )
 
         # -------------------
         #
         # Stop Button
         #
         # -------------------
-#        self.stop_continously_button = QPushButton()
-#        self.stop_continously_button.setFocusPolicy(Qt.NoFocus)
-#        self.stop_continously_button.clicked.connect(self.stop_continously_button_on_click)
-#        
-#        stop_continously_icon = QIcon()
-#        stop_continously_icon.addPixmap(QPixmap( resource_filename(__name__,os.path.join("img", IMG_STOP_CONTINOUSLY_BUTTON_ON)) ), QIcon.Normal, QIcon.On)
-##        stop_continously_icon.addPixmap(QPixmap( resource_filename(__name__,os.path.join("img", IMG_STOP_CONTINOUSLY_BUTTON_OFF)) ), QIcon.Normal, QIcon.Off)
-#        self.stop_continously_button.setIcon( stop_continously_icon )
-#        self.stop_continously_button.setIconSize(QSize(25,25))
-#        self.stop_continously_button.setCursor(QCursor(Qt.PointingHandCursor))
-#        self.stop_continously_button.setStyleSheet("background:transparent; border:none") 
-#        self_layout.addWidget( self.stop_continously_button )
+        self.stop_continously_button = QPushButton()
+        self.stop_continously_button.setFocusPolicy(Qt.NoFocus)
+        self.stop_continously_button.clicked.connect(self.stop_continously_button_on_click)
+        
+        stop_continously_icon = QIcon()
+        stop_continously_icon.addPixmap(QPixmap( resource_filename(__name__,os.path.join(CONTROL_IMG_FOLDER, CONTROL_IMG_STOP_BUTTON + "." + CONTROL_IMG_EXTENTION)) ), QIcon.Normal, QIcon.On)
+#        stop_continously_icon.addPixmap(QPixmap( resource_filename(__name__,os.path.join(CONTROL_IMG_FOLDER, CONTROL_IMG_STOP_BUTTON + "-" + OFF + "." + CONTROL_IMG_EXTENTION)) ), QIcon.Normal, QIcon.Off)
+        self.stop_continously_button.setIcon( stop_continously_icon )
+        self.stop_continously_button.setIconSize(QSize(25,25))
+        self.stop_continously_button.setCursor(QCursor(Qt.PointingHandCursor))
+        self.stop_continously_button.setStyleSheet("background:transparent; border:none")
+
+        # Stop button on the middle
+        self_layout.addWidget( self.stop_continously_button )
         
         # ----------------------------------
         #
@@ -122,27 +139,28 @@ class ControlButtonsHolder(QWidget):
         #
         # ----------------------------------
 
-#       self.dropdown_play_continously = QComboBox(self)
-#       self.dropdown_play_continously.setFocusPolicy(Qt.NoFocus)
-#       self.dropdown_play_continously.setEditable(False)
-#       
-#       style_box = '''
-#           QComboBox { 
-#               max-width: 500px; min-width: 300px; border: 1px solid gray; border-radius: 5px;
-#           }
-#       '''
-#       style_drop_down ='''
-#           QComboBox QAbstractItemView::item { 
-#               color: red;
-#               max-height: 15px;
-#           }
-#       '''            
-#     
-#       self.dropdown_play_continously.setStyleSheet(style_box)
-#       #self.dropdown_play_continously.addItem("")
-#       self_layout.addWidget( self.dropdown_play_continously )
-#
-#               
+        self.dropdown_play_continously = QComboBox(self)
+        self.dropdown_play_continously.setFocusPolicy(Qt.NoFocus)
+        self.dropdown_play_continously.setEditable(False)
+       
+        style_box = '''
+           QComboBox { 
+               max-width: 500px; min-width: 300px; border: 1px solid gray; border-radius: 5px;
+           }
+        '''
+        style_drop_down ='''
+           QComboBox QAbstractItemView::item { 
+               color: red;
+               max-height: 15px;
+           }
+        '''            
+     
+        self.dropdown_play_continously.setStyleSheet(style_box)
+        #self.dropdown_play_continously.addItem("")
+        self_layout.addWidget( self.dropdown_play_continously )
+        
+        self.disablePlayStopContinously()
+               
         self_layout.addStretch(1) 
         
         # ================================================
@@ -168,7 +186,7 @@ class ControlButtonsHolder(QWidget):
         self.hierarchy_button.setCursor(QCursor(Qt.PointingHandCursor))
         self.hierarchy_button.setStyleSheet("background:transparent; border:none") 
 
-        # Back button on the left
+        # Hierarchy button on the right
         self_layout.addWidget(self.hierarchy_button)
 
         # -------------------
@@ -237,49 +255,49 @@ class ControlButtonsHolder(QWidget):
 #        
 #    # ======================================================
 #    
-#    def clear_play_continously_elements(self):
-#        self.dropdown_play_continously.clear()
-#        
-#    def add_play_continously_separator(self):
-#        self.dropdown_play_continously.insertSeparator(self.dropdown_play_continously.__len__())        
-#        
-#    def add_play_continously_element(self, title, path):
-#        self.dropdown_play_continously.addItem(title, path)        
-#        
-#    def get_play_continously_selected_path(self):
-#        return self.dropdown_play_continously.itemData( self.dropdown_play_continously.currentIndex() )
-#
-#    def get_play_continously_path_by_index(self, index):
-#        return self.dropdown_play_continously.itemData( index )
-#
-#    def get_play_continously_selected_title(self):
-#        return self.dropdown_play_continously.itemText( self.dropdown_play_continously.currentIndex() )    
-#    
-#    def get_play_continously_title_by_index(self, index):
-#        return self.dropdown_play_continously.itemText( index )
-#    
-#    def get_play_continously_selected_index(self):
-#        return self.dropdown_play_continously.currentIndex()
-#
-#    def get_play_continously_last_index(self):
-#        return self.dropdown_play_continously.count() - 1
-#    
-#    def select_play_continously_element_by_index(self, index):
-#        self.dropdown_play_continously.setCurrentIndex(index)
-#        
-#    # ======================================================
-#            
-#    def disablePlayStopContinously(self):
-#        self.play_continously_button.setEnabled(False)
-#        self.stop_continously_button.setEnabled(False)
-#        self.dropdown_play_continously.setEnabled(False)
-#        
-#    def enablePlayContinously(self, enabled):
-#        self.play_continously_button.setEnabled(enabled)
-#        self.stop_continously_button.setEnabled(not enabled)
-#        self.dropdown_play_continously.setEnabled(enabled)
-#    
-#    # =====================================================
+    def clear_play_continously_elements(self):
+        self.dropdown_play_continously.clear()
+        
+    def add_play_continously_separator(self):
+        self.dropdown_play_continously.insertSeparator(self.dropdown_play_continously.__len__())        
+        
+    def add_play_continously_element(self, title, path):
+        self.dropdown_play_continously.addItem(title, path)        
+        
+    def get_play_continously_selected_path(self):
+        return self.dropdown_play_continously.itemData( self.dropdown_play_continously.currentIndex() )
+
+    def get_play_continously_path_by_index(self, index):
+        return self.dropdown_play_continously.itemData( index )
+
+    def get_play_continously_selected_title(self):
+        return self.dropdown_play_continously.itemText( self.dropdown_play_continously.currentIndex() )    
+    
+    def get_play_continously_title_by_index(self, index):
+        return self.dropdown_play_continously.itemText( index )
+    
+    def get_play_continously_selected_index(self):
+        return self.dropdown_play_continously.currentIndex()
+
+    def get_play_continously_last_index(self):
+        return self.dropdown_play_continously.count() - 1
+    
+    def select_play_continously_element_by_index(self, index):
+        self.dropdown_play_continously.setCurrentIndex(index)
+        
+    # ======================================================
+            
+    def disablePlayStopContinously(self):
+        self.play_continously_button.setEnabled(False)
+        self.stop_continously_button.setEnabled(False)
+        self.dropdown_play_continously.setEnabled(False)
+        
+    def enablePlayContinously(self):
+        self.play_continously_button.setEnabled(True)
+        self.stop_continously_button.setEnabled(False)
+        self.dropdown_play_continously.setEnabled(True)
+    
+    # =====================================================
 #         
 #    def enableSearchIcons(self, enabled):
 #        if self.advanced_search_button.isChecked():
@@ -291,7 +309,8 @@ class ControlButtonsHolder(QWidget):
 #        self.advanced_search_button.setEnabled(enabled)
 #        self.fast_search_button.setEnabled(enabled)
 #
-#    def play_continously_button_on_click(self):
+    def play_continously_button_on_click(self):
+        pass
 #
 #        # Start to play the media collection
 #        inst = PlayContinouslyThread.play(self)
@@ -299,7 +318,8 @@ class ControlButtonsHolder(QWidget):
 #        # connect the "selected" event to a method which will select the media in the drop-down list
 #        inst.selected.connect(self.select_play_continously_element_by_index)
 #
-#    def stop_continously_button_on_click(self):
+    def stop_continously_button_on_click(self):
+        pass
 #        PlayContinouslyThread.stop()
 #
 #    # --------------------------

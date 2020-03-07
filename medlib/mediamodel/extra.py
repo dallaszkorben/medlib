@@ -11,8 +11,16 @@ from PyQt5.QtWidgets import QSizePolicy
 def clearLayout(layout):
     while layout.count():
         child = layout.takeAt(0)
-        if child.widget():
-            child.widget().deleteLater() 
+        if child.widget() is not None:
+            child.widget().deleteLater()
+        elif child.layout() is not None:
+            clearLayout(child.layout())
+            
+#def clearLayout(layout):
+#    while layout.count():
+#        child = layout.takeAt(0)
+#        if child.widget():
+#            child.widget().deleteLater() 
 
 class QHLine(QFrame):
     def __init__(self):
@@ -117,11 +125,5 @@ class FlowLayout(QLayout):
 
         return y + lineHeight - rect.y()
     
-def clearLayout(layout):
-    while layout.count():
-        child = layout.takeAt(0)
-        if child.widget() is not None:
-            child.widget().deleteLater()
-        elif child.layout() is not None:
-            clearLayout(child.layout())
+
 

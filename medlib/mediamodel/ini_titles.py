@@ -253,6 +253,25 @@ class IniTitles(object):
         widget.setLayout(title_layout)
 
         #
+        # existing           showing
+        # ____________________________________________________________________________
+        #
+        # icon.png           icon.png
+        #
+        # card.ini:
+        #    iconkey + 
+        #    media +
+        #    categpry        media-{collector/storage}-{media}-{categry}-{iconkey}.png
+        #
+        # card.ini:
+        #    iconkey         media-{collector/storage}-{iconkey}.png
+        #
+        # card.ini:
+        #    media +
+        #    categpry        media-{collector/storage}-{media}-{categry}.png
+        #
+
+        #
         # Icon
         #
         pixmap = None

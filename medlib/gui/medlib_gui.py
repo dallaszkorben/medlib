@@ -223,14 +223,24 @@ class MedlibGui(QWidget):#, QObject):
         """
         return index * 4
     
-    def refreshCollectedCardsListener(self, mediaCollector):
+    def refreshCollectedCardsListener(self, mediaCollector, sortedStorageList):
         
         self.mediaCollector = mediaCollector
         
         # Show the History Link Title
         if mediaCollector:
             self.hierarchy_title.setTitle(mediaCollector)   
-    
+            
+        # Fill up the Play Continously List - Drpodown
+        self.control_panel.clear_play_continously_elements()
+        
+        if len(sortedStorageList) > 0:
+            self.control_panel.enablePlayContinously()
+
+            for media in sortedStorageList:
+                self.control_panel.add_play_continously_element(media.getFormattedTitle(), media.getPathOfMedia())
+        else:
+            self.control_panel.disablePlayStopContinously()
     #
     # Input parameter for CardHolder
     #
@@ -300,7 +310,6 @@ class MedlibGui(QWidget):#, QObject):
         self.setSwitchKeepHierarchy(keep)
         reReadConfigIni()
         self.card_holder.refresh(self.mediaCollector)
-        
        
 #    def to_integer(self, value):         
 #        hours, minutes = map(int, (['0']+value.split(':'))[-2:])
@@ -555,11 +564,20 @@ class HierarchyTitle(QWidget):
 # =========================================
 #
 class ControlPanel(QWidget):
+    """
+        +---- QWidget -----------------------------------------+
+        | +---- self_layout (QVBoxLayout) -------------------+ |
+        | | +---- control_buttons_holder (QWidget)---------+ | |
+        | | |                                              | | |
+        | | |                                              | | |
+        | | +----------------------------------------------+ | |
+        | +--------------------------------------------------+ |
+        +------------------------------------------------------+
+    """
     def __init__(self, gui):
         super().__init__(gui)
        
-        self.gui = gui
-        
+        self.gui = gui       
         
         # The other way to paint the background is using the paintEvent method
         self._pal = QtGui.QPalette()
@@ -618,6 +636,18 @@ class ControlPanel(QWidget):
         
     def setHierarchy(self, show):
         self.control_buttons_holder.setHierarchy(show)
+    
+    def clear_play_continously_elements(self):
+        self.control_buttons_holder.clear_play_continously_elements()
+        
+    def disablePlayStopContinously(self):
+        self.control_buttons_holder.disablePlayStopContinously()
+    
+    def enablePlayContinously(self):
+        self.control_buttons_holder.enablePlayContinously()
+    
+    def add_play_continously_element(self, title, path):
+        self.control_buttons_holder.add_play_continously_element(title, path)
         
 #    def apaintEvent(self, event):
 #        s = self.size()

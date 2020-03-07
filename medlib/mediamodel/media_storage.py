@@ -13,6 +13,7 @@ from medlib.mediamodel.qlabel_to_link_on_cllick import QLabelToLinkOnClick
 from PyQt5.QtGui import QKeyEvent
 from PyQt5 import QtCore
 from PyQt5.QtCore import QEvent
+from psutil import Popen
 
 class MediaStorage(MediaBase):
     """
@@ -96,7 +97,6 @@ class MediaStorage(MediaBase):
                 using the toDoOnClick() method, but I do not do this because in that case 
                 I could not have the index of the selected Card  
                 """
-#        event = QKeyEvent(QEvent.KeyPress, QtCore.Qt.Key_Space, Qt.NoModifier, str(self.media.getCard().getIndexInDataList()))
                 event = QKeyEvent(QEvent.KeyPress, QtCore.Qt.Key_Space, Qt.NoModifier, str(self.media.getIndex()))
                 QtCore.QCoreApplication.postEvent(self, event)
  
@@ -107,14 +107,26 @@ class MediaStorage(MediaBase):
                 """
 
                 if platform.system() == 'Darwin':                   # macOS
-                    subprocess.call(('open', self.pathOfMedia))
+                    subprocess.run(('open', self.pathOfMedia))
                 elif platform.system() == 'Windows':                # Windows
                     os.startfile(self.pathOfMedia)
                 elif platform.system() == 'Linux':                  # Linux:
-                    subprocess.call(('xdg-open', self.pathOfMedia))
+                    out=subprocess.Popen(['xdg-open', self.pathOfMedia])
                 else:                                               # linux 
-                    subprocess.call(('xdg-open', self.pathOfMedia))
+                    subprocess.run(('xdg-open', self.pathOfMedia))
         
+#                print(out.pid)
+#                import psutil
+
+#                print("main process: ", psutil.Process(out.pid))
+#                print("children: ", psutil.Process(out.pid).children(recursive=True))
+
+#                main_process = psutil.Process()
+#                children_processes = main_process.children(recursive=True)
+#                for child in children_processes:
+#                    print("child process: ", child.pid, child.name())
+#                out.terminate()
+#                os.kill(out.pid, SIGTERM)
         return QLabelWithLinkToMedia(self, self.isInFocus, self.getPathOfMedia())
 
     def setNextLevelListener(self, nextLevelListener):
