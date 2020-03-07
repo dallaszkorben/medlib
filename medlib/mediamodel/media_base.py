@@ -1,9 +1,14 @@
 import locale
+import os
+import subprocess
+import platform
 
-from medlib.constants import PANEL_HEIGHT, PANEL_FONT_TYPE, PANEL_FONT_SIZE,\
-    MAIN_BACKGROUND_COLOR
+from medlib.constants import PANEL_HEIGHT
+from medlib.constants import PANEL_FONT_TYPE
+from medlib.constants import PANEL_FONT_SIZE
+#from medlib.constants import MAIN_BACKGROUND_COLOR
 
-from builtins import object
+#from builtins import object
 
 from medlib.mediamodel.ini_general import IniGeneral
 from medlib.mediamodel.ini_classification import IniClassification
@@ -111,8 +116,7 @@ class MediaBase(CardDataInterface):
         else:
             None
 # -
-
-
+        
     def search(self, withShift, forWho, byWhat):
         """
         searchFunction( forWho, byWhat )    - A search function when you click on a link on the card.

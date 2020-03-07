@@ -1,19 +1,23 @@
 import subprocess
 import platform
+import os
 
-from medlib.constants import *
-from medlib.handle_property import _
+#from medlib.constants import *
+#from medlib.handle_property import _
 
 from medlib.mediamodel.media_base import MediaBase 
 from medlib.mediamodel.media_base import FOLDER_TYPE_STORAGE
-
 from medlib.mediamodel.paths_storage import PathsStorage
-
 from medlib.mediamodel.qlabel_to_link_on_cllick import QLabelToLinkOnClick
+
+#from PyQt5 import QtCore
 from PyQt5.QtGui import QKeyEvent
-from PyQt5 import QtCore
 from PyQt5.QtCore import QEvent
-from psutil import Popen
+from PyQt5.QtCore import Qt
+from PyQt5.QtCore import QCoreApplication
+#from psutil import Popen
+
+from medlib.constants import STORAGE_BACKGROUND_COLOR
 
 class MediaStorage(MediaBase):
     """
@@ -54,6 +58,9 @@ class MediaStorage(MediaBase):
     
     def getPathOfIcon(self):
         return self.pathsStorage.getPathOfIcon()
+    
+    def getMediaExtension(self):
+        return self.pathsStorage.getMediaExtension()
 
     def getBackgroundColor(self):
         return STORAGE_BACKGROUND_COLOR
@@ -97,23 +104,24 @@ class MediaStorage(MediaBase):
                 using the toDoOnClick() method, but I do not do this because in that case 
                 I could not have the index of the selected Card  
                 """
-                event = QKeyEvent(QEvent.KeyPress, QtCore.Qt.Key_Space, Qt.NoModifier, str(self.media.getIndex()))
-                QtCore.QCoreApplication.postEvent(self, event)
+                event = QKeyEvent(QEvent.KeyPress, Qt.Key_Space, Qt.NoModifier, str(self.media.getIndex()))
+                QCoreApplication.postEvent(self, event)
  
             def toDoSelection(self):
                 """
                 In the CardHolder the Space/Enter triggers
                 Plays the media regarding on the configuration in the OS
                 """
+                self.playMedia(self.pathOfMedia, self.media.getControl().getMedia())
 
-                if platform.system() == 'Darwin':                   # macOS
-                    subprocess.run(('open', self.pathOfMedia))
-                elif platform.system() == 'Windows':                # Windows
-                    os.startfile(self.pathOfMedia)
-                elif platform.system() == 'Linux':                  # Linux:
-                    out=subprocess.Popen(['xdg-open', self.pathOfMedia])
-                else:                                               # linux 
-                    subprocess.run(('xdg-open', self.pathOfMedia))
+#                if platform.system() == 'Darwin':                   # macOS
+#                    subprocess.run(('open', self.pathOfMedia))
+#                elif platform.system() == 'Windows':                # Windows
+#                    os.startfile(self.pathOfMedia)
+#                elif platform.system() == 'Linux':                  # Linux:
+#                    out=subprocess.Popen(['xdg-open', self.pathOfMedia])
+#                else:                                               # linux 
+#                    subprocess.run(('xdg-open', self.pathOfMedia))
         
 #                print(out.pid)
 #                import psutil

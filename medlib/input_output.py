@@ -251,8 +251,8 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
  
         for file_name in file_list:
              
-            # find the Media (video or audio or odt or pdf)
-            if CardIni.getMediaFilePatternByMedia(con_media).match(file_name):                
+            # find the Media - Enabled Media file depends on the "control.media" in the card.ini (ex. media=video => enabled files: *.mkv, *.mp4, *.webm, *.avi, *.flv)
+            if CardIni.getMediaFilePatternByMedia(con_media).match(file_name):
                 media_path = os.path.join(actualDir, file_name)
                 media_name = file_name
 
@@ -602,7 +602,7 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
         #
         elif card_path and media_path and issubclass(parentMediaCollector.__class__, MediaStorage) and con_category == 'appendix':
             pathAppendix = PathsAppendix(os.path.dirname(card_path), card_path, image_path, media_path)
-            recentMedia = MediaAppendix(pathAppendix, titles)
+            recentMedia = MediaAppendix(pathAppendix, titles, control)
             parentMediaCollector.addMediaAppendix(recentMedia)
 
         else:
@@ -853,7 +853,7 @@ def collectCardsFromJson(jsonForm, parentMediaCollector = None):
         path_of_media = path_appendix.get(JSON_KEY_APPENDIX_PATH_OF_MEDIA)
         
         ini_path_appendix = PathsAppendix(name_of_folder, path_of_card, path_of_image, path_of_media)
-        nextParent = MediaAppendix(ini_path_appendix, ini_titles)
+        nextParent = MediaAppendix(ini_path_appendix, ini_titles, ini_control)
         parentMediaCollector.addMediaAppendix(nextParent)
 
     # ################################## #

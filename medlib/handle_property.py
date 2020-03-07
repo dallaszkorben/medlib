@@ -182,9 +182,10 @@ class ConfigIni( Property ):
 
     # (section, key, default)
     DEFAULT_LANGUAGE = ("general", "language", "hu")
+    DEFAULT_SCALE = ("general", "scale", 1)
     DEFAULT_SHOW_ORIGINAL_TITLE = ("general", "show-original-title", "n")
     DEFAULT_KEEP_HIERARCHY = ("general", "keep-hierarchy", "y")
-    DEFAULT_SCALE = ("general", "scale", 1)
+    DEFAULT_USE_XDG = ("general", "use-xdg", "y")
 
     DEFAULT_MEDIA_PATH = ("media", "media-path", ".")    
     
@@ -224,14 +225,17 @@ class ConfigIni( Property ):
     def getLanguage(self):
         return self.get(self.DEFAULT_LANGUAGE[0], self.DEFAULT_LANGUAGE[1], self.DEFAULT_LANGUAGE[2])
 
+    def getScale(self):
+        return self.get(self.DEFAULT_SCALE[0], self.DEFAULT_SCALE[1], self.DEFAULT_SCALE[2])
+
     def getShowOriginalTitle(self):
         return self.get(self.DEFAULT_SHOW_ORIGINAL_TITLE[0], self.DEFAULT_SHOW_ORIGINAL_TITLE[1], self.DEFAULT_SHOW_ORIGINAL_TITLE[2])
 
     def getKeepHierarchy(self):
         return self.get(self.DEFAULT_KEEP_HIERARCHY[0], self.DEFAULT_KEEP_HIERARCHY[1], self.DEFAULT_KEEP_HIERARCHY[2])
 
-    def getScale(self):
-        return self.get(self.DEFAULT_SCALE[0], self.DEFAULT_SCALE[1], self.DEFAULT_SCALE[2])
+    def getUseXdg(self):
+        return self.get(self.DEFAULT_USE_XDG[0], self.DEFAULT_USE_XDG[1], self.DEFAULT_USE_XDG[2])
 
     def getMediaPath(self):
         return self.get(self.DEFAULT_MEDIA_PATH[0], self.DEFAULT_MEDIA_PATH[1], self.DEFAULT_MEDIA_PATH[2])
@@ -310,18 +314,20 @@ class ConfigIni( Property ):
     def setLanguage(self, lang):
         self.update(self.DEFAULT_LANGUAGE[0], self.DEFAULT_LANGUAGE[1], lang)
 
+    def setScale(self, scale):
+        self.update(self.DEFAULT_SCALE[0], self.DEFAULT_SCALE[1], scale)
+
     def setShowOriginal_title(self, show):
         self.update(self.DEFAULT_SHOW_ORIGINAL_TITLE[0], self.DEFAULT_SHOW_ORIGINAL_TITLE[1], show)
 
     def setKeepHierarchy(self, keep):
         self.update(self.DEFAULT_KEEP_HIERARCHY[0], self.DEFAULT_KEEP_HIERARCHY[1], keep)
 
-    def setScale(self, scale):
-        self.update(self.DEFAULT_SCALE[0], self.DEFAULT_SCALE[1], scale)
-
     def setMediaPath(self, path):
         self.update(self.DEFAULT_MEDIA_PATH[0], self.DEFAULT_MEDIA_PATH[1], path)
 
+    def setUseXdg(self, use_xdg):
+        self.update(self.DEFAULT_USE_XDG[0], self.DEFAULT_USE_XDG[1], use_xdg)
 
 
 
@@ -362,25 +368,12 @@ def reReadConfigIni():
     config_ini['scale'] = ci.getScale()
     config_ini['show_original_title'] = ci.getShowOriginalTitle()
     config_ini['keep_hierarchy'] = ci.getKeepHierarchy()
+    config_ini['use_xdg'] = ci.getUseXdg()
     config_ini['media_path'] = ci.getMediaPath()
     
-    
-    
-#    config_ini['media_player_video'] = ci.get_media_player_video()
-#    config_ini['media_player_video_param'] = ci.get_media_player_video_param()
-#    config_ini['media_player_video_ext'] = ci.get_media_player_video_ext()
-#    config_ini['media_player_audio'] = ci.get_media_player_audio()
-#    config_ini['media_player_audio_param'] = ci.get_media_player_audio_param()
-#    config_ini['media_player_audio_ext'] = ci.get_media_player_audio_ext()
-#
-#    config_ini['media_player_odt'] = ci.get_media_player_odt()
-#    config_ini['media_player_odt_param'] = ci.get_media_player_odt_param()
-#    config_ini['media_player_odt_ext'] = ci.get_media_player_odt_ext()
-#
-#    config_ini['media_player_pdf'] = ci.get_media_player_pdf()
-#    config_ini['media_player_pdf_param'] = ci.get_media_player_pdf_param()
-#    config_ini['media_player_pdf_ext'] = ci.get_media_player_pdf_ext()
-
+    options = ci.getOptions('player')
+    for key in options:
+        config_ini['player_' + key.replace("-","_")] = options[key]
 
     # Get the dictionary
     dic = Dict.getInstance( config_ini['language'] )

@@ -10,11 +10,8 @@ media_dict = {
     'text': {
         'ext': ('doc', 'odt', 'pdf', 'epub', 'mobi', 'azw', 'azw3', 'iba', 'txt'), 
         'category': ('book', 'presentation', 'quiz', 'elearning', 'appendix')},
-    'dia': {
-        'ext': (), 
-        'category': ()},
-    'picture': {
-        'ext': (), 
+    'image': {
+        'ext': ('jpg', 'jpeg', 'png'), 
         'category': ('elearning',)},
     'link' : {
         'ext': (), 
@@ -28,8 +25,7 @@ section_dict = {
     'titles': (),
     'storyline': (),
     'topic': (),
-    'lyrics': (),
-               
+    'lyrics': (),               
     'general': (
         {'length': (True, 'setYear',)},
         {'year': (True, 'setYear',)},
@@ -51,20 +47,12 @@ section_dict = {
         {'episode': (True, 'setEpiside',)},
         {'album': (True, 'setAlbum',)},
         {'track': (True, 'setTrack',)},
-
         ),
-
-
-    'classification': ('rate', 'tag', 'new','favorite'),
-    
-    'control': ('orderby', 'media', 'category', 'iconkey'),
-    
-    'media': ('link', 'file'),
-    
-    'appendixes': (),
-    
+    'classification': ('rate', 'tag', 'new','favorite'),    
+    'control': ('orderby', 'media', 'category', 'iconkey'),    
+    'media': ('link', 'file'),    
+    'appendixes': (),    
     'links': (),
-
 }
 
 
@@ -108,45 +96,46 @@ class CardIni(object):
 CARD_INI_FILE_NAME = 'card.ini'
 CARD_LIST_JSON_FILE_NAME = 'card.list.json'
 
-SECTION_TITLES = CardIni.getSectionList()[0]
-SECTION_STORYLINE = CardIni.getSectionList()[1]
-SECTION_TOPIC = CardIni.getSectionList()[2]
-SECTION_LYRICS = CardIni.getSectionList()[3]
-SECTION_GENERAL = CardIni.getSectionList()[4]
-SECTION_CLASSIFICATION = CardIni.getSectionList()[5]
-SECTION_CONTROL = CardIni.getSectionList()[6]
-SECTION_MEDIA = CardIni.getSectionList()[7]
+SECTION_TITLES = 'titles'
+SECTION_STORYLINE = 'storyline'
+SECTION_TOPIC = 'topic'
+SECTION_LYRICS = 'lyrics'
+SECTION_GENERAL = 'general'
+SECTION_CLASSIFICATION = 'classification'
+SECTION_CONTROL = 'control'
+SECTION_MEDIA = 'media'
 
-KEY_CLASSIFICATION_RATE = section_dict[SECTION_CLASSIFICATION][0]
-KEY_CLASSIFICATION_TAG = section_dict[SECTION_CLASSIFICATION][1]
-KEY_CLASSIFICATION_NEW = section_dict[SECTION_CLASSIFICATION][2]
-KEY_CLASSIFICATION_FAVORITE = section_dict[SECTION_CLASSIFICATION][3]
+KEY_CLASSIFICATION_RATE = 'rate'
+KEY_CLASSIFICATION_TAG = 'tag'
+KEY_CLASSIFICATION_NEW = 'new'
+KEY_CLASSIFICATION_FAVORITE = 'favorite'
 
-KEY_CONTROL_ORDERBY = section_dict[SECTION_CONTROL][0]
-KEY_CONTROL_MEDIA = section_dict[SECTION_CONTROL][1]
-KEY_CONTROL_CATEGORY = section_dict[SECTION_CONTROL][2]
-KEY_CONTROL_ICONKEY = section_dict[SECTION_CONTROL][3]
+KEY_CONTROL_ORDERBY = 'orderby'
+KEY_CONTROL_MEDIA = 'media'
+KEY_CONTROL_CATEGORY = 'category'
+KEY_CONTROL_ICONKEY = 'iconkey'
 
-KEY_GENERAL_LENGTH = list(section_dict['general'][0].keys())[0]
-KEY_GENERAL_YEAR = list(section_dict['general'][1].keys())[0]
-KEY_GENERAL_DIRECTOR = list(section_dict['general'][2].keys())[0]
-KEY_GENERAL_MAKER = list(section_dict['general'][3].keys())[0]
-KEY_GENERAL_WRITER = list(section_dict['general'][4].keys())[0]
-KEY_GENERAL_AUTHOR = list(section_dict['general'][5].keys())[0]
-KEY_GENERAL_ACTOR = list(section_dict['general'][6].keys())[0]
-KEY_GENERAL_PERFORMER = list(section_dict['general'][7].keys())[0]
-KEY_GENERAL_LECTURER = list(section_dict['general'][8].keys())[0]
-KEY_GENERAL_CONTRIBUTOR = list(section_dict['general'][9].keys())[0]
-KEY_GENERAL_VOICE = list(section_dict['general'][10].keys())[0]
-KEY_GENERAL_GENRE = list(section_dict['general'][11].keys())[0]
-KEY_GENERAL_THEME = list(section_dict['general'][12].keys())[0]
-KEY_GENERAL_SUB = list(section_dict['general'][13].keys())[0]
-KEY_GENERAL_SOUND = list(section_dict['general'][14].keys())[0]
-KEY_GENERAL_COUNTRY = list(section_dict['general'][15].keys())[0]
-KEY_GENERAL_SEASON = list(section_dict['general'][16].keys())[0]
-KEY_GENERAL_EPISODE = list(section_dict['general'][17].keys())[0]
-KEY_GENERAL_ALBUM = list(section_dict['general'][18].keys())[0]
-KEY_GENERAL_TRACK = list(section_dict['general'][19].keys())[0]
+KEY_GENERAL_LENGTH = 'length'
+KEY_GENERAL_YEAR = 'year'
+KEY_GENERAL_DIRECTOR = 'director'
+KEY_GENERAL_MAKER = 'maker'
+KEY_GENERAL_WRITER = 'writer'
+KEY_GENERAL_AUTHOR = 'author'
+KEY_GENERAL_ACTOR = 'actor'
+KEY_GENERAL_PERFORMER = 'performer'
+KEY_GENERAL_LECTURER = 'lecturer'
+KEY_GENERAL_CONTRIBUTOR = 'contributor'
+KEY_GENERAL_VOICE = 'voice'
+KEY_GENERAL_GENRE = 'genre'
+KEY_GENERAL_THEME = 'theme'
+KEY_GENERAL_SUB = 'sub'
+KEY_GENERAL_SOUND = 'sound'
+KEY_GENERAL_COUNTRY = 'country'
+KEY_GENERAL_SEASON = 'season'
+KEY_GENERAL_EPISODE = 'episode'
+KEY_GENERAL_ALBUM = 'album'
+KEY_GENERAL_TRACK = 'track'
+KEY_GENERAL_INDEX = 'index'
 
 # ---
 
@@ -176,11 +165,13 @@ JSON_KEY_STORAGE_PATH_OF_CARD = 'path-of-card'
 JSON_KEY_STORAGE_PATH_OF_IMAGE = 'path-of-image'
 JSON_KEY_STORAGE_PATH_OF_MEDIA = 'path-of-media'
 JSON_KEY_STORAGE_PATH_OF_ICON = 'path-of-icon'
+JSON_KEY_STORAGE_MEDIA_EXTENSION = 'media-extension'
 
 JSON_KEY_APPENDIX_NAME_OF_FOLDER = 'name-of-folder'
 JSON_KEY_APPENDIX_PATH_OF_CARD = 'path-of-card'
 JSON_KEY_APPENDIX_PATH_OF_IMAGE = 'path-of-image'
 JSON_KEY_APPENDIX_PATH_OF_MEDIA = 'path-of-media'
+JSON_KEY_APPENDIX_MEDIA_EXTENSION = 'media-extension'
 
 JSON_KEY_CLASSIFICATION_RATE = KEY_CLASSIFICATION_RATE
 JSON_KEY_CLASSIFICATION_TAG = KEY_CLASSIFICATION_TAG

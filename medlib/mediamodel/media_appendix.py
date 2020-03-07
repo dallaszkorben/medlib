@@ -1,26 +1,16 @@
 import locale
-import os
-import subprocess
-import platform
-
-from medlib.constants import *
-from medlib.handle_property import _
 from builtins import object
 
-from PyQt5.QtWidgets import QHBoxLayout
-from PyQt5.QtWidgets import QLabel
-from PyQt5.QtWidgets import QWidget
-from PyQt5.QtWidgets import QApplication
+from medlib.mediamodel.ini_titles import IniTitles
+from medlib.mediamodel.paths_appendix import PathsAppendix
+from medlib.mediamodel.qlabel_to_link_on_cllick import QLabelToLinkOnClick
 
-from PyQt5.QtGui import QFont, QPalette
+from medlib.constants import PANEL_FONT_TYPE
+from medlib.constants import PANEL_FONT_SIZE
 
 from PyQt5.QtCore import Qt
-
-from medlib.mediamodel.ini_titles import IniTitles
-
-from medlib.mediamodel.paths_appendix import PathsAppendix
-
-from medlib.mediamodel.qlabel_to_link_on_cllick import QLabelToLinkOnClick
+from PyQt5.QtGui import QFont, QPalette
+from medlib.card_ini import JSON_SECTION_TITLES, JSON_SECTION_CONTROL
 
 class MediaAppendix(object):
             
@@ -34,13 +24,14 @@ class MediaAppendix(object):
         """
         return locale.strxfrm(arg.getTranslatedTitle()) if arg.control.getOrderBy() == 'title' else arg.container_paths.getNameOfFolder() if arg.control.getOrderBy() == 'folder' else arg.container_paths.getNameOfFolder() 
     
-    def __init__(self, pathsAppendix, titles):
+    def __init__(self, pathsAppendix, titles, control):
         """
         This is the constructor of the MediaAppendix
         ________________________________________
         input:
                 pathsAppendix   PathsAppendix     paths to the media content (card.ini, image.jpg, media)
                 titles          IniTitles         represents the [titles] section
+                control         IniControl        represents the [control] section      
         """
         super().__init__()
         
@@ -49,6 +40,7 @@ class MediaAppendix(object):
         
         self.pathsAppendix = pathsAppendix
         self.titles = titles
+        self.control = control
 
     def getTitles(self):
         """
@@ -59,6 +51,9 @@ class MediaAppendix(object):
                 titles       IniTitles
         """
         return self.titles        
+    
+    def getControl(self):
+        return self.control
 
     # --------------------------------------------
     # ---------------- Widget --------------------
@@ -69,7 +64,7 @@ class MediaAppendix(object):
             |______|__________________________________|
         """
         #widget = MediaAppendix.LinkWidget(self, scale)
-        widget = MediaAppendix.QLinkLabelToAppendixMedia(media, self.titles.getTranslatedTitle(), self.isInFocus, self.getPathOfMedia(), scale)
+        widget = MediaAppendix.QLinkLabelToAppendixMedia(media, self, self.titles.getTranslatedTitle(), self.isInFocus, self.getPathOfMedia(), scale)
         return widget
     
     def getPathOfMedia(self):
@@ -80,22 +75,25 @@ class MediaAppendix(object):
 
     class QLinkLabelToAppendixMedia( QLabelToLinkOnClick ):
 
-        def __init__(self, media, text, funcIsSelected, pathOfMedia, scale):
+        def __init__(self, media, appendix_media, text, funcIsSelected, pathOfMedia, scale):
             super().__init__(media, text, funcIsSelected)        
             self.pathOfMedia = pathOfMedia
             self.scale = scale
+            self.appendix_media = appendix_media
             self.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * scale, weight=QFont.Bold))
 
         def toDoOnClick(self):
         
-            if platform.system() == 'Darwin':                   # macOS
-                subprocess.run(('open', self.pathOfMedia))
-            elif platform.system() == 'Windows':                # Windows
-                os.startfile(self.pathOfMedia)
-            elif platform.system() == 'Linux':                  # Linux:
-                subprocess.run(('xdg-open', self.pathOfMedia))
-            else:                                               # linux 
-                subprocess.run(('xdg-open', self.pathOfMedia))
+            self.playMedia(self.pathOfMedia, self.appendix_media.getControl().getMedia())
+            
+#            if platform.system() == 'Darwin':                   # macOS
+#                subprocess.run(('open', self.pathOfMedia))
+#            elif platform.system() == 'Windows':                # Windows
+#                os.startfile(self.pathOfMedia)
+#            elif platform.system() == 'Linux':                  # Linux:
+#                subprocess.run(('xdg-open', self.pathOfMedia))
+#            else:                                               # linux 
+#                subprocess.run(('xdg-open', self.pathOfMedia))
                 
         def enterEvent(self, event):
             super().enterEvent(event)
@@ -120,9 +118,10 @@ class MediaAppendix(object):
     def getJson(self):
         #json = super().getJson();
         json = {}
-        
-        json.update({'titles': self.titles.getJson()} if self.titles.getJson() else {})
-        json['paths-appendix'] = self.pathsAppendix.getJson()
+
+        json['paths-appendix'] = self.pathsAppendix.getJson()        
+        json.update({JSON_SECTION_TITLES: self.titles.getJson()} if self.titles.getJson() else {})
+        json.update({JSON_SECTION_CONTROL: self.control.getJson()} if self.control.getJson() else {})
         
         return json
 
