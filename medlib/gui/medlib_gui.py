@@ -1,13 +1,9 @@
 import sys
 import os
-import importlib
-from pkg_resources import resource_string
+
 from pkg_resources import resource_filename
 
-from functools import cmp_to_key
-import locale
-
-from medlib.mediamodel.extra import clearLayout, FlowLayout
+from medlib.mediamodel.extra import clearLayout
 from medlib.setup.setup import getSetupIni
 
 from medlib.gui.control_buttons_holder import ControlButtonsHolder
@@ -23,7 +19,6 @@ from PyQt5.QtWidgets import QVBoxLayout
 from PyQt5.QtWidgets import QScrollArea
 from PyQt5.QtWidgets import QDesktopWidget
 
-from PyQt5.QtCore import QObject
 from PyQt5.QtCore import Qt
 
 from medlib.constants import MAIN_BACKGROUND_COLOR, LINK_TILE_FONT_SIZE,\
@@ -44,13 +39,13 @@ from PyQt5.QtGui import QColor, QFontMetrics
 from PyQt5.QtGui import QIcon
 from PyQt5.QtGui import QFont
 from PyQt5.QtGui import QPainter
+from PyQt5 import QtCore, QtGui
 
 from medlib.handle_property import config_ini
 from medlib.handle_property import getConfigIni
 from medlib.handle_property import reReadConfigIni
-from medlib.input_output import collectCards
 from medlib.mediamodel.media_base import FOLDER_TYPE_STORAGE
-from PyQt5 import QtCore, QtGui
+from medlib.input_output import getCollectedCardsFromRoot
 
 class MedlibGui(QWidget):#, QObject):
     """
@@ -161,7 +156,7 @@ class MedlibGui(QWidget):#, QObject):
         self.card_holder = CardHolder(            
             self, 
             self.getNewCard,
-            self.collectCards,
+            self.getCollectedCards,
             self.refreshCollectedCardsListener,
             None,               #self.selectCard,
             None,               #self.goesHigher
@@ -210,7 +205,8 @@ class MedlibGui(QWidget):#, QObject):
         """
         Start Card Holder        
         """
-        self.card_holder.startCardCollection([])        
+#        self.card_holder.startCardCollection([])
+        self.card_holder.startCardCollection()
        
     def get_y_coordinate_by_reverse_index(self, reverse_index):
         """        
@@ -224,7 +220,14 @@ class MedlibGui(QWidget):#, QObject):
         return index * 4
     
     def refreshCollectedCardsListener(self, mediaCollector, sortedStorageList):
+        """
+        Refresh the Cards Collected in CardHolder
+        1. set self.mediaCollector
+        2. fill up the "play continously" list
         
+        @param mediaCollector:     MediaCollector  The new media collector
+        @param sortedStorageList:  List            Sorted list of the Media Storages in the MediaCollector
+        """
         self.mediaCollector = mediaCollector
         
         # Show the History Link Title
@@ -238,16 +241,16 @@ class MedlibGui(QWidget):#, QObject):
             self.control_panel.enablePlayContinously()
 
             for media in sortedStorageList:
-                self.control_panel.add_play_continously_element(media.getFormattedTitle(), media.getPathOfMedia())
+                self.control_panel.add_play_continously_element(media.getFormattedTitle(), media.getPathOfMedia(), media.getTypeOfMedia())
         else:
             self.control_panel.disablePlayStopContinously()
     #
     # Input parameter for CardHolder
     #
-    def collectCards(self, paths):
-        collector = collectCards()
+    def getCollectedCards(self):
+        collector = getCollectedCardsFromRoot()
         collector.setNextLevelListener(self.goesDeeper)     
-        cdl = collector.getMediaCollectorList()        
+#        cdl = collector.getMediaCollectorList()        
         return collector
         
     #
@@ -305,6 +308,15 @@ class MedlibGui(QWidget):#, QObject):
         
         
     def changeKeepHierarchy(self, keep):
+        """
+        Changed the status of the "KeepHierarchy" button indicated by the keep attribute
+        1. Store the new status in the "config.ini" file
+        2. Set the self.swithchKeepHierarchy variable regarding
+        3. The "config.ini" file is needed to be refreshed by calling reReadConfigIni() method
+        4. A new card list needed to be generated regarding to the status
+        
+        @param keep: boolean True if the status is ON, meaning the hierarchy (MediaContainer) is shown
+        """
         config_ini_function = getConfigIni()
         config_ini_function.setKeepHierarchy("y" if keep else "n")
         self.setSwitchKeepHierarchy(keep)
@@ -326,6 +338,22 @@ class MedlibGui(QWidget):#, QObject):
             self.hierarchy_title.setTitle(self.mediaCollector) 
             
         self.card_holder.alignSpinner(self.geometry().width(), self.geometry().height())
+  
+  
+  
+  
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   
   
   
@@ -644,10 +672,10 @@ class ControlPanel(QWidget):
         self.control_buttons_holder.disablePlayStopContinously()
     
     def enablePlayContinously(self):
-        self.control_buttons_holder.enablePlayContinously()
+        self.control_buttons_holder.enablePlayContinously(True)
     
-    def add_play_continously_element(self, title, path):
-        self.control_buttons_holder.add_play_continously_element(title, path)
+    def add_play_continously_element(self, title, media_path, media_type):
+        self.control_buttons_holder.add_play_continously_element(title, media_path, media_type)
         
 #    def apaintEvent(self, event):
 #        s = self.size()

@@ -1,10 +1,3 @@
-import subprocess
-import platform
-import os
-
-#from medlib.constants import *
-#from medlib.handle_property import _
-
 from medlib.mediamodel.media_base import MediaBase 
 from medlib.mediamodel.media_base import FOLDER_TYPE_STORAGE
 from medlib.mediamodel.paths_storage import PathsStorage
@@ -15,9 +8,9 @@ from PyQt5.QtGui import QKeyEvent
 from PyQt5.QtCore import QEvent
 from PyQt5.QtCore import Qt
 from PyQt5.QtCore import QCoreApplication
-#from psutil import Popen
 
 from medlib.constants import STORAGE_BACKGROUND_COLOR
+from medlib.gui.player import PlayerThread
 
 class MediaStorage(MediaBase):
     """
@@ -35,7 +28,7 @@ class MediaStorage(MediaBase):
                 titles          IniTitles         represents the [titles] section
                 control         IniControl        represents the [control] section
                 general         IniGeneral        represents the [general] section
-                classification          IniRating         represents the [classification] section
+                classification  IniRating         represents the [classification] section
         """
         super().__init__(titles, control, general, classification)
         
@@ -52,6 +45,9 @@ class MediaStorage(MediaBase):
 
     def getPathOfMedia(self):
         return self.pathsStorage.getPathOfMedia()
+    
+    def getTypeOfMedia(self):
+        return self.control.getMedia()
     
     def getPathOfCard(self):
         return self.pathsStorage.getPathOfCard()
@@ -112,29 +108,11 @@ class MediaStorage(MediaBase):
                 In the CardHolder the Space/Enter triggers
                 Plays the media regarding on the configuration in the OS
                 """
-                self.playMedia(self.pathOfMedia, self.media.getControl().getMedia())
+                PlayerThread.play([{
+                    'media-index': 0,
+                    'media-path': self.pathOfMedia, 
+                    'media-type': self.media.getControl().getMedia()}])
 
-#                if platform.system() == 'Darwin':                   # macOS
-#                    subprocess.run(('open', self.pathOfMedia))
-#                elif platform.system() == 'Windows':                # Windows
-#                    os.startfile(self.pathOfMedia)
-#                elif platform.system() == 'Linux':                  # Linux:
-#                    out=subprocess.Popen(['xdg-open', self.pathOfMedia])
-#                else:                                               # linux 
-#                    subprocess.run(('xdg-open', self.pathOfMedia))
-        
-#                print(out.pid)
-#                import psutil
-
-#                print("main process: ", psutil.Process(out.pid))
-#                print("children: ", psutil.Process(out.pid).children(recursive=True))
-
-#                main_process = psutil.Process()
-#                children_processes = main_process.children(recursive=True)
-#                for child in children_processes:
-#                    print("child process: ", child.pid, child.name())
-#                out.terminate()
-#                os.kill(out.pid, SIGTERM)
         return QLabelWithLinkToMedia(self, self.isInFocus, self.getPathOfMedia())
 
     def setNextLevelListener(self, nextLevelListener):

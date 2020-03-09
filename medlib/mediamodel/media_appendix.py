@@ -11,6 +11,7 @@ from medlib.constants import PANEL_FONT_SIZE
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont, QPalette
 from medlib.card_ini import JSON_SECTION_TITLES, JSON_SECTION_CONTROL
+from medlib.gui.player import PlayerThread
 
 class MediaAppendix(object):
             
@@ -70,6 +71,9 @@ class MediaAppendix(object):
     def getPathOfMedia(self):
         return self.pathsAppendix.getPathOfMedia()
     
+    def getTypeOfMedia(self):
+        return self.control.getMedia()
+    
     def isInFocus(self):
         return True
 
@@ -84,16 +88,10 @@ class MediaAppendix(object):
 
         def toDoOnClick(self):
         
-            self.playMedia(self.pathOfMedia, self.appendix_media.getControl().getMedia())
-            
-#            if platform.system() == 'Darwin':                   # macOS
-#                subprocess.run(('open', self.pathOfMedia))
-#            elif platform.system() == 'Windows':                # Windows
-#                os.startfile(self.pathOfMedia)
-#            elif platform.system() == 'Linux':                  # Linux:
-#                subprocess.run(('xdg-open', self.pathOfMedia))
-#            else:                                               # linux 
-#                subprocess.run(('xdg-open', self.pathOfMedia))
+            PlayerThread.play([{
+                'media-index': 0,
+                'media-path': self.pathOfMedia, 
+                'media-type': self.appendix_media.getControl().getMedia()}])
                 
         def enterEvent(self, event):
             super().enterEvent(event)
@@ -116,7 +114,6 @@ class MediaAppendix(object):
             self.setPalette(self.origPalette)
 
     def getJson(self):
-        #json = super().getJson();
         json = {}
 
         json['paths-appendix'] = self.pathsAppendix.getJson()        

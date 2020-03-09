@@ -8,7 +8,7 @@ media_dict = {
         'ext': ('mp3', 'ogg'), 
         'category': ('radioplay', 'music', 'show', 'presentation', 'audiobook', 'elearning', 'appendix')},
     'text': {
-        'ext': ('doc', 'odt', 'pdf', 'epub', 'mobi', 'azw', 'azw3', 'iba', 'txt'), 
+        'ext': ('doc', 'odt', 'pdf', 'epub', 'mobi', 'azw', 'azw3', 'iba', 'txt','rtf'), 
         'category': ('book', 'presentation', 'quiz', 'elearning', 'appendix')},
     'image': {
         'ext': ('jpg', 'jpeg', 'png'), 

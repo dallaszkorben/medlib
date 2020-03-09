@@ -6,9 +6,6 @@ import platform
 from medlib.constants import PANEL_HEIGHT
 from medlib.constants import PANEL_FONT_TYPE
 from medlib.constants import PANEL_FONT_SIZE
-#from medlib.constants import MAIN_BACKGROUND_COLOR
-
-#from builtins import object
 
 from medlib.mediamodel.ini_general import IniGeneral
 from medlib.mediamodel.ini_classification import IniClassification

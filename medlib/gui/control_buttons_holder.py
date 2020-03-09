@@ -29,6 +29,7 @@ from medlib.constants import CONTROL_IMG_BACK_BUTTON
 from medlib.constants import CONTROL_IMG_HIERARCHY_BUTTON
 from medlib.constants import CONTROL_IMG_EXTENTION
 from medlib.constants import CONTROL_IMG_SIZE
+from medlib.gui.player import PlayerThread
 
 # ================================
 #
@@ -261,14 +262,17 @@ class ControlButtonsHolder(QWidget):
     def add_play_continously_separator(self):
         self.dropdown_play_continously.insertSeparator(self.dropdown_play_continously.__len__())        
         
-    def add_play_continously_element(self, title, path):
-        self.dropdown_play_continously.addItem(title, path)        
+    def add_play_continously_element(self, title, media_path, media_type):
+        self.dropdown_play_continously.addItem(title, (media_path, media_type))        
         
     def get_play_continously_selected_path(self):
         return self.dropdown_play_continously.itemData( self.dropdown_play_continously.currentIndex() )
 
-    def get_play_continously_path_by_index(self, index):
-        return self.dropdown_play_continously.itemData( index )
+    def get_play_continously_media_path_by_index(self, index):
+        return self.dropdown_play_continously.itemData( index )[0]
+
+    def get_play_continously_media_type_by_index(self, index):
+        return self.dropdown_play_continously.itemData( index )[1]
 
     def get_play_continously_selected_title(self):
         return self.dropdown_play_continously.itemText( self.dropdown_play_continously.currentIndex() )    
@@ -292,10 +296,10 @@ class ControlButtonsHolder(QWidget):
         self.stop_continously_button.setEnabled(False)
         self.dropdown_play_continously.setEnabled(False)
         
-    def enablePlayContinously(self):
-        self.play_continously_button.setEnabled(True)
-        self.stop_continously_button.setEnabled(False)
-        self.dropdown_play_continously.setEnabled(True)
+    def enablePlayContinously(self, enabled):
+        self.play_continously_button.setEnabled(enabled)
+        self.stop_continously_button.setEnabled(not enabled)
+        self.dropdown_play_continously.setEnabled(enabled)
     
     # =====================================================
 #         
@@ -310,7 +314,24 @@ class ControlButtonsHolder(QWidget):
 #        self.fast_search_button.setEnabled(enabled)
 #
     def play_continously_button_on_click(self):
-        pass
+        """
+            select the list from the actual media till the end
+            
+        """
+        start_index = self.get_play_continously_selected_index()
+        last_index = self.get_play_continously_last_index()
+        list_to_play = []
+        for actual_index in range(start_index, last_index + 1):
+            list_to_play.append({
+                'media-index': actual_index,
+                'media-path': self.get_play_continously_media_path_by_index(actual_index), 
+                'media-type': self.get_play_continously_media_type_by_index(actual_index)})
+        
+        
+        ins = PlayerThread.play(list_to_play)
+        ins.startNextPlaying.connect(self.select_in_playlist_by_index)
+        ins.stopPlaying.connect(self.stop_playing)
+
 #
 #        # Start to play the media collection
 #        inst = PlayContinouslyThread.play(self)
@@ -318,10 +339,18 @@ class ControlButtonsHolder(QWidget):
 #        # connect the "selected" event to a method which will select the media in the drop-down list
 #        inst.selected.connect(self.select_play_continously_element_by_index)
 #
+    def select_in_playlist_by_index(self, index):
+        self.enablePlayContinously(False)
+        print("index:", index)
+
+    def stop_playing(self):
+        self.enablePlayContinously(True)
+        print("stop playing")
+        
     def stop_continously_button_on_click(self):
-        pass
-#        PlayContinouslyThread.stop()
-#
+        PlayerThread.stop()
+        
+        
 #    # --------------------------
 #    #
 #    # Fast Search Button Clicked

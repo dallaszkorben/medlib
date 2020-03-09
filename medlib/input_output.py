@@ -133,7 +133,7 @@ def getPatternNumber():
 def getPatternLength():
     return re.compile('^\d{1,3}[:]\d{1,2}$')
 
-def collectCards():
+def getCollectedCardsFromRoot():
     """
         Reads the Cards. First try to read from the json file.
         If there is no json file then it reads it from the file system and

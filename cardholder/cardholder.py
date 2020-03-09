@@ -195,11 +195,13 @@ class CardHolder( QWidget ):
     # this method should be called when you want a new collection of cards
     #
     # ---------------------------------------------------------------------
-    def startCardCollection(self, parameters):
+#    def startCardCollection(self, parameters):
+    def startCardCollection(self):        
 
         self.start_spinner()
 
-        self.cc = CollectCardsThread.getInstance( self, self.get_collected_cards_method, parameters )
+#        self.cc = CollectCardsThread.getInstance( self, self.get_collected_cards_method, parameters )
+        self.cc = CollectCardsThread.getInstance( self, self.get_collected_cards_method )        
         if self.cc:
             self.cc.cards_collected.connect(self.refresh)
             self.cc.start()   
@@ -1171,20 +1173,23 @@ class CollectCardsThread(QtCore.QThread):
         return cls.__instance    
 
     @classmethod
-    def getInstance(cls, parent, collect_cards_method, paths=None):
+#    def getInstance(cls, parent, collect_cards_method, paths=None):
+    def getInstance(cls, parent, collect_cards_method):        
         if not cls.__run:
             inst = cls.__new__(cls)
-            cls.__init__(cls.__instance, parent, collect_cards_method, paths) 
+#            cls.__init__(cls.__instance, parent, collect_cards_method, paths)
+            cls.__init__(cls.__instance, parent, collect_cards_method)
             return inst
         else:
             return None
 
-    def __init__(self, parent, collect_cards_method, paths):
+#    def __init__(self, parent, collect_cards_method, paths):
+    def __init__(self, parent, collect_cards_method):
         QThread.__init__(self)
         
         self.parent = parent
         self.collect_cards_method = collect_cards_method
-        self.paths = paths
+#        self.paths = paths
         
     def run(self):
         CollectCardsThread.__run = True
@@ -1192,7 +1197,8 @@ class CollectCardsThread(QtCore.QThread):
         #time.sleep(5)
         ####
         
-        card_list = self.collect_cards_method( self.paths)
+#        card_list = self.collect_cards_method( self.paths)
+        card_list = self.collect_cards_method()
         
         self.cards_collected.emit(card_list)
         CollectCardsThread.__run = False
