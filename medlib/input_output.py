@@ -249,6 +249,9 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
                     
         control = IniControl(con_orderby, con_media, con_category, con_iconkey) 
  
+        #MediaStorage
+        is_media_storage = True if con_media and con_category else False            
+ 
         for file_name in file_list:
              
             # find the Media - Enabled Media file depends on the "control.media" in the card.ini (ex. media=video => enabled files: *.mkv, *.mp4, *.webm, *.avi, *.flv)
@@ -576,10 +579,32 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
         #          └───────────┤    FOLDER      |   
         #                      └────────────────┘ 
         #        
+
+        continue_to_go_down = False
         
-        # If MediaCollector - under MediaCollector or Root
+        #
+        # If MediaAppendix - Under MediaStorage
+        #
+        if media_path and issubclass(parentMediaCollector.__class__, MediaStorage) and con_category == 'appendix':
+            pathAppendix = PathsAppendix(os.path.dirname(card_path), card_path, image_path, media_path)
+            recentMedia = MediaAppendix(pathAppendix, titles, control)
+            parentMediaCollector.addMediaAppendix(recentMedia)
+            continue_to_go_down = False
+
+        #
+        # If MediaStorage - Under MediaCollector
+        #
+        elif is_media_storage and issubclass(parentMediaCollector.__class__, MediaCollector):
+#        elif card_path and media_path and issubclass(parentMediaCollector.__class__, MediaCollector):
+            pathStorage = PathsStorage(os.path.dirname(card_path), card_path, image_path, icon_path, media_path)            
+            recentMedia = MediaStorage(pathStorage, titles, control, general, classification)
+            parentMediaCollector.addMediaStorage(recentMedia)
+            continue_to_go_down = True
+
+        #        
+        # If MediaCollector - Under MediaCollector or Root
         #      
-        if card_path and not media_path and dir_list and issubclass(parentMediaCollector.__class__, (MediaCollector, NoneType)):
+        elif not media_path and dir_list and issubclass(parentMediaCollector.__class__, (MediaCollector, NoneType)):
             pathCollector = PathsCollector(os.path.dirname(card_path), card_path, image_path, icon_path)            
             recentMedia = MediaCollector(pathCollector, titles, control, general, classification)
             
@@ -589,41 +614,33 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
             else:
                 parentMediaCollector = recentMedia
 
-        #
-        # If MediaStorage - Under MediaCollector
-        #
-        elif card_path and media_path and issubclass(parentMediaCollector.__class__, MediaCollector):
-            pathStorage = PathsStorage(os.path.dirname(card_path), card_path, image_path, icon_path, media_path)            
-            recentMedia = MediaStorage(pathStorage, titles, control, general, classification)
-            parentMediaCollector.addMediaStorage(recentMedia)
+            continue_to_go_down = True
 
-        #
-        # If MediaAppendix - MediaStorage
-        #
-        elif card_path and media_path and issubclass(parentMediaCollector.__class__, MediaStorage) and con_category == 'appendix':
-            pathAppendix = PathsAppendix(os.path.dirname(card_path), card_path, image_path, media_path)
-            recentMedia = MediaAppendix(pathAppendix, titles, control)
-            parentMediaCollector.addMediaAppendix(recentMedia)
-
-        else:
+#        else:
             
-            return parentMediaCollector
-            
+#            return parentMediaCollector
+    else:
+        continue_to_go_down = True
+                
     # ################################## #
     #                                    #
     # Go through all SUB-FOLDERS in the  #
     # folder and collect the files which #
     # matters                            #
     #                                    #
-    # ################################## #    
+    # ################################## #
+    ret = []    
     for name in dir_list:
         subfolder_path_os = os.path.join(actualDir, name)
-        collectCardsFromFileSystem( subfolder_path_os, recentMedia )
+        val = collectCardsFromFileSystem( subfolder_path_os, recentMedia )
+        ret.append(val)
 
-    # If no media found at all #
-    if parentMediaCollector is None:
-        parentMediaCollector = MediaCollector(PathsCollector("", "", ""), IniTitles("", {'orig':''}), IniControl("", "", ""), None, None)
-
+    if parentMediaCollector is None and ret:
+        parentMediaCollector = ret[0]
+    
+    elif parentMediaCollector is None:
+        parentMediaCollector = MediaCollector(PathsCollector("", "", "", ""), IniTitles("", {'orig':''}), IniControl("", "", "", ""), None, None)
+        
     # and finaly returns
     return parentMediaCollector
   

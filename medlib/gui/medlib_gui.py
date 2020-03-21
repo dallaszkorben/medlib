@@ -250,7 +250,6 @@ class MedlibGui(QWidget):#, QObject):
     def getCollectedCards(self):
         collector = getCollectedCardsFromRoot()
         collector.setNextLevelListener(self.goesDeeper)     
-#        cdl = collector.getMediaCollectorList()        
         return collector
         
     #

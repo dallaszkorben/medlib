@@ -3,7 +3,7 @@ import configparser
 from pathlib import Path
 from medlib import card_ini
 
-#from akoteka.logger import logger
+#from medlib.logger import logger
 
 class Property(object):
  
@@ -124,7 +124,7 @@ class Property(object):
         try:
             return dict(self.parser.items(section))
         except configparser.NoSectionError as e:
-            return None
+            return dict()
     
     def should_write(self, writable):
         return ((writable is None and self.writable) or (writable))
@@ -186,23 +186,19 @@ class ConfigIni( Property ):
     DEFAULT_SHOW_ORIGINAL_TITLE = ("general", "show-original-title", "n")
     DEFAULT_KEEP_HIERARCHY = ("general", "keep-hierarchy", "y")
     DEFAULT_USE_XDG = ("general", "use-xdg", "y")
-
     DEFAULT_MEDIA_PATH = ("media", "media-path", ".")    
-    
-#    DEFAULT_MEDIA_PLAYER_VIDEO = ("media", "player-video", "mplayer")
-#    DEFAULT_MEDIA_PLAYER_VIDEO_PARAM = ("media", "player-video-param", "-zoom -fs -framedrop")
-#    DEFAULT_MEDIA_PLAYER_VIDEO_EXT = ("media", "player-video-ext", "flv,divx,mkv,avi,mp4,webm")
-#    DEFAULT_MEDIA_PLAYER_AUDIO = ("media", "player-audio", "rhythmbox")
-#    DEFAULT_MEDIA_PLAYER_AUDIO_PARAM = ("media", "player-audio-param", "")
-#    DEFAULT_MEDIA_PLAYER_AUDIO_EXT = ("media", "player-audio-ext", "mp3,ogg")
-#
-#    DEFAULT_MEDIA_PLAYER_ODT = ("media", "player-odt", "libreoffice")
-#    DEFAULT_MEDIA_PLAYER_ODT_PARAM = ("media", "player-odt-param", "--writer --quickstart --nofirststartwizard --view")
-#    DEFAULT_MEDIA_PLAYER_ODT_EXT = ("media", "player-odt-ext", "odt")
-#
-#    DEFAULT_MEDIA_PLAYER_PDF = ("media", "player-pdf", "okular")
-#    DEFAULT_MEDIA_PLAYER_PDF_PARAM = ("media", "player-pdf-param", "--presentation --page 1 --unique")
-#    DEFAULT_MEDIA_PLAYER_PDF_EXT = ("media", "player-pdf-ext", "pdf")
+
+    DEFAULT_PLAYERS = {
+        "link":      ("player", ("link-player",      "chrome"),      ("link-param",      "")),
+        "video":     ("player", ("video-player",     "mplayer"),     ("video-param",     "-zoom -fs -framedrop -really-quiet")),
+        "audio":     ("player", ("audio-player",     "rhythmbox"),   ("audio-param",     "")),
+        "text-odt":  ("player", ("text-odt-player",  "libreoffice"), ("text-odt-param",  "--writer --quickstart --nofirststartwizard --view")),
+        "text-doc":  ("player", ("text-doc-player",  "libreoffice"), ("text-doc-param",  "--writer --quickstart --nofirststartwizard --view")),
+        "text-rtf":  ("player", ("text-rtf-player",  "libreoffice"), ("text-rtf-param",  "--writer --quickstart --nofirststartwizard --view")),
+        "text-txt":  ("player", ("text-txt-player",  "kate"),        ("text-txt-param",  "")),
+        "text-pdf":  ("player", ("text-pdf-player",  "okular"),      ("text-pdf-param",  "--presentation --page 1 --unique")),
+        "text-epub": ("player", ("text-epub-player", "fbreader"),    ("text-epub-param", ""))
+    }
     
     __instance = None    
 
@@ -240,76 +236,18 @@ class ConfigIni( Property ):
     def getMediaPath(self):
         return self.get(self.DEFAULT_MEDIA_PATH[0], self.DEFAULT_MEDIA_PATH[1], self.DEFAULT_MEDIA_PATH[2])
 
+    def getPlayerOptions(self):
+        return self.DEFAULT_PLAYERS.keys()
 
+    def getPlayerValue(self, key):
+        valueList = self.DEFAULT_PLAYERS.get(key)
+        return self.get(valueList[0], valueList[1][0], valueList[1][1])
 
+    def getParamValue(self, key):
+        valueList = self.DEFAULT_PLAYERS.get(key)
+        return self.get(valueList[0], valueList[2][0], valueList[2][1])
 
-
-#    def getMediaPlayerWithParameters(self, media, extension):
-#        """
-#            Returns a tuple with the player name and the necessary parameters
-#            according to the 'media' and the file's extension
-#            
-#            This method assumes that config.ini file exist for the user
-#            If it does not then the file will be created.
-#            If the section or the key does not
-#        """
-#
-#        default_player = self.get('player', media, None)
-#        specific_player = self.get('player', media + "-" + extension, None)
-#        
-#        # if not the general neither the specific player does not exists
-#        if specific_player is None and default_player is None:
-#            return None
-#                
-#        if specific_player is not None:
-#            result=specific_player.split(",")
-#        else:
-#            result=default_player.split(",")
-#
-#        return (result[0], result[1] if len(result) > 1 else None)
-#            
-#
-#
-#    def get_media_player_video(self):
-#        return self.get(self.DEFAULT_MEDIA_PLAYER_VIDEO[0], self.DEFAULT_MEDIA_PLAYER_VIDEO[1], self.DEFAULT_MEDIA_PLAYER_VIDEO[2])
-#
-#    def get_media_player_video_param(self):
-#        return self.get(self.DEFAULT_MEDIA_PLAYER_VIDEO_PARAM[0], self.DEFAULT_MEDIA_PLAYER_VIDEO_PARAM[1], self.DEFAULT_MEDIA_PLAYER_VIDEO_PARAM[2])
-#
-#    def get_media_player_video_ext(self):
-#        return self.get(self.DEFAULT_MEDIA_PLAYER_VIDEO_EXT[0], self.DEFAULT_MEDIA_PLAYER_VIDEO_EXT[1], self.DEFAULT_MEDIA_PLAYER_VIDEO_EXT[2])
-#
-#    def get_media_player_audio(self):
-#        return self.get(self.DEFAULT_MEDIA_PLAYER_AUDIO[0], self.DEFAULT_MEDIA_PLAYER_AUDIO[1], self.DEFAULT_MEDIA_PLAYER_AUDIO[2])
-#
-#    def get_media_player_audio_param(self):
-#        return self.get(self.DEFAULT_MEDIA_PLAYER_AUDIO_PARAM[0], self.DEFAULT_MEDIA_PLAYER_AUDIO_PARAM[1], self.DEFAULT_MEDIA_PLAYER_AUDIO_PARAM[2])
-#
-#    def get_media_player_audio_ext(self):
-#        return self.get(self.DEFAULT_MEDIA_PLAYER_AUDIO_EXT[0], self.DEFAULT_MEDIA_PLAYER_AUDIO_EXT[1], self.DEFAULT_MEDIA_PLAYER_AUDIO_EXT[2])
-#
-#
-#    def get_media_player_odt(self):
-#        return self.get(self.DEFAULT_MEDIA_PLAYER_ODT[0], self.DEFAULT_MEDIA_PLAYER_ODT[1], self.DEFAULT_MEDIA_PLAYER_ODT[2])
-#
-#    def get_media_player_odt_param(self):
-#        return self.get(self.DEFAULT_MEDIA_PLAYER_ODT_PARAM[0], self.DEFAULT_MEDIA_PLAYER_ODT_PARAM[1], self.DEFAULT_MEDIA_PLAYER_ODT_PARAM[2])
-#
-#    def get_media_player_odt_ext(self):
-#        return self.get(self.DEFAULT_MEDIA_PLAYER_ODT_EXT[0], self.DEFAULT_MEDIA_PLAYER_ODT_EXT[1], self.DEFAULT_MEDIA_PLAYER_ODT_EXT[2])
-#
-#    def get_media_player_pdf(self):
-#        return self.get(self.DEFAULT_MEDIA_PLAYER_PDF[0], self.DEFAULT_MEDIA_PLAYER_PDF[1], self.DEFAULT_MEDIA_PLAYER_PDF[2])
-#
-#    def get_media_player_pdf_param(self):
-#        return self.get(self.DEFAULT_MEDIA_PLAYER_PDF_PARAM[0], self.DEFAULT_MEDIA_PLAYER_PDF_PARAM[1], self.DEFAULT_MEDIA_PLAYER_PDF_PARAM[2])
-#
-#    def get_media_player_pdf_ext(self):
-#        return self.get(self.DEFAULT_MEDIA_PLAYER_PDF_EXT[0], self.DEFAULT_MEDIA_PLAYER_PDF_EXT[1], self.DEFAULT_MEDIA_PLAYER_PDF_EXT[2])
-
-
-
-
+# ---
 
     def setLanguage(self, lang):
         self.update(self.DEFAULT_LANGUAGE[0], self.DEFAULT_LANGUAGE[1], lang)
@@ -332,23 +270,6 @@ class ConfigIni( Property ):
 
 
 
-#    def set_media_player_video(self, player):
-#        self.update(self.DEFAULT_MEDIA_PLAYER_VIDEO[0], self.DEFAULT_MEDIA_PLAYER_VIDEO[1], player)
-#
-#    def set_media_player_video_param(self, param):
-#        self.update(self.DEFAULT_MEDIA_PLAYER_VIDEO_PARAM[0], self.DEFAULT_MEDIA_PLAYER_VIDEO_PARAM[1], param)
-#
-#    def set_media_player_video_ext(self, param):
-#        self.update(self.DEFAULT_MEDIA_PLAYER_VIDEO_EXT[0], self.DEFAULT_MEDIA_PLAYER_VIDEO_EXT[1], param)
-#
-#    def set_media_player_audio(self, player):
-#        self.update(self.DEFAULT_MEDIA_PLAYER_AUDIO[0], self.DEFAULT_MEDIA_PLAYER_AUDIO[1], player)
-#
-#    def set_media_player_audio_param(self, param):
-#        self.update(self.DEFAULT_MEDIA_PLAYER_AUDIO_PARAM[0], self.DEFAULT_MEDIA_PLAYER_AUDIO_PARAM[1], param)
-#
-#    def set_media_player_audio_ext(self, param):
-#        self.update(self.DEFAULT_MEDIA_PLAYER_AUDIO_EXT[0], self.DEFAULT_MEDIA_PLAYER_AUDIO_EXT[1], param)
 
 def updateCardIni(card_ini_path, section, key, value):
     card_ini = Property(card_ini_path, True)
@@ -371,9 +292,10 @@ def reReadConfigIni():
     config_ini['use_xdg'] = ci.getUseXdg()
     config_ini['media_path'] = ci.getMediaPath()
     
-    options = ci.getOptions('player')
+    options = ci.getPlayerOptions()
     for key in options:
-        config_ini['player_' + key.replace("-","_")] = options[key]
+        config_ini[ 'player_' + key.replace("-","_") + '_player'] = ci.getPlayerValue(key)
+        config_ini[ 'player_' + key.replace("-","_") + '_param'] = ci.getParamValue(key)
 
     # Get the dictionary
     dic = Dict.getInstance( config_ini['language'] )
@@ -395,14 +317,14 @@ def _(word):
 # Below code runs when it imported or forced to re-run
 #
 # How to use dic:
-#            - in the beginning of your code define: "from akoteka.handle_property import _"
-#            - define the translations in the "akoteka.dict.resources_<lang>.properties file
+#            - in the beginning of your code define: "from medlib.handle_property import _"
+#            - define the translations in the "medlib.dict.resources_<lang>.properties file
 #            - in the code where you need the translated word use: "_('word_to_translate')"
 #
 # How to use config_ini:
-#            - your "config.ini" file is in "HOME/.akoteka" folder
+#            - your "config.ini" file is in "HOME/.medlib" folder
 #            - there are key-value pairs defined in the file
-#            - in the beginning of your code: "from akoteka.handle_property import config_ini"
+#            - in the beginning of your code: "from medlib.handle_property import config_ini"
 #            - you can refer to the contents like: "config_ini('language')"
 #
 # -----------------------------------------------------------------------------------------------------

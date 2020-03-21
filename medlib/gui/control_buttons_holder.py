@@ -121,7 +121,7 @@ class ControlButtonsHolder(QWidget):
         # -------------------
         self.stop_continously_button = QPushButton()
         self.stop_continously_button.setFocusPolicy(Qt.NoFocus)
-        self.stop_continously_button.clicked.connect(self.stop_continously_button_on_click)
+        self.stop_continously_button.clicked.connect(self.stop_continously_button_on_click_listener)
         
         stop_continously_icon = QIcon()
         stop_continously_icon.addPixmap(QPixmap( resource_filename(__name__,os.path.join(CONTROL_IMG_FOLDER, CONTROL_IMG_STOP_BUTTON + "." + CONTROL_IMG_EXTENTION)) ), QIcon.Normal, QIcon.On)
@@ -143,6 +143,9 @@ class ControlButtonsHolder(QWidget):
         self.dropdown_play_continously = QComboBox(self)
         self.dropdown_play_continously.setFocusPolicy(Qt.NoFocus)
         self.dropdown_play_continously.setEditable(False)
+        
+        # listener for selection changed
+        self.dropdown_play_continously.currentIndexChanged.connect(self.play_continously_selection_changed_listener)
        
         style_box = '''
            QComboBox { 
@@ -327,10 +330,9 @@ class ControlButtonsHolder(QWidget):
                 'media-path': self.get_play_continously_media_path_by_index(actual_index), 
                 'media-type': self.get_play_continously_media_type_by_index(actual_index)})
         
-        
         ins = PlayerThread.play(list_to_play)
-        ins.startNextPlaying.connect(self.select_in_playlist_by_index)
-        ins.stopPlaying.connect(self.stop_playing)
+        ins.startNextPlaying.connect(self.select_in_playlist_by_index_listener)
+        ins.stopPlaying.connect(self.stop_playing_listener)
 
 #
 #        # Start to play the media collection
@@ -339,17 +341,36 @@ class ControlButtonsHolder(QWidget):
 #        # connect the "selected" event to a method which will select the media in the drop-down list
 #        inst.selected.connect(self.select_play_continously_element_by_index)
 #
-    def select_in_playlist_by_index(self, index):
+    def select_in_playlist_by_index_listener(self, index):
+        """
+        Disable the Play button, Enable the Stop button and select the next value
+        in the Play list according to the index. 
+        This method is called from the PlayerThread object when the next media is started
+        """
         self.enablePlayContinously(False)
-        print("index:", index)
+        self.select_play_continously_element_by_index(index)        
 
-    def stop_playing(self):
+    def stop_playing_listener(self):
+        """
+        Enable the the Play button and disable the Stop button
+        This method is called from the PlayedThread object when the Stop button is pushed
+        """
         self.enablePlayContinously(True)
-        print("stop playing")
         
-    def stop_continously_button_on_click(self):
+    def stop_continously_button_on_click_listener(self):
+        """
+        Stops the continous play
+        This method is called when the Play continously button is pushed
+        """
         PlayerThread.stop()
         
+    def play_continously_selection_changed_listener(self, index):
+        """
+        Focus the card according to the selected value in the Play list
+        This method is called when the selected element changed in the Play list
+        """
+        if index >= 0:
+            self.control_panel.gui.card_holder.focus_index(index)
         
 #    # --------------------------
 #    #
@@ -464,7 +485,7 @@ class ControlButtonsHolder(QWidget):
 #            re_read_config_ini()
 #
 #            # Re-import card_holder_pane
-#            mod = importlib.import_module("akoteka.gui.card_panel")
+#            mod = importlib.import_module("medlib.gui.card_panel")
 #            importlib.reload(mod)
 ##!!!!!!!!!!!!
 #

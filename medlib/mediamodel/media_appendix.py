@@ -88,6 +88,7 @@ class MediaAppendix(object):
 
         def toDoOnClick(self):
         
+            #PlayerThread.stop()
             PlayerThread.play([{
                 'media-index': 0,
                 'media-path': self.pathOfMedia, 

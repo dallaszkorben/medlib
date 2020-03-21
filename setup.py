@@ -18,18 +18,16 @@ setup(
         "Operating System :: OS Independent",
       ],
       packages = find_packages(),
-      setup_requires=[ "pyqt5", "pyqt5-sip", "numpy", "pyttsx3", 'configparser', 'psutil'],
-      install_requires=["pyqt5", 'pyqt5-sip', 'numpy','pyttsx3', 'configparser', 'psutil'],
+      setup_requires=[ "pyqt5", "pyqt5-sip", "numpy", 'configparser', 'psutil'],
+      install_requires=["pyqt5", 'pyqt5-sip', 'numpy', 'configparser', 'psutil'],
       entry_points = {
         'console_scripts': [
-		'medlib=medlib.gui.main_window:main',
-		'medlibinicheck=medlib.tools.tool_ini_check:main',
-		'medlibinicorrection=medlib.tools.tool_ini_correction:main',
+		'medlib=medlib.gui.medlib_gui:main'
 		]
       },
       package_data={
         'cardholder': ['img/*.gif'],
-        'medlib': ['gui/img/*.png'],
+        'medlib': ['gui/images/*.png'],
         'medlib': ['setup/setup.ini'],
         'medlib': ['dict/*.properties']
       },

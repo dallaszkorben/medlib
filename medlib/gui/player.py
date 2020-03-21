@@ -40,13 +40,16 @@ class PlayerThread(QThread):
             cls.__new__(cls)
 
         # If it is NOT running
-        if not cls.__run:
+#        if not cls.__run:
+        
+        cls.stop()
             
             # Initiate the Object        
-            cls.__init__(cls.__instance, list_of_media_to_play)
+        cls.__init__(cls.__instance, list_of_media_to_play)
 
             # Start to run
-            cls.__instance.start()
+        cls.__instance.start()
+            
             
         return cls.__instance
 
@@ -57,6 +60,7 @@ class PlayerThread(QThread):
         """
         if PlayerThread.__pid:
             os.kill(PlayerThread.__pid, signal.SIGKILL)
+            PlayerThread.__pid = None
         PlayerThread.__wait_for_stop = True
         
     def __new__(cls):
@@ -82,7 +86,7 @@ class PlayerThread(QThread):
             # XDG handles the media
             # if xdg was used, I can not control the PID, so is is no possible to start the next media when the previous finished
             # for that the pid is None
-            if config_ini["use_xdg"] == "y":
+            if config_ini["use_xdg"] == "y" and media_path:
 
                 if platform.system() == 'Darwin':                   # macOS
                     Popen(['open', media_path])
@@ -94,7 +98,7 @@ class PlayerThread(QThread):
                     Popen(['xdg-open', media_path])
             
             # The media handled as it configured in config.ini
-            else:        
+            elif media_path:        
                 # try fetch extension of media_file to identify the media_player and media_param
                 rematch = CardIni.getMediaFilePatternByMedia(media_type).match(media_path)      
                 if rematch:

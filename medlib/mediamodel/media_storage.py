@@ -108,6 +108,7 @@ class MediaStorage(MediaBase):
                 In the CardHolder the Space/Enter triggers
                 Plays the media regarding on the configuration in the OS
                 """
+                #PlayerThread.stop()
                 PlayerThread.play([{
                     'media-index': 0,
                     'media-path': self.pathOfMedia, 

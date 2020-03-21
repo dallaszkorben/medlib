@@ -18,7 +18,7 @@ class MediaCollector(MediaBase):
     This container can contain more MediaContainers and/or
     one MediaContent
     """
-    def __init__(self, pathsCollector, titles, control, general=None, classification=None):  
+    def __init__(self, pathsCollector, titles, control, general=None, classification=None):
         """
         This is the constructor of the MediaCollector
         ________________________________________
