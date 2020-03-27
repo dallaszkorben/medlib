@@ -611,32 +611,7 @@ class CardHolder( QWidget ):
                 
                 # I do not want to propagate the ESC event to the parent
                 event.setAccepted(True)
-            
-            
-            
-#            if self.goes_higher_method:
-#                self.goes_higher_method(self.getFocusedCard())
-#         
-#                # I do not want to propagate the ESC event to the parent
-#                event.setAccepted(True)
-#            
-#            else:
-#
-#                # The parent MediaCollector
-#                parent_card_data = self.getFocusedCard().card_data.getParentCollector()
-#                
-#                # If the MediaCollector is not the root
-#                if parent_card_data.getParentCollector():
-#                    
-#                    # Index of the parent - to be focused
-#                    index_of_selected_card = parent_card_data.getIndex()
-#                    
-#                    # Collect the media_collectors and media_storages
-#                    card_data_list = parent_card_data.getListOfCardDataInThisLevel()
-#                    
-#                    # Generate a new Card list
-#                    self.refresh(card_data_list, index_of_selected_card)
-        
+     
         #
         # Select a Card
         #
@@ -675,31 +650,30 @@ class CardHolder( QWidget ):
            
             event.setAccepted(False)  
     
-    # -------------------------------------------------------
-    # refresh card collection - used by the CollectCardsThread
-    # -------------------------------------------------------
-#    def refresh(self, card_data_list=[], index = 0):
-#        """
-#        Fills up the CardHolder with Cards and pulls the <index>th Card to front
-#        """
-#        
-#        # Listener of the refresh list
-#        if self.refresh_list_listener and card_data_list:
-#            parent_collector = card_data_list[0].getParentCollector()
-#            self.refresh_list_listener(parent_collector)            
-#        
-#        self.stop_spinner()
-#        self.fill_up_card_descriptor_list(card_data_list)
-#        self.focus_index(index)
-        
     def collectMediaStorageWithoutHierarchy(self, sum_list, parent_collector):
         mcl = parent_collector.getMediaCollectorList()
         sum_list += parent_collector.getMediaStorageList()
         for media_collector in mcl:
             self.collectMediaStorageWithoutHierarchy(sum_list, media_collector)
         return sum_list
+    
+    def getParentCollector(self):
+        return self.getFocusedCard().card_data.getParentCollector()
+    
+    # TODO build in the refresh()
+    def getSortedMediaStorageList(self, parent_collector):
         
+        # Without hierarchy
+        if not self.parent.isSwitchKeepHierarchy():
+            msl = self.collectMediaStorageWithoutHierarchy([], parent_collector)
+            msl.sort(key=lambda arg: MediaCollector.sort_key(arg))
+                
+        # With hierarchy
+        else:        
+            msl = parent_collector.getMediaStorageList()
         
+        return msl
+             
     def refresh(self, parent_collector=None, index=0):
         """
         Fills up the CardHolder with Cards and pulls the <index>th Card to front
@@ -748,50 +722,7 @@ class CardHolder( QWidget ):
             collector, index = self.parent.getHierarchyTitle().getOneLevelHigher()
             if collector and index >= 0:
                 self.refresh(collector, index)
-#            # The parent MediaCollector
-#            parent_card_data = self.getFocusedCard().card_data.getParentCollector()
-#
-#            parent_collector = parent_card_data.getParentCollector()
-#                
-#            # If the MediaCollector is not the root
-#            if parent_collector:            
-#            
-#                self.refresh(parent_collector, parent_card_data.getIndex())
-# 
             return False
-
-
-   
-#    def goesHigher(self):
-#        if self.goes_higher_method:
-#            self.goes_higher_method(self.getFocusedCard())
-#         
-#            return True
-#        else:
-#
-#            # The parent MediaCollector
-#            parent_card_data = self.getFocusedCard().card_data.getParentCollector()
-#                
-#            # If the MediaCollector is not the root
-#            if parent_card_data.getParentCollector():
-#                    
-#                # Index of the parent - to be focused
-#                index_of_selected_card = parent_card_data.getIndex()
-#                    
-#                # Collect the media_collectors and media_storages
-#                card_data_list = parent_card_data.getListOfCardDataInThisLevel()
-#                    
-#                # Generate a new Card list
-#                self.refresh(card_data_list, index_of_selected_card)
-# 
-#            return False
-
-#    def goesDeeper(self, mediaCollector):               
-#        mcl = mediaCollector.getMediaCollectorList()
-#        msl = mediaCollector.getMediaStorageList()
-#        sum_list = mcl + msl
-#        if sum_list:
-#            self.refresh(sum_list)   
  
     def goesDeeper(self, mediaCollector):               
         self.refresh(mediaCollector)
@@ -816,13 +747,6 @@ class CardHolder( QWidget ):
             elif delta_y < 0:
                 self.rolling_wheel(-1)
         event.ignore()
-
-                
-        
-  
-  
-  
-  
   
 # ==========================================================
 #
@@ -886,7 +810,6 @@ class Panel(QWidget):
         qp.setBrush( self.background_color )
         qp.drawRoundedRect(0, 0, s.width(), s.height(), self.border_radius, self.border_radius)
         qp.end()    
-    
 
 # ==================
 #

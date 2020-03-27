@@ -121,7 +121,7 @@ class ControlButtonsHolder(QWidget):
         # -------------------
         self.stop_continously_button = QPushButton()
         self.stop_continously_button.setFocusPolicy(Qt.NoFocus)
-        self.stop_continously_button.clicked.connect(self.stop_continously_button_on_click_listener)
+        self.stop_continously_button.clicked.connect(self.stop_continously_button_on_click)
         
         stop_continously_icon = QIcon()
         stop_continously_icon.addPixmap(QPixmap( resource_filename(__name__,os.path.join(CONTROL_IMG_FOLDER, CONTROL_IMG_STOP_BUTTON + "." + CONTROL_IMG_EXTENTION)) ), QIcon.Normal, QIcon.On)
@@ -145,7 +145,7 @@ class ControlButtonsHolder(QWidget):
         self.dropdown_play_continously.setEditable(False)
         
         # listener for selection changed
-        self.dropdown_play_continously.currentIndexChanged.connect(self.play_continously_selection_changed_listener)
+        #self.dropdown_play_continously.currentIndexChanged.connect(self.play_continously_selection_changed_listener)
        
         style_box = '''
            QComboBox { 
@@ -192,6 +192,18 @@ class ControlButtonsHolder(QWidget):
 
         # Hierarchy button on the right
         self_layout.addWidget(self.hierarchy_button)
+
+#        # ================================================
+#        # ================================================
+
+        # Initiate the PlayerThread
+        ins = PlayerThread.getInstance()
+        ins.startNextPlaying.connect(self.start_next_playing_emmitted)
+        ins.stopPlayingAll.connect(self.stop_playing_all_emmitted)
+
+
+
+
 
         # -------------------
         #
@@ -277,6 +289,12 @@ class ControlButtonsHolder(QWidget):
     def get_play_continously_media_type_by_index(self, index):
         return self.dropdown_play_continously.itemData( index )[1]
 
+    def get_play_continously_data_list(self):
+        items = []
+        for index in range(self.dropdown_play_continously.count()):
+            items.append( (self.dropdown_play_continously.itemText(index),) + self.dropdown_play_continously.itemData(index) )
+        return items
+
     def get_play_continously_selected_title(self):
         return self.dropdown_play_continously.itemText( self.dropdown_play_continously.currentIndex() )    
     
@@ -305,20 +323,49 @@ class ControlButtonsHolder(QWidget):
         self.dropdown_play_continously.setEnabled(enabled)
     
     # =====================================================
-#         
-#    def enableSearchIcons(self, enabled):
-#        if self.advanced_search_button.isChecked():
-#            self.advanced_search_button.setChecked(False)
-#
-#        if self.fast_search_button.isChecked():
-#            self.fast_search_button.setChecked(False)
-#        
-#        self.advanced_search_button.setEnabled(enabled)
-#        self.fast_search_button.setEnabled(enabled)
-#
+
+
+    # =================================================
+    #
+    # Image/Appendix CLICK button
+    #
+    # =================================================
+    def image_or_appendix_on_click(self, list_to_play, index):
+        
+#        self.control_panel.gui.refreshPlayContinouslyListBeforeStartPlaying(index)
+#        print("Disabled Play, Enabled Stop and selected Index:", index)
+        
+        PlayerThread.play(list_to_play)       
+        
+
+    # =================================================
+    #
+    # Play Contionusly STOP button
+    #
+    # =================================================
+    def stop_continously_button_on_click(self):
+        """
+        Stops the continous play
+        This method is called when the Play continously Stop button is pushed
+        
+        It stops the actually playing media, 
+        It breaks Play Continouisly list
+
+        in the PlayerThread.stop() method it sets the __run=False and emit the stopPlaying event
+        the stopPlaying is connected to the stop_playing_listener() method
+        """
+        
+        PlayerThread.stop()
+
+    # =========================================
+    #
+    # Play Continously PLAY button
+    #
+    # =========================================
     def play_continously_button_on_click(self):
         """
-            select the list from the actual media till the end
+        Select the list from the actual media till the end and starts to play it        
+        This method is called when the Play Continously Play button is pushed
             
         """
         start_index = self.get_play_continously_selected_index()
@@ -330,9 +377,9 @@ class ControlButtonsHolder(QWidget):
                 'media-path': self.get_play_continously_media_path_by_index(actual_index), 
                 'media-type': self.get_play_continously_media_type_by_index(actual_index)})
         
-        ins = PlayerThread.play(list_to_play)
-        ins.startNextPlaying.connect(self.select_in_playlist_by_index_listener)
-        ins.stopPlaying.connect(self.stop_playing_listener)
+        PlayerThread.play(list_to_play)
+#        ins.startNextPlaying.connect(self.select_in_playlist_by_index_listener)
+#        ins.stopPlaying.connect(self.stop_playing_listener)
 
 #
 #        # Start to play the media collection
@@ -341,28 +388,45 @@ class ControlButtonsHolder(QWidget):
 #        # connect the "selected" event to a method which will select the media in the drop-down list
 #        inst.selected.connect(self.select_play_continously_element_by_index)
 #
-    def select_in_playlist_by_index_listener(self, index):
+
+
+    # ---------------------------------------------
+    #
+    # startNextPlaying Emmitted in PlayThread
+    #
+    # ---------------------------------------------
+    def start_next_playing_emmitted(self, index):
         """
         Disable the Play button, Enable the Stop button and select the next value
         in the Play list according to the index. 
         This method is called from the PlayerThread object when the next media is started
         """
-        self.enablePlayContinously(False)
-        self.select_play_continously_element_by_index(index)        
+        #self.enablePlayContinously(False)
+        self.select_play_continously_element_by_index(index)  
+        self.control_panel.gui.refreshPlayContinouslyListBeforeStartPlaying(index)
 
-    def stop_playing_listener(self):
+
+    # ---------------------------------------------
+    #
+    # startNextPlaying Emmitted in PlayThread
+    #
+    # ---------------------------------------------
+    def stop_playing_all_emmitted(self):
         """
-        Enable the the Play button and disable the Stop button
         This method is called from the PlayedThread object when the Stop button is pushed
+
+        Enables the the Play button and disable the Stop button
+        Refreshes the Play Continously List
         """
-        self.enablePlayContinously(True)
+        #self.enablePlayContinously(True)
         
-    def stop_continously_button_on_click_listener(self):
-        """
-        Stops the continous play
-        This method is called when the Play continously button is pushed
-        """
-        PlayerThread.stop()
+        self.control_panel.gui.refreshPlayContinouslyListAfterStopPlaying()        
+
+
+
+
+
+        
         
     def play_continously_selection_changed_listener(self, index):
         """

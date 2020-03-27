@@ -46,6 +46,7 @@ from medlib.handle_property import getConfigIni
 from medlib.handle_property import reReadConfigIni
 from medlib.mediamodel.media_base import FOLDER_TYPE_STORAGE
 from medlib.input_output import getCollectedCardsFromRoot
+from medlib.gui.player import PlayerThread
 
 class MedlibGui(QWidget):#, QObject):
     """
@@ -223,27 +224,100 @@ class MedlibGui(QWidget):#, QObject):
         """
         Refresh the Cards Collected in CardHolder
         1. set self.mediaCollector
-        2. fill up the "play continously" list
+        2. fill up the "play continously" list if there is NO ongoing play
+        3. save the "play continously" list if there IS ongoing play
         
         @param mediaCollector:     MediaCollector  The new media collector
         @param sortedStorageList:  List            Sorted list of the Media Storages in the MediaCollector
         """
         self.mediaCollector = mediaCollector
+        self.actualSortedStorageList = sortedStorageList
         
         # Show the History Link Title
         if mediaCollector:
             self.hierarchy_title.setTitle(mediaCollector)   
-            
-        # Fill up the Play Continously List - Drpodown
-        self.control_panel.clear_play_continously_elements()
         
-        if len(sortedStorageList) > 0:
-            self.control_panel.enablePlayContinously()
+        self.refreshPlayContinouslyListAfterRefresh()
+        
+        
+        
+    def refreshPlayContinouslyListAfterRefresh(self, forced=False):            
+        
+        # The Play Continously list should NOT be refreshed
+        if PlayerThread.isPlaying() and not forced:
 
-            for media in sortedStorageList:
-                self.control_panel.add_play_continously_element(media.getFormattedTitle(), media.getPathOfMedia(), media.getTypeOfMedia())
+            self.control_panel.enablePlayContinously(False)
+
+        # The Play Continously list MUST be refreshed
         else:
-            self.control_panel.disablePlayStopContinously()
+        
+            # Clear the Play Continously List
+            self.control_panel.clear_play_continously_elements()
+
+            # If the Play Continously list is not empty
+            if len(self.actualSortedStorageList) > 0:
+
+                self.control_panel.enablePlayContinously(True)
+
+                # Fill up the Play Contionously List - Dropdown 
+                for media in self.actualSortedStorageList:
+                    self.control_panel.add_play_continously_element(media.getFormattedTitle(), media.getPathOfMedia(), media.getTypeOfMedia())
+
+            # If the list is empty
+            else:
+                
+                # Disable the start and stop buttons
+                self.control_panel.disablePlayStopContinously()
+
+ 
+ 
+ 
+    def refreshPlayContinouslyListBeforeStartPlaying(self, index=0):            
+        
+        self.control_panel.enablePlayContinously(False)
+
+        # Clear the Play Continously List
+        self.control_panel.clear_play_continously_elements()
+
+        # Fill up the Play Contionously List - Dropdown 
+        for media in self.actualSortedStorageList:
+            self.control_panel.add_play_continously_element(media.getFormattedTitle(), media.getPathOfMedia(), media.getTypeOfMedia())
+
+        self.control_panel.control_buttons_holder.select_play_continously_element_by_index(index)
+ 
+ 
+    def refreshPlayContinouslyListAfterStopPlaying(self, index=0):            
+        """
+        This method is called when the Play list was stopped
+        """
+        
+        self.control_panel.enablePlayContinously(True)
+
+        import hashlib
+        # Playing list in the dropdown
+        data_list = self.control_panel.get_play_continously_data_list()
+        title_list = [data[0] for data in data_list]
+        dropdownTitles = ''.join(title_list)
+        dropdownMd5 = hashlib.md5(dropdownTitles.encode('utf-8')).hexdigest()
+        
+        # Actual Playing list by the cards
+        title_list = [media_storage.getFormattedTitle() for media_storage in self.actualSortedStorageList]
+        actualTitles = ''.join(title_list)
+        actualMd5 = hashlib.md5(actualTitles.encode('utf-8')).hexdigest()
+
+        # If I'm in a different folder than the folder where the media was played
+        if (dropdownMd5 != actualMd5):
+
+            # Clear the Play Continously List
+            self.control_panel.clear_play_continously_elements()
+
+            # Fill up the Play Contionously List - Dropdown 
+            for media in self.actualSortedStorageList:
+                self.control_panel.add_play_continously_element(media.getFormattedTitle(), media.getPathOfMedia(), media.getTypeOfMedia())
+
+            self.control_panel.control_buttons_holder.select_play_continously_element_by_index(index)
+ 
+ 
     #
     # Input parameter for CardHolder
     #
@@ -264,6 +338,8 @@ class MedlibGui(QWidget):#, QObject):
             card.setBackgroundColor(QColor(STORAGE_BACKGROUND_COLOR))
         else:
             card.setBackgroundColor(QColor(COLLECTOR_BACKGROUND_COLOR))
+        
+        card_data.setGui(self)
         
         card.setBorderNormalColor(QColor(CARD_BORDER_NORMAL_BACKGROUND_COLOR))
         card.setBorderFocusedColor(QColor(CARD_BORDER_FOCUSED_BACKGROUND_COLOR))
@@ -670,11 +746,14 @@ class ControlPanel(QWidget):
     def disablePlayStopContinously(self):
         self.control_buttons_holder.disablePlayStopContinously()
     
-    def enablePlayContinously(self):
-        self.control_buttons_holder.enablePlayContinously(True)
-    
+    def enablePlayContinously(self, enabled):
+        self.control_buttons_holder.enablePlayContinously(enabled)
+            
     def add_play_continously_element(self, title, media_path, media_type):
         self.control_buttons_holder.add_play_continously_element(title, media_path, media_type)
+    
+    def get_play_continously_data_list(self):
+        return self.control_buttons_holder.get_play_continously_data_list()
         
 #    def apaintEvent(self, event):
 #        s = self.size()

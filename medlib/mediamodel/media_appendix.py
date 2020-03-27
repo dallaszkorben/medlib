@@ -76,6 +76,12 @@ class MediaAppendix(object):
     
     def isInFocus(self):
         return True
+    
+    def setGui(self, gui):
+        self.gui = gui
+        
+    def getGui(self):
+        return self.gui
 
     class QLinkLabelToAppendixMedia( QLabelToLinkOnClick ):
 
@@ -86,13 +92,17 @@ class MediaAppendix(object):
             self.appendix_media = appendix_media
             self.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * scale, weight=QFont.Bold))
 
-        def toDoOnClick(self):
-        
-            #PlayerThread.stop()
-            PlayerThread.play([{
-                'media-index': 0,
-                'media-path': self.pathOfMedia, 
-                'media-type': self.appendix_media.getControl().getMedia()}])
+        def toDoOnClick(self):        
+            gui = self.media.getGui()
+            gui.control_panel.control_buttons_holder.image_or_appendix_on_click([{
+                    'media-index': 0,
+                    'media-path': self.pathOfMedia, 
+                    'media-type': self.media.getControl().getMedia()}])
+
+#            PlayerThread.play([{
+#                'media-index': 0,
+#                'media-path': self.pathOfMedia, 
+#                'media-type': self.appendix_media.getControl().getMedia()}])
                 
         def enterEvent(self, event):
             super().enterEvent(event)

@@ -211,6 +211,15 @@ class MediaBase(CardDataInterface):
     def getTranslatedThemeList(self):
         return self.general.getTranslatedThemeList()
 
+    def setGui(self, gui):
+        self.gui = gui
+        
+        for appendix in self.mediaAppendixList:
+            appendix.setGui(gui)        
+        
+    def getGui(self):
+        return self.gui
+
     def getTitles(self):
         """
         Returns back the [titles] section.

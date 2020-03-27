@@ -108,11 +108,21 @@ class MediaStorage(MediaBase):
                 In the CardHolder the Space/Enter triggers
                 Plays the media regarding on the configuration in the OS
                 """
-                #PlayerThread.stop()
-                PlayerThread.play([{
-                    'media-index': 0,
-                    'media-path': self.pathOfMedia, 
-                    'media-type': self.media.getControl().getMedia()}])
+                
+                gui = self.media.getGui()
+                gui.control_panel.control_buttons_holder.image_or_appendix_on_click([
+                    {
+                        'media-index': self.media.getIndex(),
+                        'media-path': self.pathOfMedia, 
+                        'media-type': self.media.getControl().getMedia()
+                    }],
+                    self.media.getIndex()
+                )
+                
+#                PlayerThread.play([{
+#                    'media-index': 0,
+#                    'media-path': self.pathOfMedia, 
+#                    'media-type': self.media.getControl().getMedia()}])
 
         return QLabelWithLinkToMedia(self, self.isInFocus, self.getPathOfMedia())
 

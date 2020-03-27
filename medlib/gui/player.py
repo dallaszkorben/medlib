@@ -1,5 +1,6 @@
 import os
 import platform
+import time
 from subprocess import Popen
 
 from medlib.handle_property import config_ini
@@ -9,13 +10,14 @@ import signal
 import psutil
 
 class PlayerThread(QThread):
-    
+
+#    brakPreviousPlaying = pyqtSignal()
     startNextPlaying = pyqtSignal(int)
-    stopPlaying = pyqtSignal()
+    stopPlayingAll = pyqtSignal()
     
     __instance = None
     __run = False
-    __wait_for_stop = False
+    __stop_continously_play = False
     __pid = None
     
     @classmethod
@@ -33,49 +35,60 @@ class PlayerThread(QThread):
                     'media-path': - media_path: path to the media
                     'media-type': - media_type: type of the media (video, audio, text, image)
          """
-        # If there was NO instance of class yet        
-        if cls.__instance is None:
-            
-            # Create a new instance
-            cls.__new__(cls)
 
-        # If it is NOT running
-#        if not cls.__run:
-        
+        # It stop anyway
         cls.stop()
-            
-            # Initiate the Object        
-        cls.__init__(cls.__instance, list_of_media_to_play)
 
-            # Start to run
-        cls.__instance.start()
-            
-            
-        return cls.__instance
+        # Set the playing list
+        inst = cls.getInstance()
+        inst.list_of_media_to_play = list_of_media_to_play
 
+        # Waits until the thread stops. Max 5 sec
+        limit = 10
+        while cls.__run and limit >= 0:
+            time.sleep(0.5)
+            limit -= 1
+
+        # It starts
+        inst.start()
+        
+    @classmethod
+    def getInstance(cls):
+        inst = cls.__new__(cls)
+#        cls.__init__(inst)     
+        return inst        
+        
     @classmethod
     def stop(cls):
         """
-        Stops play list runnig
+        Stops play list running
         """
         if PlayerThread.__pid:
-            os.kill(PlayerThread.__pid, signal.SIGKILL)
+            try:
+                os.kill(PlayerThread.__pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
             PlayerThread.__pid = None
-        PlayerThread.__wait_for_stop = True
+        PlayerThread.__stop_continously_play = True
+    
+    @classmethod
+    def isPlaying(cls):
+        return cls.__run    
         
     def __new__(cls):
         if cls.__instance is None:
             cls.__instance = super().__new__(cls)
-        return cls.__instance    
-
-    def __init__(self, list_of_media_to_play):
-        QThread.__init__(self)        
-        self.list_of_media_to_play = list_of_media_to_play
+            cls.__init__(cls.__instance)
+        return cls.__instance
+    
+#    def __init__(self):
+#        QThread.__init__(self)        
+##        self.list_of_media_to_play = list_of_media_to_play
          
     def run(self):
 
         PlayerThread.__run = True
-        PlayerThread.__wait_for_stop = False
+        PlayerThread.__stop_continously_play = False
 
         for actual_media in self.list_of_media_to_play:
             media_index = actual_media['media-index']          
@@ -130,19 +143,18 @@ class PlayerThread(QThread):
 
                         # emit an media selection event
                         self.startNextPlaying.emit(media_index)       
-                        
+
+                        # Start to play the media                        
                         process.communicate()
                         
-                        if PlayerThread.__wait_for_stop:
+                        # if you want to stop continously playing you break the loop
+                        if PlayerThread.__stop_continously_play:
                             break
-#                        print("visszatert")
-#                           
-#                        pid = process.pid
-#
+
                     except FileNotFoundError as e:
                         print("File Not found:", e)
                 else:
                     print("no player was found")            
 
-        self.stopPlaying.emit()            
         PlayerThread.__run = False
+        self.stopPlayingAll.emit()
