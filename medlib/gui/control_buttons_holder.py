@@ -330,7 +330,7 @@ class ControlButtonsHolder(QWidget):
     # Image/Appendix CLICK button
     #
     # =================================================
-    def image_or_appendix_on_click(self, list_to_play, index):
+    def image_or_appendix_on_click(self, list_to_play):
         
 #        self.control_panel.gui.refreshPlayContinouslyListBeforeStartPlaying(index)
 #        print("Disabled Play, Enabled Stop and selected Index:", index)

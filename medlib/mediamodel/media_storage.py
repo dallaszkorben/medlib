@@ -115,8 +115,7 @@ class MediaStorage(MediaBase):
                         'media-index': self.media.getIndex(),
                         'media-path': self.pathOfMedia, 
                         'media-type': self.media.getControl().getMedia()
-                    }],
-                    self.media.getIndex()
+                    }]
                 )
                 
 #                PlayerThread.play([{

@@ -21,14 +21,27 @@ from builtins import object
 
 from medlib.mediamodel.qlabel_to_link_on_cllick import QLabelToLinkOnClick
 
-from medlib.card_ini import JSON_KEY_GENERAL_YEAR, JSON_KEY_GENERAL_LENGTH,\
-    JSON_KEY_GENERAL_DIRECTOR, JSON_KEY_GENERAL_MAKER, JSON_KEY_GENERAL_WRITER,\
-    JSON_KEY_GENERAL_AUTHOR, JSON_KEY_GENERAL_ACTOR, JSON_KEY_GENERAL_PERFORMER,\
-    JSON_KEY_GENERAL_LECTURER, JSON_KEY_GENERAL_CONTRIBUTOR,\
-    JSON_KEY_GENERAL_VOICE, JSON_KEY_GENERAL_SOUND, JSON_KEY_GENERAL_SUB,\
-    JSON_KEY_GENERAL_COUNTRY, JSON_KEY_GENERAL_GENRE, JSON_KEY_GENERAL_THEME,\
-    JSON_KEY_GENERAL_SEASON, JSON_KEY_GENERAL_EPISODE, JSON_KEY_GENERAL_ALBUM,\
-    JSON_KEY_GENERAL_TRACK
+from medlib.card_ini import JSON_KEY_GENERAL_YEAR
+from medlib.card_ini import JSON_KEY_GENERAL_LENGTH
+from medlib.card_ini import JSON_KEY_GENERAL_DIRECTOR
+from medlib.card_ini import JSON_KEY_GENERAL_MAKER
+from medlib.card_ini import JSON_KEY_GENERAL_WRITER
+from medlib.card_ini import JSON_KEY_GENERAL_AUTHOR
+from medlib.card_ini import JSON_KEY_GENERAL_ACTOR
+from medlib.card_ini import JSON_KEY_GENERAL_PERFORMER
+from medlib.card_ini import JSON_KEY_GENERAL_LECTURER
+from medlib.card_ini import JSON_KEY_GENERAL_CONTRIBUTOR
+from medlib.card_ini import JSON_KEY_GENERAL_VOICE
+from medlib.card_ini import JSON_KEY_GENERAL_SOUND
+from medlib.card_ini import JSON_KEY_GENERAL_SUB
+from medlib.card_ini import JSON_KEY_GENERAL_COUNTRY
+from medlib.card_ini import JSON_KEY_GENERAL_GENRE
+from medlib.card_ini import JSON_KEY_GENERAL_THEME
+from medlib.card_ini import JSON_KEY_GENERAL_SEASON
+from medlib.card_ini import JSON_KEY_GENERAL_EPISODE
+from medlib.card_ini import JSON_KEY_GENERAL_ALBUM
+from medlib.card_ini import JSON_KEY_GENERAL_TRACK
+from medlib.card_ini import JSON_KEY_GENERAL_RECIPETYPE
 
 import json
 
@@ -62,6 +75,7 @@ class IniGeneral(object):
             subs             list of strings    ["en", "hu"]
             genres           list of strings    ["drama", "action"]
             themes           list of strings    ["money", "greed"]
+            recipeTypes      list of strings    ["chicken"]
             countries        list of strings    ["us", "ca"]
             
             storyline        storyLine
@@ -87,11 +101,14 @@ class IniGeneral(object):
         self.subs = []
         self.genres = []
         self.themes = []
+        self.recipeTypes = []
         self.countries = []
         
         self.storyline = IniStorylines()
         self.topic = IniStorylines()
         self.lyrics = IniStorylines()
+        self.ingredient = IniStorylines()
+        self.method = IniStorylines()
         
         # Movie
         self.season = None        
@@ -169,6 +186,9 @@ class IniGeneral(object):
     def setGenres(self, genreList):
         self.genres = genreList
 
+    def setRecipeTypes(self, recipeTypeList):
+        self.recipeTypes = recipeTypeList
+        
     def setThemes(self, themeList):
         self.themes = themeList
 
@@ -184,6 +204,12 @@ class IniGeneral(object):
     def setLyrics(self, lyrics):
         self.lyrics = lyrics
         
+    def setIngredient(self, ingredient):
+        self.ingredient = ingredient
+
+    def setMethod(self, method):
+        self.method = method
+                
     def setSeason(self, season):
         self.season = season
 
@@ -195,7 +221,23 @@ class IniGeneral(object):
         
     def setTrack(self, track):
         self.track = track
-   
+
+    # ---
+
+    def getTranslatedRecipeTypeList(self, category, rawRecipeTypeList=None):
+        """
+        Returns back the RecipeType list in the respective language.
+        _________________________________________________________________________________________________
+        input:
+                category:    movie, music, show, presentation, alternative, miscellaneous, radioplay, audiobook
+        output:
+                [(translated, raw), (translated, raw), ... ]
+        """
+        pre = "recipetype_"        
+        recipetypes = [ (_(pre+g), g) for g in self.getRecipeTypes() ]
+        
+        return recipetypes
+       
     # ---
     
     def getTranslatedGenreList(self, category, rawGenreList=None):
@@ -280,6 +322,9 @@ class IniGeneral(object):
     def getGenres(self):
         return self.genres
     
+    def getRecipeTypes(self):
+        return self.recipeTypes
+    
     def getThemes(self):
         return self.themes
     
@@ -294,6 +339,12 @@ class IniGeneral(object):
     
     def getLyrics(self):
         return self.lyrics
+    
+    def getIngredient(self):
+        return self.ingredient
+
+    def getMethod(self):
+        return self.method
     
     def getSeason(self):
         return self.season
@@ -328,6 +379,7 @@ class IniGeneral(object):
         
         json.update({} if self.genres is None or not self.genres else {JSON_KEY_GENERAL_GENRE: self.genres})
         json.update({} if self.themes is None or not self.themes else {JSON_KEY_GENERAL_THEME: self.themes})
+        json.update({} if self.recipeTypes is None or not self.recipeTypes else {JSON_KEY_GENERAL_RECIPETYPE: self.recipeTypes})
         
         json.update({} if self.season is None or not self.season else {JSON_KEY_GENERAL_SEASON: self.season})
         json.update({} if self.episode is None or not self.episode else {JSON_KEY_GENERAL_EPISODE: self.episode})        
@@ -651,7 +703,11 @@ class IniGeneral(object):
         # ---
         # --- THEME ---
         widget.addQlinkTranslatedWidget(media, scale, 'title_theme', media.getTranslatedThemeList())    
-        
+
+        # ---
+        # --- RECIPETYPE ---
+        widget.addQlinkTranslatedWidget(media, scale, 'title_recipetype', media.getTranslatedRecipeTypeList())    
+
         # ---
         # --- STORILINES ---
         storyline_widget = media.getWidgetGeneralInfoStoryLine(widget, scale, media.getTranslatedStoryline(self.getStoryline()))
@@ -664,6 +720,14 @@ class IniGeneral(object):
         # --- LYRICS ---
         storyline_widget = media.getWidgetGeneralInfoStoryLine(widget, scale, media.getTranslatedStoryline(self.getLyrics()))
         widget.addStorylineWidget(storyline_widget, 'title_lyrics')
+
+        # --- INGREDIENT ---
+        storyline_widget = media.getWidgetGeneralInfoStoryLine(widget, scale, media.getTranslatedStoryline(self.getIngredient()))
+        widget.addStorylineWidget(storyline_widget, 'title_ingredient')
+
+        # --- METHOD ---
+        storyline_widget = media.getWidgetGeneralInfoStoryLine(widget, scale, media.getTranslatedStoryline(self.getMethod()))
+        widget.addStorylineWidget(storyline_widget, 'title_method')
 
         # --- TAG ---
         self.tag_widget = media.classification.getWidgetTagListButtons(mainWidget, media, scale, 'title_tag', media.classification.getTagList)

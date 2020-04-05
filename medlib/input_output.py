@@ -21,9 +21,6 @@ from medlib.mediamodel.ini_classification import IniClassification
 from medlib.handle_property import config_ini 
 from medlib.handle_property import Property 
 
-from medlib.card_ini import CardIni, KEY_GENERAL_ALBUM, KEY_GENERAL_TRACK,\
-    JSON_KEY_GENERAL_ALBUM, JSON_KEY_GENERAL_TRACK,\
-    JSON_KEY_COLLECTOR_PATH_OF_ICON, JSON_KEY_STORAGE_PATH_OF_ICON
 from medlib.card_ini import JSON_KEY_CLASSIFICATION_NEW
 from medlib.card_ini import JSON_KEY_CLASSIFICATION_FAVORITE
 from medlib.card_ini import JSON_KEY_CLASSIFICATION_TAG
@@ -33,6 +30,8 @@ from medlib.card_ini import KEY_CLASSIFICATION_TAG
 from medlib.card_ini import KEY_CLASSIFICATION_RATE
 from medlib.card_ini import KEY_CLASSIFICATION_FAVORITE
 from medlib.card_ini import KEY_CLASSIFICATION_NEW
+
+from medlib.card_ini import CardIni
 
 from medlib.card_ini import KEY_GENERAL_LENGTH
 from medlib.card_ini import KEY_GENERAL_YEAR
@@ -47,11 +46,14 @@ from medlib.card_ini import KEY_GENERAL_CONTRIBUTOR
 from medlib.card_ini import KEY_GENERAL_VOICE
 from medlib.card_ini import KEY_GENERAL_GENRE
 from medlib.card_ini import KEY_GENERAL_THEME
+from medlib.card_ini import KEY_GENERAL_RECIPETYPE
 from medlib.card_ini import KEY_GENERAL_SUB
 from medlib.card_ini import KEY_GENERAL_SOUND
 from medlib.card_ini import KEY_GENERAL_COUNTRY
 from medlib.card_ini import KEY_GENERAL_SEASON
 from medlib.card_ini import KEY_GENERAL_EPISODE
+from medlib.card_ini import KEY_GENERAL_TRACK
+from medlib.card_ini import KEY_GENERAL_ALBUM
 
 from medlib.card_ini import JSON_KEY_GENERAL_YEAR
 from medlib.card_ini import JSON_KEY_GENERAL_LENGTH
@@ -70,6 +72,9 @@ from medlib.card_ini import JSON_KEY_GENERAL_SOUND
 from medlib.card_ini import JSON_KEY_GENERAL_COUNTRY
 from medlib.card_ini import JSON_KEY_GENERAL_SEASON
 from medlib.card_ini import JSON_KEY_GENERAL_EPISODE
+from medlib.card_ini import JSON_KEY_GENERAL_ALBUM 
+from medlib.card_ini import JSON_KEY_GENERAL_TRACK
+from medlib.card_ini import JSON_KEY_GENERAL_RECIPETYPE
 
 from medlib.card_ini import KEY_CONTROL_ORDERBY
 from medlib.card_ini import KEY_CONTROL_MEDIA
@@ -94,6 +99,9 @@ from medlib.card_ini import JSON_NODE_COLLECTORS
 from medlib.card_ini import JSON_KEY_COLLECTOR_NAME_OF_FOLDER
 from medlib.card_ini import JSON_KEY_COLLECTOR_PATH_OF_CARD
 from medlib.card_ini import JSON_KEY_COLLECTOR_PATH_OF_IMAGE
+from medlib.card_ini import JSON_KEY_COLLECTOR_PATH_OF_ICON
+
+from medlib.card_ini import JSON_KEY_STORAGE_PATH_OF_ICON
 from medlib.card_ini import JSON_KEY_STORAGE_NAME_OF_FOLDER
 from medlib.card_ini import JSON_KEY_STORAGE_PATH_OF_CARD
 from medlib.card_ini import JSON_KEY_STORAGE_PATH_OF_IMAGE
@@ -111,6 +119,8 @@ from medlib.card_ini import SECTION_TITLES
 from medlib.card_ini import SECTION_STORYLINE
 from medlib.card_ini import SECTION_TOPIC
 from medlib.card_ini import SECTION_LYRICS
+from medlib.card_ini import SECTION_INGREDIENT
+from medlib.card_ini import SECTION_METHOD
 from medlib.card_ini import SECTION_GENERAL
 from medlib.card_ini import SECTION_MEDIA
 from medlib.card_ini import SECTION_CLASSIFICATION
@@ -343,6 +353,47 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
         else:
             lyrics = None        
 
+        #--- INGREDIENT --- #
+        try:
+            ingredient_dict = card_ini.getOptions(SECTION_INGREDIENT)
+        except (configparser.NoSectionError, configparser.NoOptionError):
+            ingredient_dict = None       
+      
+        if ingredient_dict:
+            ingredient_lang_dict = {}
+            ingredient_orig=""            
+            for key, value in ingredient_dict.items():
+                hit_lang = re.compile( '^(.{2})$' ).match(key)                
+                if hit_lang is not None:
+                    ingredient_lang_dict[hit_lang.group(1)] = value
+                elif key == "orig":
+                    ingredient_orig = value
+                    
+            ingredient = IniStorylines(ingredient_orig, ingredient_lang_dict)
+        else:
+            ingredient = None
+
+        #--- METHOD --- #
+        try:
+            method_dict = card_ini.getOptions(SECTION_METHOD)
+            #storyline_dict=dict(parser.items("storyline"))
+        except (configparser.NoSectionError, configparser.NoOptionError):
+            method_dict = None       
+      
+        if method_dict:
+            method_lang_dict = {}
+            method_orig=""            
+            for key, value in method_dict.items():
+                hit_lang = re.compile( '^(.{2})$' ).match(key)                
+                if hit_lang is not None:
+                    method_lang_dict[hit_lang.group(1)] = value
+                elif key == "orig":
+                    method_orig = value
+                    
+            method = IniStorylines(method_orig, method_lang_dict)
+        else:
+            method = None
+
         #--- GENERAL --- #
         try:
             general_dict = card_ini.getOptions(SECTION_GENERAL)
@@ -453,6 +504,14 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
                     for theme in themes:
                         theme_list.append(theme.strip())
                     general.setThemes(theme_list)
+
+                # - recipetype - #
+                elif key == KEY_GENERAL_RECIPETYPE and len(value) > 0:
+                    recipetypes = value.split(",")
+                    recipetype_list = []            
+                    for recipetype in recipetypes:
+                        recipetype_list.append(recipetype.strip())
+                    general.setRecipeTypes(recipetype_list)
                 
                 # - subtitle - #
                 elif key == KEY_GENERAL_SUB and len(value) > 0:
@@ -499,8 +558,13 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
                 general.setStoryline(storyline);
             elif topic:
                 general.setTopic(topic)
-            if lyrics:
+            elif lyrics:
                 general.setLyrics(lyrics)
+            
+            if method:
+                general.setMethod(method)
+            if ingredient:
+                general.setIngredient(ingredient)
         
         #--- CLASSIFICATION --- #
         try:
@@ -739,6 +803,7 @@ def collectCardsFromJson(jsonForm, parentMediaCollector = None):
         voice = general.get(JSON_KEY_GENERAL_VOICE)
         genre = general.get(JSON_KEY_GENERAL_GENRE)
         theme = general.get(JSON_KEY_GENERAL_THEME)
+        recipetype = general.get(JSON_KEY_GENERAL_RECIPETYPE)
         sub = general.get(JSON_KEY_GENERAL_SUB)
         sound = general.get(JSON_KEY_GENERAL_SOUND)
         country = general.get(JSON_KEY_GENERAL_COUNTRY)
@@ -771,6 +836,8 @@ def collectCardsFromJson(jsonForm, parentMediaCollector = None):
             ini_general.setGenres(genre)
         if theme:
             ini_general.setThemes(theme)
+        if recipetype:
+            ini_general.setRecipeTypes(recipetype)
         if sub:
             ini_general.setSubs(sub)
         if sound:

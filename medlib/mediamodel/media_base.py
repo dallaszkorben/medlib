@@ -211,6 +211,9 @@ class MediaBase(CardDataInterface):
     def getTranslatedThemeList(self):
         return self.general.getTranslatedThemeList()
 
+    def getTranslatedRecipeTypeList(self):
+        return self.general.getTranslatedRecipeTypeList(self.control.getCategory())
+
     def setGui(self, gui):
         self.gui = gui
         

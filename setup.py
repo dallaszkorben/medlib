@@ -28,6 +28,7 @@ setup(
       package_data={
         'cardholder': ['img/*.gif'],
         'medlib': ['gui/images/*.png'],
+        'medlib': ['mediamodel/images/*.png'],
         'medlib': ['setup/setup.ini'],
         'medlib': ['dict/*.properties']
       },
