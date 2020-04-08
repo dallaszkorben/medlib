@@ -123,7 +123,6 @@ class PlayerThread(QThread):
                 try:
                     media_player = config_ini["player_" + media_type + "_" + extension + "_player"]
                     media_param = config_ini["player_" + media_type + "_" + extension + "_param"]
-            
                 # if not, then try to find the configuration only for "media"
                 except KeyError:
                     try:
@@ -132,12 +131,11 @@ class PlayerThread(QThread):
                     except KeyError:
                         media_player = None
                         media_param = ""
-                       
                 if media_player:
                     param_list = media_param.replace(" ", ",").split(",") if media_param else []
                     try:
-                        print(media_player, media_path, param_list)
-                        process = Popen([media_player, media_path] + param_list)
+                        print(media_player, param_list, media_path)
+                        process = Popen([media_player] + param_list + [media_path] )
                         PlayerThread.__pid = process.pid
                         print("pid:", PlayerThread.__pid)
 

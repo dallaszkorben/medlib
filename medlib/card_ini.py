@@ -9,7 +9,7 @@ media_dict = {
         'category': ('radioplay', 'music', 'show', 'presentation', 'audiobook', 'elearning', 'appendix', 'recipe')},
     'text': {
         'ext': ('doc', 'odt', 'pdf', 'epub', 'mobi', 'azw', 'azw3', 'iba', 'txt','rtf'), 
-        'category': ('book', 'presentation', 'quiz', 'elearning', 'appendix', 'recipe')},
+        'category': ('book', 'doc', 'presentation', 'quiz', 'elearning', 'appendix', 'recipe')},
     'image': {
         'ext': ('jpg', 'jpeg', 'png'), 
         'category': ('elearning', 'recipe')},
