@@ -134,10 +134,10 @@ class PlayerThread(QThread):
                 if media_player:
                     param_list = media_param.replace(" ", ",").split(",") if media_param else []
                     try:
-                        print(media_player, param_list, media_path)
+                        #print(media_player, param_list, media_path)
                         process = Popen([media_player] + param_list + [media_path] )
                         PlayerThread.__pid = process.pid
-                        print("pid:", PlayerThread.__pid)
+                        #print("pid:", PlayerThread.__pid)
 
                         # emit an media selection event
                         self.startNextPlaying.emit(media_index)       

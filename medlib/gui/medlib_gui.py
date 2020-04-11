@@ -239,8 +239,6 @@ class MedlibGui(QWidget):#, QObject):
         
         self.refreshPlayContinouslyListAfterRefresh()
         
-        
-        
     def refreshPlayContinouslyListAfterRefresh(self, forced=False):            
         
         # The Play Continously list should NOT be refreshed
@@ -268,20 +266,18 @@ class MedlibGui(QWidget):#, QObject):
                 
                 # Disable the start and stop buttons
                 self.control_panel.disablePlayStopContinously()
-
- 
- 
  
     def refreshPlayContinouslyListBeforeStartPlaying(self, index=0):            
         
         self.control_panel.enablePlayContinously(False)
 
-        # Clear the Play Continously List
-        self.control_panel.clear_play_continously_elements()
-
-        # Fill up the Play Contionously List - Dropdown 
-        for media in self.actualSortedStorageList:
-            self.control_panel.add_play_continously_element(media.getFormattedTitle(), media.getPathOfMedia(), media.getTypeOfMedia())
+#
+#        # Clear the Play Continously List
+#        self.control_panel.clear_play_continously_elements()
+#
+#        # Fill up the Play Contionously List - Dropdown 
+#        for media in self.actualSortedStorageList:
+#            self.control_panel.add_play_continously_element(media.getFormattedTitle(), media.getPathOfMedia(), media.getTypeOfMedia())
 
         self.control_panel.control_buttons_holder.select_play_continously_element_by_index(index)
  
@@ -357,6 +353,7 @@ class MedlibGui(QWidget):#, QObject):
         
 #        config_ini = getConfigIni()
 #        config_ini.getScale()
+
         myPanel = card.card_data.getWidget(1)
 
         layout.addWidget(myPanel)
@@ -415,22 +412,7 @@ class MedlibGui(QWidget):#, QObject):
         self.card_holder.alignSpinner(self.geometry().width(), self.geometry().height())
   
   
-  
-  
-
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+ 
   
   
   
@@ -463,7 +445,7 @@ class LinkLabel(QLabel):
 
     # Mouse Press
     def mousePressEvent(self, event):
-        if event.buttons() == Qt.LeftButton: # and self.index:
+        if event.buttons() == Qt.LeftButton and self.index is not None:
             QApplication.restoreOverrideCursor()
 
             # Generate new Hierarchy Title        
@@ -545,21 +527,23 @@ class HierarchyTitle(QWidget):
     
     def setTitle(self, collector):
         clearLayout(self.text_layout)
-        self.title_list = []
-        
+
         #One element in the title_list:
         #    "title"
         #    "collector"
         #    "card-list"
-        #    "index"    
+        #    "index"
+        self.title_list = []
+        
         collector.getFormattedTitleList(self.title_list)
 
         one_line_container, one_line_container_layout = self.get_one_line_container()
                 
         text_width = 0
         self.lines = 1
+        
+        # Title with link function
         for title in reversed(self.title_list[1:]):
-#        for title in reversed(title_list):
             
             # Generate text
             label = LinkLabel(self.parent, title["title"], title["collector"], title["card-list"], title["index"])            
@@ -587,7 +571,7 @@ class HierarchyTitle(QWidget):
 
             one_line_container_layout.addWidget(label)
        
-       
+        # The last title (right) which has NO link function
         label = LinkLabel(self.parent, self.title_list[0]["title"], self.title_list[0]["collector"], self.title_list[0]["card-list"], self.title_list[0]["index"])
         text_width = text_width + self.get_width_in_pixels(label)
         if text_width > self.text_holder.size().width():
@@ -614,20 +598,6 @@ class HierarchyTitle(QWidget):
         one_line_container_layout.setAlignment(Qt.AlignHCenter)
         return one_line_container, one_line_container_layout
 
-#    def create_one_line_container(self):
-#        self.one_line_container = QWidget(self)
-#        self.one_line_container_layout = QHBoxLayout(self.one_line_container)
-#        self.one_line_container_layout.setContentsMargins(0, 0, 0, 0)
-#        self.one_line_container_layout.setSpacing(0)
-#        self.one_line_container.setLayout(self.one_line_container_layout)
-#        self.one_line_container_layout.setAlignment(Qt.AlignHCenter)
-
-#    def add_to_one_line_container(self, cw):
-#        self.one_line_container_layout.addWidget(cw)
-        
-#    def push_new_line_container(self):
-#        self.text_layout.addWidget(self.one_line_container)
-        
     def getOneLevelHigher(self):
         if len(self.title_list) >= 2:
             return (self.title_list[1]["collector"], self.title_list[1]["index"])

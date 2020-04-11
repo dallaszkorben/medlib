@@ -10,7 +10,6 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtCore import QCoreApplication
 
 from medlib.constants import STORAGE_BACKGROUND_COLOR
-from medlib.gui.player import PlayerThread
 
 class MediaStorage(MediaBase):
     """
@@ -118,11 +117,6 @@ class MediaStorage(MediaBase):
                     }]
                 )
                 
-#                PlayerThread.play([{
-#                    'media-index': 0,
-#                    'media-path': self.pathOfMedia, 
-#                    'media-type': self.media.getControl().getMedia()}])
-
         return QLabelWithLinkToMedia(self, self.isInFocus, self.getPathOfMedia())
 
     def setNextLevelListener(self, nextLevelListener):

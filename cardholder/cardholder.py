@@ -186,7 +186,6 @@ class CardHolder( QWidget ):
     def stop_spinner(self):
         self.collecting_spinner.setHidden(True)
         self.spinner_movie.stop()
-
         
     # ---------------------------------------------------------------------
     #
@@ -195,7 +194,6 @@ class CardHolder( QWidget ):
     # this method should be called when you want a new collection of cards
     #
     # ---------------------------------------------------------------------
-#    def startCardCollection(self, parameters):
     def startCardCollection(self):        
 
         self.start_spinner()
@@ -681,10 +679,6 @@ class CardHolder( QWidget ):
        
         if parent_collector:
 
-#            # Listener of the refresh list
-#            # Here you refresh the self.mediaCollector object in the medlib_gui
-#            self.refresh_list_listener(parent_collector)            
-        
             # Without hierarchy
             if not self.parent.isSwitchKeepHierarchy():
                 sum_list = self.collectMediaStorageWithoutHierarchy([], parent_collector)
@@ -701,11 +695,12 @@ class CardHolder( QWidget ):
                 sum_list = mcl + msl
 
                 # Listener of the refresh list
-                # Here you refresh the self.mediaCollector object in the medlib_gui
+                # 1. set self.mediaCollector
+                # 2. fill up the "play continously" list if there is NO ongoing play
+                # 3. save the "play continously" list if there IS ongoing play
                 self.refresh_list_listener(parent_collector, msl)            
 
             self.fill_up_card_descriptor_list(sum_list)                
-#            self.focus_index(parent_collector.getIndex())
             self.focus_index(index)
 
         self.stop_spinner()
@@ -1041,7 +1036,7 @@ class Card(QWidget):
     # ---------------------------------------
     def place(self, local_index, front_remove=False):
         
-        # Need to resize and reposition the Car as 'The farther the card is the narrower it is'
+        # Need to resize and reposition the Card as 'The farther the card is the narrower it is'
         self.resized(self.card_holder.width(), self.card_holder.height(), local_index)
         x_coordinate = self.card_holder.get_border_width() + self.card_holder.get_x_offset_by_index_method(local_index)
         y_coordinate = self.card_holder.get_border_width() + self.get_y_coordinate(local_index)

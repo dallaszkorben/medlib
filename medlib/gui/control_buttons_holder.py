@@ -401,7 +401,6 @@ class ControlButtonsHolder(QWidget):
         in the Play list according to the index. 
         This method is called from the PlayerThread object when the next media is started
         """
-        #self.enablePlayContinously(False)
         self.select_play_continously_element_by_index(index)  
         self.control_panel.gui.refreshPlayContinouslyListBeforeStartPlaying(index)
 
