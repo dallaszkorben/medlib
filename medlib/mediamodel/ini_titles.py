@@ -278,7 +278,7 @@ class IniTitles(object):
         pathToFile = media.getPathOfIcon()
         if pathToFile:
             pixmap = QPixmap( pathToFile )
-
+            
         if not pixmap:
         
             #media-(collector/storage)
@@ -302,7 +302,11 @@ class IniTitles(object):
             smaller_pixmap = QPixmap(TITLE_ICON_HEIGHT * scale, TITLE_ICON_HEIGHT * scale)
             smaller_pixmap.fill(QColor(media.getBackgroundColor()))
         else:
-            smaller_pixmap = pixmap.scaledToWidth(TITLE_ICON_HEIGHT * scale)
+            
+            if pixmap.width() >= pixmap.height():
+                smaller_pixmap = pixmap.scaledToWidth(TITLE_ICON_HEIGHT * scale)
+            else:
+                smaller_pixmap = pixmap.scaledToHeight(TITLE_ICON_HEIGHT * scale)
    
         iconWidget = QLabel()
         iconWidget.setPixmap(smaller_pixmap)

@@ -300,7 +300,7 @@ class MediaBase(CardDataInterface):
         widget.setLayout(image_layout)
 
         pixmap = QPixmap( self.getPathOfImage( ) )
-
+        
         # if card image was not found
         if pixmap.isNull():            
 
@@ -312,6 +312,7 @@ class MediaBase(CardDataInterface):
         else:
             smaller_pixmap = pixmap.scaledToHeight(PANEL_HEIGHT * scale)
 
+        widget.setMinimumHeight(PANEL_HEIGHT * scale)
         widget.setMinimumWidth(PANEL_HEIGHT * scale)
         widget.setPixmap(smaller_pixmap)
         
@@ -526,6 +527,9 @@ class MediaBase(CardDataInterface):
                 self.setAttribute(Qt.WA_StyledBackground, True)
             
                 self.neededTagField = False
+                
+                self.setMaximumHeight((PANEL_HEIGHT) * scale)
+                self.setMinimumHeight((PANEL_HEIGHT) * scale)
             
             def addImageWidget(self, get_image_widget_method):
                 self.get_image_widget_method = get_image_widget_method

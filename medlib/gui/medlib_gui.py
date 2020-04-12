@@ -22,7 +22,7 @@ from PyQt5.QtWidgets import QDesktopWidget
 from PyQt5.QtCore import Qt
 
 from medlib.constants import MAIN_BACKGROUND_COLOR, LINK_TILE_FONT_SIZE,\
-    CONTROL_BACKGROUND_COLOR
+    CONTROL_BACKGROUND_COLOR, PANEL_HEIGHT
 from medlib.constants import CARD_BORDER_FOCUSED_BACKGROUND_COLOR
 from medlib.constants import CARD_BORDER_NORMAL_BACKGROUND_COLOR
 from medlib.constants import COLLECTOR_BACKGROUND_COLOR
@@ -343,18 +343,20 @@ class MedlibGui(QWidget):#, QObject):
         card.setBorderRadius(10)
         card.setBorderWidth(8)
         
-        card.setMaximumHeight(300)
-        card.setMinimumHeight(300)
-
         card.setNotFocused()
  
         panel = card.getPanel()
         layout = panel.getLayout()
         
-#        config_ini = getConfigIni()
-#        config_ini.getScale()
+        # read actual SCALE
+        reReadConfigIni()
+        scale = int(config_ini['scale'])
+        scale = float(1 + scale * 0.1)
 
-        myPanel = card.card_data.getWidget(1)
+#        card.setMaximumHeight((PANEL_HEIGHT+25) * scale)
+#        card.setMinimumHeight((PANEL_HEIGHT+25) * scale)
+
+        myPanel = card.card_data.getWidget(scale)
 
         layout.addWidget(myPanel)
         
@@ -369,12 +371,6 @@ class MedlibGui(QWidget):#, QObject):
     def goesDeeper(self, mediaCollector):
         self.card_holder.goesDeeper(mediaCollector)
                       
-#        mcl = mediaCollector.getMediaCollectorList()
-#        msl = mediaCollector.getMediaStorageList()
-#        sum_list = mcl + msl
-#        if sum_list:
-#            self.card_holder.refresh(sum_list)    
-
     def goesHigher(self):
         self.card_holder.goesHigher()
         
@@ -395,10 +391,6 @@ class MedlibGui(QWidget):#, QObject):
         reReadConfigIni()
         self.card_holder.refresh(self.mediaCollector)
        
-#    def to_integer(self, value):         
-#        hours, minutes = map(int, (['0']+value.split(':'))[-2:])
-#        return hours * 60 + minutes
-  
     def resizeEvent(self, event):
         """
         When the window resized, then the Hierarchy Title will be re-arranged.

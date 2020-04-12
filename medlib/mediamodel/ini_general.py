@@ -398,7 +398,6 @@ class IniGeneral(object):
         widget = QWidget()
         #widget.setStyleSheet('background: ' + self.getBackgroundColor())
         widget.setLayout(layout)
-        widget.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * scale, weight=QFont.Normal))
 
         layout.addWidget(self.getWidgetOneLineInfoYear(media, scale), 0, 0)
 
@@ -429,6 +428,7 @@ class IniGeneral(object):
         if sub_list:
 
             key_label = QLabel( _('title_sub')  + ": ")
+            key_label.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * scale, weight=QFont.Normal))
             layout.addWidget(key_label)
         
             value_label = QLabel(sub_list)
@@ -448,6 +448,7 @@ class IniGeneral(object):
         if self.getYear():
 
             key_label = QLabel(_('title_year')  + ": ")
+            key_label.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * scale, weight=QFont.Normal))
             layout.addWidget(key_label)
         
             value_label = QLabel(self.getYear())
@@ -468,6 +469,7 @@ class IniGeneral(object):
         if self.getLength():
 
             key_label = QLabel(_('title_length')  + ": ")
+            key_label.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * scale, weight=QFont.Normal))
             layout.addWidget(key_label)
         
             value_label = QLabel(self.getLength())
@@ -490,6 +492,7 @@ class IniGeneral(object):
         if country_list:
 
             key_label = QLabel(_('title_country')  + ": ")
+            key_label.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * scale, weight=QFont.Normal))
             layout.addWidget(key_label)
         
             value_label = QLabel(country_list)
@@ -511,6 +514,7 @@ class IniGeneral(object):
         if sound_list:
 
             key_label = QLabel( _('title_sound')  + ": ")
+            key_label.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * scale, weight=QFont.Normal))
             layout.addWidget(key_label)
         
             value_label = QLabel(sound_list)

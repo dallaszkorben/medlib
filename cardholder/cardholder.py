@@ -22,6 +22,7 @@ from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import QPoint
 from PyQt5.QtCore import QByteArray
 
+from medlib.handle_property import getConfigIni
 from pkg_resources import resource_filename
 from math import copysign
 from cardholder.card_data_interface import CardDataInterface
@@ -115,11 +116,11 @@ class CardHolder( QWidget ):
         self.setFocusPolicy(Qt.StrongFocus)
         self.setFocus()      
     
-    def setSelectedRootCardIndex(self, selected_root_card_index):
-        self.selected_root_card_index = selected_root_card_index
-        
-    def getSelectedRootCardIndex(self):
-        return self.selected_root_card_index        
+#    def setSelectedRootCardIndex(self, selected_root_card_index):
+#        self.selected_root_card_index = selected_root_card_index
+#        
+#    def getSelectedRootCardIndex(self):
+#        return self.selected_root_card_index        
     
     def set_y_coordinate_by_reverse_index_method(self, method):
         self.get_y_coordinate_by_reverse_index_method = method
@@ -587,8 +588,29 @@ class CardHolder( QWidget ):
         self.rolling_wheel(-value)
   
     def keyPressEvent(self, event):
+
+        if event.key() == QtCore.Qt.Key_Up and event.modifiers() == Qt.ControlModifier:
+            
+            config_ini_function = getConfigIni()
+            scale = int(config_ini_function.getScale())
+            scale = scale + 1
+            config_ini_function.setScale(str(scale))
+
+            parent_collector = self.getParentCollector()
+            index_of_focused_card = self.getFocusedCard().getIndexInDataList()
+            self.focus_index(index_of_focused_card)
+            
+        elif event.key() == QtCore.Qt.Key_Down and event.modifiers() == Qt.ControlModifier:
+            config_ini_function = getConfigIni()
+            scale = int(config_ini_function.getScale())
+            scale = scale - 1
+            config_ini_function.setScale(str(scale))
+            
+            parent_collector = self.getParentCollector()
+            index_of_focused_card = self.getFocusedCard().getIndexInDataList()
+            self.focus_index(index_of_focused_card)            
         
-        if event.key() == QtCore.Qt.Key_Up:
+        elif event.key() == QtCore.Qt.Key_Up:
             self.animated_move_to_next(sleep=0.04)
             
         elif event.key() == QtCore.Qt.Key_Down:
@@ -675,6 +697,8 @@ class CardHolder( QWidget ):
     def refresh(self, parent_collector=None, index=0):
         """
         Fills up the CardHolder with Cards and pulls the <index>th Card to front
+        
+        
         """
        
         if parent_collector:
@@ -887,16 +911,6 @@ class Card(QWidget):
         
         self.setAttribute(Qt.WA_StyledBackground, True)        
 
-#    def getParentCard(self):
-#        card_data_collector = self.card_data.getParentCollector()
-#        return card_data_collector.getCard()
-        
-#    def setSelectedChildCardIndex(self, index):
-#        self.selected_child_card_index = index
-#        
-#    def getSelectedChildCardIndex(self):
-#        return self.selected_child_card_index
-        
     def setIndexInDataList(self, index):
         self.index = index
         
@@ -1020,6 +1034,11 @@ class Card(QWidget):
     #
     # ----------------------------------------
     def resized(self, width, height, local_index=None):
+        """
+        Input:
+            width:    CardHolder width
+            height:   CardHolder height
+        """
         # The farther the card is the narrower it is
         if local_index==None:
             local_index = self.local_index
