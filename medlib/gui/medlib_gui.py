@@ -370,8 +370,7 @@ class MedlibGui(QWidget):#, QObject):
         self.card_holder.goesDeeper(mediaCollector)
                       
     def goesHigher(self):
-        self.card_holder.goesHigher()
-        
+        self.card_holder.goesHigher()        
         
     def changeKeepHierarchy(self, keep):
         """

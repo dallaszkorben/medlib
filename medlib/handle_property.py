@@ -257,7 +257,8 @@ class ConfigIni( Property ):
         self.update(self.DEFAULT_LANGUAGE[0], self.DEFAULT_LANGUAGE[1], lang)
 
     def setScaleLevel(self, scale_level):
-        self.update(self.DEFAULT_SCALE_LEVEL[0], self.DEFAULT_SCALE_LEVEL[1], scale_level)
+        if (int(scale_level) * float(self.getScaleFactor())) > -1.0:
+            self.update(self.DEFAULT_SCALE_LEVEL[0], self.DEFAULT_SCALE_LEVEL[1], scale_level)
 
     def setScaleFactor(self, scale_factor):
         self.update(self.DEFAULT_SCALE_FACTOR[0], self.DEFAULT_SCALE_FACTOR[1], scale_factor)
