@@ -592,7 +592,9 @@ class IniGeneral(object):
                     first = True
                     for d in value:
                         if not first:
-                            layout.addWidget( QLabel(", ") )
+                            comma_label = QLabel(", ")
+                            comma_label.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * scale, weight=QFont.Normal))
+                            layout.addWidget(comma_label)
                         label = IniGeneral.QLinkLabelToSearch(media, scale, d, d, title_id)
                         layout.addWidget(label)
                         first = False
@@ -621,7 +623,9 @@ class IniGeneral(object):
             
                     for d, e in element_list:
                         if not first:
-                            layout_genres.addWidget( QLabel(", ") )
+                            comma_label = QLabel(", ")
+                            comma_label.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * scale, weight=QFont.Normal))
+                            layout_genres.addWidget( comma_label )
                         label = IniGeneral.QLinkLabelToSearch(media, scale, d, e, title_id)                
                         layout_genres.addWidget(label)
                         first = False
