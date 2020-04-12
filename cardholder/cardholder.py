@@ -585,26 +585,42 @@ class CardHolder( QWidget ):
     def wheelEvent(self, event):
         modifiers = QApplication.keyboardModifiers()
         value = event.angleDelta().y()/8/15   # in normal case it is +1 or -1
-        self.rolling_wheel(-value)
+
+        if modifiers == Qt.ControlModifier:
+            
+            # Change SCALE_LEVEL
+            config_ini_function = getConfigIni()
+            scale_level = int(config_ini_function.getScaleLevel())
+            scale_level = scale_level + (1 if value > 0 else - 1)
+            config_ini_function.setScaleLevel(str(scale_level))
+            
+            index_of_focused_card = self.getFocusedCard().getIndexInDataList()
+            self.focus_index(index_of_focused_card)
+            
+        else:
+            self.rolling_wheel(-value)
   
     def keyPressEvent(self, event):
 
         if event.key() == QtCore.Qt.Key_Up and event.modifiers() == Qt.ControlModifier:
             
+            # Change SCALE_LEVEL
             config_ini_function = getConfigIni()
-            scale = int(config_ini_function.getScale())
-            scale = scale + 1
-            config_ini_function.setScale(str(scale))
+            scale_level = int(config_ini_function.getScaleLevel())
+            scale_level = scale_level + 1
+            config_ini_function.setScaleLevel(str(scale_level))
 
             parent_collector = self.getParentCollector()
             index_of_focused_card = self.getFocusedCard().getIndexInDataList()
             self.focus_index(index_of_focused_card)
             
         elif event.key() == QtCore.Qt.Key_Down and event.modifiers() == Qt.ControlModifier:
+            
+            # Change SCALE_LEVEL
             config_ini_function = getConfigIni()
-            scale = int(config_ini_function.getScale())
-            scale = scale - 1
-            config_ini_function.setScale(str(scale))
+            scale_level = int(config_ini_function.getScaleLevel())
+            scale_level = scale_level - 1
+            config_ini_function.setScaleLevel(str(scale_level))
             
             parent_collector = self.getParentCollector()
             index_of_focused_card = self.getFocusedCard().getIndexInDataList()

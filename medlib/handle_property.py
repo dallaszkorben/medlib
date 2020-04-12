@@ -182,7 +182,8 @@ class ConfigIni( Property ):
 
     # (section, key, default)
     DEFAULT_LANGUAGE = ("general", "language", "hu")
-    DEFAULT_SCALE = ("general", "scale", 1)
+    DEFAULT_SCALE_LEVEL = ("general", "scale-level", 1)
+    DEFAULT_SCALE_FACTOR = ("general", "scale-factor", 0.1)
     DEFAULT_SHOW_ORIGINAL_TITLE = ("general", "show-original-title", "n")
     DEFAULT_KEEP_HIERARCHY = ("general", "keep-hierarchy", "y")
     DEFAULT_USE_XDG = ("general", "use-xdg", "y")
@@ -221,8 +222,11 @@ class ConfigIni( Property ):
     def getLanguage(self):
         return self.get(self.DEFAULT_LANGUAGE[0], self.DEFAULT_LANGUAGE[1], self.DEFAULT_LANGUAGE[2])
 
-    def getScale(self):
-        return self.get(self.DEFAULT_SCALE[0], self.DEFAULT_SCALE[1], self.DEFAULT_SCALE[2])
+    def getScaleFactor(self):
+        return self.get(self.DEFAULT_SCALE_FACTOR[0], self.DEFAULT_SCALE_FACTOR[1], self.DEFAULT_SCALE_FACTOR[2])
+
+    def getScaleLevel(self):
+        return self.get(self.DEFAULT_SCALE_LEVEL[0], self.DEFAULT_SCALE_LEVEL[1], self.DEFAULT_SCALE_LEVEL[2])
 
     def getShowOriginalTitle(self):
         return self.get(self.DEFAULT_SHOW_ORIGINAL_TITLE[0], self.DEFAULT_SHOW_ORIGINAL_TITLE[1], self.DEFAULT_SHOW_ORIGINAL_TITLE[2])
@@ -252,8 +256,11 @@ class ConfigIni( Property ):
     def setLanguage(self, lang):
         self.update(self.DEFAULT_LANGUAGE[0], self.DEFAULT_LANGUAGE[1], lang)
 
-    def setScale(self, scale):
-        self.update(self.DEFAULT_SCALE[0], self.DEFAULT_SCALE[1], scale)
+    def setScaleLevel(self, scale_level):
+        self.update(self.DEFAULT_SCALE_LEVEL[0], self.DEFAULT_SCALE_LEVEL[1], scale_level)
+
+    def setScaleFactor(self, scale_factor):
+        self.update(self.DEFAULT_SCALE_FACTOR[0], self.DEFAULT_SCALE_FACTOR[1], scale_factor)
 
     def setShowOriginal_title(self, show):
         self.update(self.DEFAULT_SHOW_ORIGINAL_TITLE[0], self.DEFAULT_SHOW_ORIGINAL_TITLE[1], show)
@@ -286,7 +293,8 @@ def reReadConfigIni():
     
     # Read config.ini    
     config_ini['language'] = ci.getLanguage()
-    config_ini['scale'] = ci.getScale()
+    config_ini['scale_factor'] = ci.getScaleFactor()
+    config_ini['scale_level'] = ci.getScaleLevel()
     config_ini['show_original_title'] = ci.getShowOriginalTitle()
     config_ini['keep_hierarchy'] = ci.getKeepHierarchy()
     config_ini['use_xdg'] = ci.getUseXdg()

@@ -348,13 +348,11 @@ class MedlibGui(QWidget):#, QObject):
         panel = card.getPanel()
         layout = panel.getLayout()
         
-        # read actual SCALE
+        # read the actual SCALE
         reReadConfigIni()
-        scale = int(config_ini['scale'])
-        scale = float(1 + scale * 0.1)
-
-#        card.setMaximumHeight((PANEL_HEIGHT+25) * scale)
-#        card.setMinimumHeight((PANEL_HEIGHT+25) * scale)
+        scale_factor = float(config_ini['scale_factor'])
+        scale_level = int(config_ini['scale_level'])
+        scale = float( 1 + scale_level * scale_factor )
 
         myPanel = card.card_data.getWidget(scale)
 
