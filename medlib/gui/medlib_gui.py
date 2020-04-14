@@ -1,5 +1,7 @@
 import sys
 import os
+import logging
+from logging.handlers import RotatingFileHandler
 
 from pkg_resources import resource_filename
 
@@ -41,7 +43,7 @@ from PyQt5.QtGui import QFont
 from PyQt5.QtGui import QPainter
 from PyQt5 import QtCore, QtGui
 
-from medlib.handle_property import config_ini
+from medlib.handle_property import config_ini, Config
 from medlib.handle_property import getConfigIni
 from medlib.handle_property import reReadConfigIni
 from medlib.mediamodel.media_base import FOLDER_TYPE_STORAGE
@@ -790,7 +792,34 @@ class ControlPanel(QWidget):
 #    def get_advanced_filter_holder(self):
 #        return self.advanced_filter_holder
         
-def main():    
+def main():
+    
+    log_name = config_ini['log_name']
+    log_level = config_ini['log_level']        
+    folder = os.path.join(Config.HOME, Config.CONFIG_FOLDER, 'logs')
+    log_path = os.path.join(folder, log_name)        
+
+    
+    
+#   logger = logging.getLogger()
+#    log_formatter = logging.Formatter('%(asctime)s %(levelname)8s - %(message)s')
+#    my_handler = RotatingFileHandler(log_path, mode='a', maxBytes=5*1024*1024, backupCount=2, encoding=None, delay=0)
+#    logger.addHandler(my_handler)    
+#    logger.setFormatter(log_formatter)
+#    logger.setLevel(logging.ERROR if log_level == 'ERROR' else logging.WARNING if log_level == 'WARNING' else logging.INFO if log_level == 'INFO' else logging.DEBUG if log_level == 'DEBUG' else 'CRITICAL')
+
+    logging.basicConfig(
+        handlers=[RotatingFileHandler(log_path, maxBytes=5*1024*1024, backupCount=5)],
+        format='%(asctime)s %(levelname)8s - %(message)s' , 
+        level = logging.ERROR if log_level == 'ERROR' else logging.WARNING if log_level == 'WARNING' else logging.INFO if log_level == 'INFO' else logging.DEBUG if log_level == 'DEBUG' else 'CRITICAL' )    
+    
+    
+#    logging.basicConfig( filemode = 'a', format='%(asctime)s %(levelname)8s - %(message)s' , filename = log_path, level = logging.ERROR if log_level == 'ERROR' else logging.WARNING if log_level == 'WARNING' else logging.INFO if log_level == 'INFO' else logging.DEBUG if log_level == 'DEBUG' else 'CRITICAL' )
+#    logging.info("=== GUI Started ===")
+    
+    
+    
+    
     app = QApplication(sys.argv)
     ex = MedlibGui()
     sys.exit(app.exec_())

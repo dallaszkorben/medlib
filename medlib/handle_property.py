@@ -187,7 +187,9 @@ class ConfigIni( Property ):
     DEFAULT_SHOW_ORIGINAL_TITLE = ("general", "show-original-title", "n")
     DEFAULT_KEEP_HIERARCHY = ("general", "keep-hierarchy", "y")
     DEFAULT_USE_XDG = ("general", "use-xdg", "y")
-    DEFAULT_MEDIA_PATH = ("media", "media-path", ".")    
+    DEFAULT_MEDIA_PATH = ("media", "media-path", ".")
+    DEFAULT_SYSTEM_LOG_NAME = ("system", "log-name", "medlib.log")
+    DEFAULT_SYSTEM_LOG_LEVEL = ("system", "log-level", "ERROR")
 
     DEFAULT_PLAYERS = {
         "link":      ("player", ("link-player",      "chrome"),      ("link-param",      "")),
@@ -251,6 +253,12 @@ class ConfigIni( Property ):
         valueList = self.DEFAULT_PLAYERS.get(key)
         return self.get(valueList[0], valueList[2][0], valueList[2][1])
 
+    def getLogName(self):
+        return self.get(self.DEFAULT_SYSTEM_LOG_NAME[0], self.DEFAULT_SYSTEM_LOG_NAME[1], self.DEFAULT_SYSTEM_LOG_NAME[2])
+
+    def getLogLevel(self):
+        return self.get(self.DEFAULT_SYSTEM_LOG_LEVEL[0], self.DEFAULT_SYSTEM_LOG_LEVEL[1], self.DEFAULT_SYSTEM_LOG_LEVEL[2])
+
 # ---
 
     def setLanguage(self, lang):
@@ -275,8 +283,11 @@ class ConfigIni( Property ):
     def setUseXdg(self, use_xdg):
         self.update(self.DEFAULT_USE_XDG[0], self.DEFAULT_USE_XDG[1], use_xdg)
 
+    def setLogName(self, log_name):
+        self.update(self.DEFAULT_SYSTEM_LOG_NAME[0], self.DEFAULT_SYSTEM_LOG_NAME[1], log_name)
 
-
+    def setLogLevel(self, log_level):
+        self.update(self.DEFAULT_SYSTEM_LOG_LEVEL[0], self.DEFAULT_SYSTEM_LOG_LEVEL[1], log_level)
 
 
 def updateCardIni(card_ini_path, section, key, value):
@@ -300,6 +311,8 @@ def reReadConfigIni():
     config_ini['keep_hierarchy'] = ci.getKeepHierarchy()
     config_ini['use_xdg'] = ci.getUseXdg()
     config_ini['media_path'] = ci.getMediaPath()
+    config_ini['log_name'] = ci.getLogName()
+    config_ini['log_level'] = ci.getLogLevel()
     
     options = ci.getPlayerOptions()
     for key in options:

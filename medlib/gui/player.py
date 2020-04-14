@@ -3,11 +3,13 @@ import platform
 import time
 from subprocess import Popen
 
-from medlib.handle_property import config_ini
+from medlib.handle_property import config_ini, Config
 from medlib.card_ini import CardIni
 from PyQt5.QtCore import QThread, pyqtSignal
 import signal
 import psutil
+import logging
+from medlib.handle_property import config_ini
 
 class PlayerThread(QThread):
 
@@ -36,6 +38,8 @@ class PlayerThread(QThread):
                     'media-type': - media_type: type of the media (video, audio, text, image)
          """
 
+        logging.info("Play started")
+        
         # It stop anyway
         cls.stop()
 
@@ -48,6 +52,7 @@ class PlayerThread(QThread):
         while cls.__run and limit >= 0:
             time.sleep(0.5)
             limit -= 1
+            logging.debug("  Waiting if an existing thread is still running")
 
         # It starts
         inst.start()
@@ -63,6 +68,7 @@ class PlayerThread(QThread):
         """
         Stops play list running
         """
+        logging.debug("  >Stop playing list")
         if PlayerThread.__pid:
             try:
                 os.kill(PlayerThread.__pid, signal.SIGKILL)
@@ -83,13 +89,13 @@ class PlayerThread(QThread):
     
 #    def __init__(self):
 #        QThread.__init__(self)        
-##        self.list_of_media_to_play = list_of_media_to_play
          
     def run(self):
 
         PlayerThread.__run = True
         PlayerThread.__stop_continously_play = False
 
+        logging.info("  Play in loop started")
         for actual_media in self.list_of_media_to_play:
             media_index = actual_media['media-index']          
             media_path = actual_media['media-path']
@@ -134,10 +140,10 @@ class PlayerThread(QThread):
                 if media_player:
                     param_list = media_param.replace(" ", ",").split(",") if media_param else []
                     try:
-                        #print(media_player, param_list, media_path)
+                        logging.debug("    " + media_player + " " + media_param + " " + media_path)
                         process = Popen([media_player] + param_list + [media_path] )
                         PlayerThread.__pid = process.pid
-                        #print("pid:", PlayerThread.__pid)
+                        logging.debug("    pid: " + str(PlayerThread.__pid))
 
                         # emit an media selection event
                         self.startNextPlaying.emit(media_index)       
@@ -147,12 +153,14 @@ class PlayerThread(QThread):
                         
                         # if you want to stop continously playing you break the loop
                         if PlayerThread.__stop_continously_play:
+                            logging.debug("    Break loop")
                             break
 
                     except FileNotFoundError as e:
-                        print("File Not found:", e)
+                        logging.error("    File Not found to play: " + media_path)
                 else:
-                    print("no player was found")            
+                    logging.error("    No Player was found: " + media_player)
 
+        logging.info("Play stopped + emit stopPlayingAll")
         PlayerThread.__run = False
         self.stopPlayingAll.emit()

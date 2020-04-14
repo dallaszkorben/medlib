@@ -30,7 +30,6 @@ class IniControl(object):
     
     def __str__(self):
         return json.dumps(self.getJson(), indent=4, sort_keys=True)
-#        return "\norderby:  " + self.getOrderBy() + "\n" + "media:    " + self.getMedia() + "\n" + "category: " + self.getCategory() + "\n"
         
     def getOrderBy(self):
         return self.orderby
