@@ -139,9 +139,12 @@ class PlayerThread(QThread):
                         media_param = ""
                 if media_player:
                     param_list = media_param.replace(" ", ",").split(",") if media_param else []
-                    try:
+                    path_list = media_path.replace(" ", ",").split(",") if media_path else []
+                    try:                        
+                        
                         logging.debug("    " + media_player + " " + media_param + " " + media_path)
-                        process = Popen([media_player] + param_list + [media_path] )
+                        process = Popen([media_player] + param_list + path_list )
+                        
                         PlayerThread.__pid = process.pid
                         logging.debug("    pid: " + str(PlayerThread.__pid))
 

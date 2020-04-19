@@ -11,7 +11,6 @@ from medlib.constants import PANEL_FONT_SIZE
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont, QPalette
 from medlib.card_ini import JSON_SECTION_TITLES, JSON_SECTION_CONTROL
-from medlib.gui.player import PlayerThread
 
 class MediaAppendix(object):
             
@@ -97,13 +96,9 @@ class MediaAppendix(object):
             gui.control_panel.control_buttons_holder.image_or_appendix_on_click([{
                     'media-index': 0,
                     'media-path': self.pathOfMedia, 
-                    'media-type': self.media.getControl().getMedia()}])
+                    'media-type': self.appendix_media.getControl().getMedia()}])
+                    #'media-type': self.media.getControl().getMedia()}])
 
-#            PlayerThread.play([{
-#                'media-index': 0,
-#                'media-path': self.pathOfMedia, 
-#                'media-type': self.appendix_media.getControl().getMedia()}])
-                
         def enterEvent(self, event):
             super().enterEvent(event)
             font = self.font()

@@ -2,7 +2,7 @@ import re
 
 media_dict = {
     'video': {
-        'ext': ('mkv', 'mp4', 'flv', 'divx', 'avi', 'webm'), 
+        'ext': ('mkv', 'mp4', 'flv', 'divx', 'avi', 'webm', 'mov', 'mpg'), 
         'category': ('movie', 'music', 'show', 'presentation', 'alternative', 'miscellaneous', 'elearning', 'family', 'appendix', 'recipe')},
     'audio': {
         'ext': ('mp3', 'ogg'), 
@@ -12,7 +12,7 @@ media_dict = {
         'category': ('book', 'doc', 'presentation', 'quiz', 'elearning', 'appendix', 'recipe')},
     'image': {
         'ext': ('jpg', 'jpeg', 'png'), 
-        'category': ('elearning', 'recipe')},
+        'category': ('elearning', 'recipe', 'picture', 'dia')},
     'link' : {
         'ext': (), 
         'category': ('appendix','elearning')},
@@ -81,7 +81,7 @@ class CardIni(object):
     def getMediaFilePatternByMedia(media):
         
         ptrn = '|'.join( media_dict[media]['ext'] )
-        return re.compile( '^.+[.](' + ptrn + ')$' )
+        return re.compile( '^.+[.](' + ptrn + ')$', re.IGNORECASE )
 
     @staticmethod
     def getOrderByList():

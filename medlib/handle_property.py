@@ -195,6 +195,7 @@ class ConfigIni( Property ):
         "link":      ("player", ("link-player",      "chrome"),      ("link-param",      "")),
         "video":     ("player", ("video-player",     "mplayer"),     ("video-param",     "-zoom -fs -framedrop -really-quiet")),
         "audio":     ("player", ("audio-player",     "rhythmbox"),   ("audio-param",     "")),
+        "image":     ("player", ("image-player",     "eog"),         ("image-param",     "")),
         "text-odt":  ("player", ("text-odt-player",  "libreoffice"), ("text-odt-param",  "--writer --quickstart --nofirststartwizard --view")),
         "text-doc":  ("player", ("text-doc-player",  "libreoffice"), ("text-doc-param",  "--writer --quickstart --nofirststartwizard --view")),
         "text-rtf":  ("player", ("text-rtf-player",  "libreoffice"), ("text-rtf-param",  "--writer --quickstart --nofirststartwizard --view")),

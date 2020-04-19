@@ -250,12 +250,16 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
         #MediaStorage
         is_media_storage = True if con_media and con_category else False            
  
+        media_path_list = []
         for file_name in file_list:
              
             # find the Media - Enabled Media file depends on the "control.media" in the card.ini (ex. media=video => enabled files: *.mkv, *.mp4, *.webm, *.avi, *.flv)
-            if CardIni.getMediaFilePatternByMedia(con_media).match(file_name):
-                media_path = os.path.join(actualDir, file_name)
+            if CardIni.getMediaFilePatternByMedia(con_media).match(file_name) and file_name != "image.jpeg":
+                #media_path = os.path.join(actualDir, file_name)
+                media_path_list.append( os.path.join(actualDir, file_name) )
                 media_name = file_name
+
+        media_path = " ".join(media_path_list)
 
         # --- TITLE --- #
         try:
