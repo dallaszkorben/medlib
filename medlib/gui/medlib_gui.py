@@ -794,6 +794,8 @@ class ControlPanel(QWidget):
         
 def main():
     
+#    getCollectedCardsFromRoot()
+    
     log_name = config_ini['log_name']
     log_level = config_ini['log_level']        
     folder = os.path.join(Config.HOME, Config.CONFIG_FOLDER, 'logs')

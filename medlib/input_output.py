@@ -156,9 +156,34 @@ def getCollectedCardsFromRoot():
 
     if not jsonForm:
         logging.info("Collect Cards From File System - Started")
-        mainCollector = collectCardsFromFileSystem(media_path)
+        
+        media_path_list = media_path.split(',')
+        
+# ---------
+
+        collector = None
+        if len(media_path_list) > 1:
+            
+            titles = IniTitles("/", {})
+            control = IniControl(CardIni.getOrderByList()[0], "", "", "") 
+            general = IniGeneral()
+            classification = IniClassification(0, [], False, False) 
+
+            pathCollector = PathsCollector(None, None, None, None)            
+            collector = MediaCollector(pathCollector, titles, control, general, classification)
+            
+            logging.debug("    Path Collector: " + str(pathCollector.getJson()))
+        
+# ---------        
+        
+        
+        for path in media_path_list:
+            mainCollector = collectCardsFromFileSystem(path, collector)
+            collector = mainCollector
+        #mainCollector = collectCardsFromFileSystem(media_path)
         logging.info("Collect Cards From File System - Finished")
-        saveJson(mainCollector)
+        #saveJson(mainCollector)
+        saveJson(collector)
     else:
         logging.info("Collect Cards From Json - Started")
         mainCollector = collectCardsFromJson(jsonForm)
