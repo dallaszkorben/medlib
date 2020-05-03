@@ -21,7 +21,9 @@ from builtins import object
 
 from medlib.mediamodel.qlabel_to_link_on_cllick import QLabelToLinkOnClick
 
-from medlib.card_ini import JSON_KEY_GENERAL_YEAR
+from medlib.card_ini import JSON_KEY_GENERAL_YEAR, JSON_KEY_GENERAL_PART
+from medlib.card_ini import JSON_KEY_GENERAL_BOOK
+from medlib.card_ini import JSON_KEY_GENERAL_VOLUME
 from medlib.card_ini import JSON_KEY_GENERAL_LENGTH
 from medlib.card_ini import JSON_KEY_GENERAL_DIRECTOR
 from medlib.card_ini import JSON_KEY_GENERAL_MAKER
@@ -117,6 +119,12 @@ class IniGeneral(object):
         # Music
         self.album = None
         self.track = None
+
+        # Book
+        self.book = None
+        self.volume = None
+        
+        self.part = None
     
     def __str__(self):
         return json.dumps(self.getJson(), indent=4, sort_keys=True)
@@ -221,6 +229,15 @@ class IniGeneral(object):
         
     def setTrack(self, track):
         self.track = track
+
+    def setBook(self, book):
+        self.book = book
+
+    def setVolume(self, volume):
+        self.volume = volume
+
+    def setPart(self, part):
+        self.part = part
 
     # ---
 
@@ -358,6 +375,15 @@ class IniGeneral(object):
     def getTrack(self):
         return self.track
 
+    def getBook(self):
+        return self.book
+
+    def getVolume(self):
+        return self.volume
+
+    def getPart(self):
+        return self.part
+
     def getJson(self):        
         json = {}
         json.update({} if self.year is None or not self.year else {JSON_KEY_GENERAL_YEAR: self.year})
@@ -384,7 +410,10 @@ class IniGeneral(object):
         json.update({} if self.season is None or not self.season else {JSON_KEY_GENERAL_SEASON: self.season})
         json.update({} if self.episode is None or not self.episode else {JSON_KEY_GENERAL_EPISODE: self.episode})        
         json.update({} if self.album is None or not self.album else {JSON_KEY_GENERAL_ALBUM: self.album})
-        json.update({} if self.track is None or not self.track else {JSON_KEY_GENERAL_TRACK: self.track})        
+        json.update({} if self.track is None or not self.track else {JSON_KEY_GENERAL_TRACK: self.track})
+        json.update({} if self.book is None or not self.book else {JSON_KEY_GENERAL_BOOK: self.book})
+        json.update({} if self.volume  is None or not self.volume else {JSON_KEY_GENERAL_VOLUME: self.volume})
+        json.update({} if self.part  is None or not self.part else {JSON_KEY_GENERAL_PART: self.part})
         
         return json
     

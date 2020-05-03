@@ -22,7 +22,7 @@ from medlib.mediamodel.ini_classification import IniClassification
 from medlib.handle_property import config_ini 
 from medlib.handle_property import Property 
 
-from medlib.card_ini import JSON_KEY_CLASSIFICATION_NEW
+from medlib.card_ini import JSON_KEY_CLASSIFICATION_NEW, JSON_KEY_GENERAL_PART
 from medlib.card_ini import JSON_KEY_CLASSIFICATION_FAVORITE
 from medlib.card_ini import JSON_KEY_CLASSIFICATION_TAG
 from medlib.card_ini import JSON_KEY_CLASSIFICATION_RATE
@@ -55,6 +55,9 @@ from medlib.card_ini import KEY_GENERAL_SEASON
 from medlib.card_ini import KEY_GENERAL_EPISODE
 from medlib.card_ini import KEY_GENERAL_TRACK
 from medlib.card_ini import KEY_GENERAL_ALBUM
+from medlib.card_ini import KEY_GENERAL_VOLUME
+from medlib.card_ini import KEY_GENERAL_BOOK
+from medlib.card_ini import KEY_GENERAL_PART
 
 from medlib.card_ini import JSON_KEY_GENERAL_YEAR
 from medlib.card_ini import JSON_KEY_GENERAL_LENGTH
@@ -71,11 +74,13 @@ from medlib.card_ini import JSON_KEY_GENERAL_THEME
 from medlib.card_ini import JSON_KEY_GENERAL_SUB
 from medlib.card_ini import JSON_KEY_GENERAL_SOUND
 from medlib.card_ini import JSON_KEY_GENERAL_COUNTRY
+from medlib.card_ini import JSON_KEY_GENERAL_RECIPETYPE
 from medlib.card_ini import JSON_KEY_GENERAL_SEASON
 from medlib.card_ini import JSON_KEY_GENERAL_EPISODE
 from medlib.card_ini import JSON_KEY_GENERAL_ALBUM 
 from medlib.card_ini import JSON_KEY_GENERAL_TRACK
-from medlib.card_ini import JSON_KEY_GENERAL_RECIPETYPE
+from medlib.card_ini import JSON_KEY_GENERAL_BOOK
+from medlib.card_ini import JSON_KEY_GENERAL_VOLUME
 
 from medlib.card_ini import KEY_CONTROL_ORDERBY
 from medlib.card_ini import KEY_CONTROL_MEDIA
@@ -563,7 +568,18 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
                 # - track - #
                 elif key == KEY_GENERAL_TRACK and getPatternNumber().match( value ):
                     general.setTrack(value)
-                    
+
+                # - book - #
+                elif key == KEY_GENERAL_BOOK and getPatternNumber().match( value ):
+                    general.setBook(value)
+                
+                # - volume - #
+                elif key == KEY_GENERAL_VOLUME and getPatternNumber().match( value ):
+                    general.setVolume(value)
+
+                # - part - #
+                elif key == KEY_GENERAL_PART and getPatternNumber().match( value ):
+                    general.setPart(value)
             
             if storyline:
                 general.setStoryline(storyline);
@@ -822,6 +838,9 @@ def collectCardsFromJson(jsonForm, parentMediaCollector = None):
         episode = general.get(JSON_KEY_GENERAL_EPISODE)
         album = general.get(JSON_KEY_GENERAL_ALBUM)
         track = general.get(JSON_KEY_GENERAL_TRACK)
+        book = general.get(JSON_KEY_GENERAL_BOOK)
+        volume = general.get(JSON_KEY_GENERAL_VOLUME)
+        part = general.get(JSON_KEY_GENERAL_PART)
             
         if year:
             ini_general.setYear(year)
@@ -863,6 +882,12 @@ def collectCardsFromJson(jsonForm, parentMediaCollector = None):
             ini_general.setAlbum(album)
         if track:
             ini_general.setTrack(track)
+        if book:
+            ini_general.setBook(book)
+        if volume:
+            ini_general.setVolume(volume)
+        if part:
+            ini_general.setPart(part)
 
     #--- CLASSIFICATION --- #
     classification = jsonForm.get(JSON_SECTION_CLASSIFICATION)
