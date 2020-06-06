@@ -3,10 +3,10 @@ import re
 media_dict = {
     'video': {
         'ext': ('mkv', 'mp4', 'flv', 'divx', 'avi', 'webm', 'mov', 'mpg'), 
-        'category': ('movie', 'music', 'show', 'presentation', 'alternative', 'miscellaneous', 'elearning', 'family', 'appendix', 'recipe')},
+        'category': ('movie', 'music', 'show', 'presentation', 'alternative', 'miscellaneous', 'elearning', 'family', 'appendix', 'recipe', 'footage', 'interview', 'portrait', 'news', 'speech')},
     'audio': {
         'ext': ('mp3', 'ogg'), 
-        'category': ('radioplay', 'music', 'show', 'presentation', 'audiobook', 'elearning', 'appendix', 'recipe')},
+        'category': ('radioplay', 'music', 'show', 'presentation', 'audiobook', 'elearning', 'appendix', 'recipe', 'interview', 'portrait')},
     'text': {
         'ext': ('doc', 'odt', 'pdf', 'epub', 'mobi', 'azw', 'azw3', 'iba', 'txt','rtf'), 
         'category': ('book', 'doc', 'presentation', 'quiz', 'elearning', 'appendix', 'recipe')},
@@ -40,6 +40,7 @@ section_dict = {
         'performer': (),
         'lecturer': (),
         'contributor': (),
+        'interviewee': (),
         'voice': (),
         'genre': (),
         'theme': (),
@@ -115,6 +116,7 @@ SECTION_METHOD = 'method'
 # General
 SECTION_GENERAL = 'general'
 KEY_GENERAL_LENGTH = 'length'
+KEY_GENERAL_DATE = 'date'
 KEY_GENERAL_YEAR = 'year'
 KEY_GENERAL_DIRECTOR = 'director'
 KEY_GENERAL_MAKER = 'maker'
@@ -124,6 +126,7 @@ KEY_GENERAL_ACTOR = 'actor'
 KEY_GENERAL_PERFORMER = 'performer'
 KEY_GENERAL_LECTURER = 'lecturer'
 KEY_GENERAL_CONTRIBUTOR = 'contributor'
+KEY_GENERAL_INTERVIEWEE = 'interviewee'
 KEY_GENERAL_VOICE = 'voice'
 KEY_GENERAL_GENRE = 'genre'
 KEY_GENERAL_THEME = 'theme'
@@ -173,6 +176,7 @@ JSON_SECTION_METHOD = SECTION_METHOD
 # General
 JSON_SECTION_GENERAL = SECTION_GENERAL
 JSON_KEY_GENERAL_LENGTH = KEY_GENERAL_LENGTH
+JSON_KEY_GENERAL_DATE = KEY_GENERAL_DATE
 JSON_KEY_GENERAL_YEAR = KEY_GENERAL_YEAR
 JSON_KEY_GENERAL_DIRECTOR = KEY_GENERAL_DIRECTOR
 JSON_KEY_GENERAL_MAKER = KEY_GENERAL_MAKER
@@ -182,6 +186,7 @@ JSON_KEY_GENERAL_ACTOR = KEY_GENERAL_ACTOR
 JSON_KEY_GENERAL_PERFORMER = KEY_GENERAL_PERFORMER
 JSON_KEY_GENERAL_LECTURER = KEY_GENERAL_LECTURER
 JSON_KEY_GENERAL_CONTRIBUTOR = KEY_GENERAL_CONTRIBUTOR
+JSON_KEY_GENERAL_INTERVIEWEE = KEY_GENERAL_INTERVIEWEE
 JSON_KEY_GENERAL_VOICE = KEY_GENERAL_VOICE
 JSON_KEY_GENERAL_GENRE = KEY_GENERAL_GENRE
 JSON_KEY_GENERAL_THEME = KEY_GENERAL_THEME

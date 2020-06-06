@@ -1,7 +1,10 @@
+
 import os
 import configparser
 from pathlib import Path
+import logging
 from medlib import card_ini
+from builtins import UnicodeDecodeError
 
 #from medlib.logger import logger
 
@@ -33,7 +36,13 @@ class Property(object):
 
             self.parser[section]={key: default_value}
             self.__write_file()
-        self.parser.read(self.file, encoding='utf-8')
+            
+        try:
+            self.parser.read(self.file, encoding='utf-8')
+        except UnicodeDecodeError as e:
+            logging.error("Unicode Decode Error: " + self.file)
+            logging.error(e)
+            print("problematic file:", self.file, e)
 
         # try to read the key
         try:
@@ -201,7 +210,8 @@ class ConfigIni( Property ):
         "text-rtf":  ("player", ("text-rtf-player",  "libreoffice"), ("text-rtf-param",  "--writer --quickstart --nofirststartwizard --view")),
         "text-txt":  ("player", ("text-txt-player",  "kate"),        ("text-txt-param",  "")),
         "text-pdf":  ("player", ("text-pdf-player",  "okular"),      ("text-pdf-param",  "--presentation --page 1 --unique")),
-        "text-epub": ("player", ("text-epub-player", "fbreader"),    ("text-epub-param", ""))
+        "text-epub": ("player", ("text-epub-player", "fbreader"),    ("text-epub-param", "")),
+        "text-mobi": ("player", ("text-epub-player", "fbreader"),    ("text-epub-param", "")),
     }
     
     __instance = None    

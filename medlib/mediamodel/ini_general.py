@@ -21,7 +21,8 @@ from builtins import object
 
 from medlib.mediamodel.qlabel_to_link_on_cllick import QLabelToLinkOnClick
 
-from medlib.card_ini import JSON_KEY_GENERAL_YEAR, JSON_KEY_GENERAL_PART
+from medlib.card_ini import JSON_KEY_GENERAL_YEAR, JSON_KEY_GENERAL_PART,\
+    JSON_KEY_GENERAL_DATE
 from medlib.card_ini import JSON_KEY_GENERAL_BOOK
 from medlib.card_ini import JSON_KEY_GENERAL_VOLUME
 from medlib.card_ini import JSON_KEY_GENERAL_LENGTH
@@ -33,6 +34,7 @@ from medlib.card_ini import JSON_KEY_GENERAL_ACTOR
 from medlib.card_ini import JSON_KEY_GENERAL_PERFORMER
 from medlib.card_ini import JSON_KEY_GENERAL_LECTURER
 from medlib.card_ini import JSON_KEY_GENERAL_CONTRIBUTOR
+from medlib.card_ini import JSON_KEY_GENERAL_INTERVIEWEE
 from medlib.card_ini import JSON_KEY_GENERAL_VOICE
 from medlib.card_ini import JSON_KEY_GENERAL_SOUND
 from medlib.card_ini import JSON_KEY_GENERAL_SUB
@@ -58,6 +60,7 @@ class IniGeneral(object):
         This is the constructor of the IniGeneral class
         _______________________________________________
         input:
+            date             string             like "1987-12-21" or "2002/01/12" or "2020.11.06" 
             year             string             like "1987" or "1987-1988"
             
             directors        list of strings    ["Director 1", "Director 2"]
@@ -87,6 +90,7 @@ class IniGeneral(object):
             season          integer       index of the season
             episode         integer       index of the episode
         """
+        self.date = None
         self.year = None 
         self.directors = []
         self.makers = []
@@ -96,6 +100,7 @@ class IniGeneral(object):
         self.performers = []
         self.lecturer = []
         self.contributor = []
+        self.interviewee = []
         self.voice = []
         
         self.length = None
@@ -152,6 +157,9 @@ class IniGeneral(object):
 #            ("Countries:   " + self.countries + "\n" if self.countries else "")
 #        )
         
+    def setDate(self, date):
+        self.date = date
+        
     def setYear(self, year):
         self.year = year
         
@@ -178,6 +186,9 @@ class IniGeneral(object):
         
     def setContributors(self, contributorList):
         self.contributor = contributorList
+        
+    def setInterviewees(self, intervieweeList):
+        self.interviewee = intervieweeList        
     
     def setVoices(self, voiceList):
         self.voice = voiceList
@@ -296,6 +307,9 @@ class IniGeneral(object):
         sound_list = ", ".join( [ _("lang_" + s) for s in self.getSounds()])        
 
         return sound_list
+    
+    def getDate(self):
+        return self.date
         
     def getYear(self):
         return self.year
@@ -323,6 +337,9 @@ class IniGeneral(object):
     
     def getContributors(self):
         return self.contributor
+
+    def getInterviewees(self):
+        return self.interviewee
     
     def getVoices(self):
         return self.voice        
@@ -386,6 +403,7 @@ class IniGeneral(object):
 
     def getJson(self):        
         json = {}
+        json.update({} if self.date is None or not self.date else {JSON_KEY_GENERAL_DATE: self.date})
         json.update({} if self.year is None or not self.year else {JSON_KEY_GENERAL_YEAR: self.year})
         json.update({} if self.length is None or not self.length else {JSON_KEY_GENERAL_LENGTH: self.length})
         
@@ -397,6 +415,7 @@ class IniGeneral(object):
         json.update({} if self.performers is None or not self.performers else {JSON_KEY_GENERAL_PERFORMER: self.performers})
         json.update({} if self.lecturer is None or not self.lecturer else {JSON_KEY_GENERAL_LECTURER: self.lecturer})
         json.update({} if self.contributor is None or not self.contributor else {JSON_KEY_GENERAL_CONTRIBUTOR: self.contributor})
+        json.update({} if self.interviewee is None or not self.interviewee else {JSON_KEY_GENERAL_INTERVIEWEE: self.interviewee})
         json.update({} if self.voice is None or not self.voice else {JSON_KEY_GENERAL_VOICE: self.voice})
         
         json.update({} if self.sounds is None or not self.sounds else {JSON_KEY_GENERAL_SOUND: self.sounds})
@@ -474,7 +493,17 @@ class IniGeneral(object):
         widget = QWidget()
         widget.setLayout(layout)
         
-        if self.getYear():
+        if self.getDate():
+
+            key_label = QLabel(_('title_date')  + ": ")
+            key_label.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * scale, weight=QFont.Normal))
+            layout.addWidget(key_label)
+        
+            value_label = QLabel(self.getDate())
+            value_label.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * scale, weight=QFont.Bold))
+            layout.addWidget(value_label)
+            
+        elif self.getYear():
 
             key_label = QLabel(_('title_year')  + ": ")
             key_label.setFont(QFont(PANEL_FONT_TYPE, PANEL_FONT_SIZE * scale, weight=QFont.Normal))
@@ -729,6 +758,9 @@ class IniGeneral(object):
 
         # --- CONTRIBUTOR ---       
         widget.addQlinkSimpleWidget(media, scale, 'title_contributor', media.general.getContributors)
+
+        # --- INTERVIEWEE ---       
+        widget.addQlinkSimpleWidget(media, scale, 'title_interviewee', media.general.getInterviewees)
 
         # --- VOICE ---       
         widget.addQlinkSimpleWidget(media, scale, 'title_voice', media.general.getVoices)

@@ -109,13 +109,16 @@ class IniTitles(object):
                 elif book:
                     formatted_title = book + "-" + formatted_title
         
+            # does not matter what media is that if it has "part"
             elif part:
                 
-                formatted_title = _("title_part").format(part.zfill(4)) + formatted_title
+                #formatted_title = _("title_part").format(part.zfill(4)) + formatted_title
                 parent_title = parent_collector.getTranslatedTitle()
                 
                 if parent_title != self.getTranslatedTitle() and config_ini["keep_hierarchy"] == "n":
-                    formatted_title = parent_title + "-" + formatted_title
+                    formatted_title = parent_title + "-" + _("title_part").format(part.zfill(4)) + formatted_title
+                else:
+                    formatted_title = _("title_part").format(part.zfill(4)) + formatted_title
 
             # video/audio + music
             elif media_category == 'music':
@@ -144,7 +147,7 @@ class IniTitles(object):
             elif media_media == 'video':
 
                 # MOVIE
-                if media_category == 'movie':
+                if True: #media_category == 'movie':
                     
                     # There is Episode but not in Season => Miniseries/Universe/film with multi parts
                     if episode and not parent_season:                
@@ -157,9 +160,8 @@ class IniTitles(object):
                             
                         # Movie in multi episodes
                         else:
-                            formatted_title = formatted_title + _("title_part").format(episode.zfill(4))
-                            
- 
+                            formatted_title = _("title_part").format(episode.zfill(4)) + formatted_title
+                        
                     # Episode in Season => Series
                     elif episode and parent_season:
                         formatted_title = "(S" + parent_season.zfill(2) + "E" + episode.zfill(2) + ")" + formatted_title
@@ -172,11 +174,11 @@ class IniTitles(object):
                             formatted_title = series_title + ": " + formatted_title
  
             # text  
-            elif media_media == 'text':
+            elif media_media == 'text' or media_media == 'audio':
                 
                 # BOOK            
-                if media_category == 'book':
-           
+                if media_category == 'book' or media_category == 'audiobook':
+
                     # There is Volume but not in Book
                     if volume and not parent_book:
                         formatted_title = volume.zfill(4) + formatted_title 
@@ -243,7 +245,8 @@ class IniTitles(object):
                 # Volume
                 elif volume:
                     formatted_title = formatted_title + " " + parent_collector.general.getBook() + "."
-
+            
+            # does not matter what media is that if it has "part"
             elif part:
                 
                 formatted_title = formatted_title + "-" + _("title_part").format(part)
@@ -279,7 +282,7 @@ class IniTitles(object):
             elif media_media == 'video':
 
                 # MOVIE
-                if media_category == 'movie':
+                if True: #media_category == 'movie':
                     
                     # There is Episode but not in Season => Miniseries/Universe/film with multi parts
                     if episode and not parent_season:                
@@ -306,11 +309,11 @@ class IniTitles(object):
 #                        formatted_title = ((", ".join(media.general.getDirectors()) + ": ") if media.general.getDirectors() else "") + formatted_title
                        
             # text  
-            elif media_media == 'text':
+            elif media_media == 'text' or media_media == 'audio':
                 
                 # BOOK            
-                if media_category == 'book':
-           
+                if media_category == 'book' or media_category == 'audiobook':              
+                
                     # There is Volume but not in Book
                     if volume and not parent_book:
                         author_title = parent_collector.getTranslatedTitle()

@@ -22,7 +22,8 @@ from medlib.mediamodel.ini_classification import IniClassification
 from medlib.handle_property import config_ini 
 from medlib.handle_property import Property 
 
-from medlib.card_ini import JSON_KEY_CLASSIFICATION_NEW, JSON_KEY_GENERAL_PART
+from medlib.card_ini import JSON_KEY_CLASSIFICATION_NEW, JSON_KEY_GENERAL_PART,\
+    KEY_GENERAL_DATE
 from medlib.card_ini import JSON_KEY_CLASSIFICATION_FAVORITE
 from medlib.card_ini import JSON_KEY_CLASSIFICATION_TAG
 from medlib.card_ini import JSON_KEY_CLASSIFICATION_RATE
@@ -44,6 +45,7 @@ from medlib.card_ini import KEY_GENERAL_ACTOR
 from medlib.card_ini import KEY_GENERAL_PERFORMER
 from medlib.card_ini import KEY_GENERAL_LECTURER
 from medlib.card_ini import KEY_GENERAL_CONTRIBUTOR
+from medlib.card_ini import KEY_GENERAL_INTERVIEWEE
 from medlib.card_ini import KEY_GENERAL_VOICE
 from medlib.card_ini import KEY_GENERAL_GENRE
 from medlib.card_ini import KEY_GENERAL_THEME
@@ -142,6 +144,10 @@ def getPatternRate():
 
 def getPatternYear():
     return re.compile('^((19|[2-9][0-9])\d{2})(-((19|[2-9][0-9])\d{2}))?$')
+
+def getPatternDate():
+#    return re.compile('^((\d{4})(\.|\-|\/)(0?[1-9]|1[012])(\3)(0?[1-9]|[12][0-9]|3[01]))$')
+    return re.compile('^((\d{4})(-|\\.|\\/)(0?[1-9]|1[012])(\\3)(0?[1-9]|[12][0-9]|3[01]))$')
 
 def getPatternNumber():
     return re.compile('^([0-9]+)$')
@@ -429,8 +435,12 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
                 if key == KEY_GENERAL_LENGTH and getPatternLength().match( value ):
                     general.setLength(value)
 
+                # - date - #
+                if key == KEY_GENERAL_DATE and getPatternDate().match( value ):
+                    general.setDate(value)
+                    
                 # - year - #
-                if key == KEY_GENERAL_YEAR and getPatternYear().match( value ):
+                elif key == KEY_GENERAL_YEAR and getPatternYear().match( value ):
                     general.setYear(value)
 
                 # - director - #
@@ -496,6 +506,14 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
                     for contributor in contributors:
                         contributor_list.append(contributor.strip())
                     general.setContributors(contributor_list)
+
+                # - interviewee - #
+                elif key == KEY_GENERAL_INTERVIEWEE and len(value) > 0:
+                    interviewees = value.split(",")
+                    interviewee_list = []            
+                    for interviewee in interviewees:
+                        interviewee_list.append(interviewee.strip())
+                    general.setInterviewees(interviewee_list)
                 
                 # - voice - #
                 elif key == KEY_GENERAL_VOICE and len(value) > 0:

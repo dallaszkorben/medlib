@@ -138,8 +138,9 @@ class PlayerThread(QThread):
                         media_player = None
                         media_param = ""
                 if media_player:
-                    param_list = media_param.replace(" ", ",").split(",") if media_param else []
-                    path_list = media_path.replace(" ", ",").split(",") if media_path else []
+                    param_list = media_param.replace(" ", ",").split(",") if media_param else []                    
+                    #path_list = media_path.replace(" ", ",").split(",") if media_path else []
+                    path_list = [media_path] if media_path else []
                     try:                        
                         
                         logging.debug("    " + media_player + " " + media_param + " " + media_path)
@@ -153,7 +154,7 @@ class PlayerThread(QThread):
 
                         # Start to play the media                        
                         process.communicate()
-                        
+
                         # if you want to stop continously playing you break the loop
                         if PlayerThread.__stop_continously_play:
                             logging.debug("    Break loop")
