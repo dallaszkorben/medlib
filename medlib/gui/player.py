@@ -34,8 +34,8 @@ class PlayerThread(QThread):
         @control_buttons_holder ControlButtonsHolder object where the "play continously" mode was invoked from ControlButtonHolder 
                     if it is not set, it means that the media was invoked separately (MediaStorage/MediaAppendix).
         @list_of_media_to_play list List of the media to play. The elements are dict
-                    'media-path': - media_path: path to the media
-                    'media-type': - media_type: type of the media (video, audio, text, image)
+                    'media-path': (list)  - media_path: path to the media
+                    'media-type': (string - media_type: type of the media (video, audio, text, image)
          """
 
         logging.info("Play started")
@@ -119,7 +119,7 @@ class PlayerThread(QThread):
             # The media handled as it configured in config.ini
             elif media_path:        
                 # try fetch extension of media_file to identify the media_player and media_param
-                rematch = CardIni.getMediaFilePatternByMedia(media_type).match(media_path)      
+                rematch = CardIni.getMediaFilePatternByMedia(media_type).match(media_path[0])      
                 if rematch:
                     extension = rematch.groups()[0]
                 else:
@@ -138,12 +138,25 @@ class PlayerThread(QThread):
                         media_player = None
                         media_param = ""
                 if media_player:
-                    param_list = media_param.replace(" ", ",").split(",") if media_param else []                    
+                    param_list = media_param.replace(" ", ",").split(",") if media_param else []
+                    
+                    #print(type(media_path), media_path)
+                    
                     #path_list = media_path.replace(" ", ",").split(",") if media_path else []
-                    path_list = [media_path] if media_path else []
+                    #path_list = [media_path] if media_path else []
+                    path_list = media_path
                     try:                        
                         
-                        logging.debug("    " + media_player + " " + media_param + " " + media_path)
+#                        print("=============")
+#                        print("media_param: ", media_param)
+#                        print("media_path:  ", media_path)
+#                        print("-------------")
+#                        print("param_list:  ", param_list)
+#                        print("path_list:   ", path_list)
+#                        print("Popoen:      ", [media_player] + param_list + path_list)
+#                        print()
+
+                        logging.debug("    " + media_player + " " + media_param + " " + ",".join(media_path))
                         process = Popen([media_player] + param_list + path_list )
                         
                         PlayerThread.__pid = process.pid

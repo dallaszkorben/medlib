@@ -35,6 +35,8 @@ from medlib.card_ini import JSON_KEY_GENERAL_PERFORMER
 from medlib.card_ini import JSON_KEY_GENERAL_LECTURER
 from medlib.card_ini import JSON_KEY_GENERAL_CONTRIBUTOR
 from medlib.card_ini import JSON_KEY_GENERAL_INTERVIEWEE
+from medlib.card_ini import JSON_KEY_GENERAL_INTERVIEWER
+from medlib.card_ini import JSON_KEY_GENERAL_ANCHOR
 from medlib.card_ini import JSON_KEY_GENERAL_VOICE
 from medlib.card_ini import JSON_KEY_GENERAL_SOUND
 from medlib.card_ini import JSON_KEY_GENERAL_SUB
@@ -73,6 +75,10 @@ class IniGeneral(object):
             performers       list of strings    ["Performer 1", "Performer 2"]
             lecturer         list of strings    ["Lecturer 1", "Lecturer 2"]
             contributor      list of strings    ["Contributor 1", "Contributor 2"]
+            interviewee      list of strings    ["Interviewee 1", "Interviewee 2"]
+            interviewer      list of strings    ["Interviewer 1", "Interviewer 2"]
+            anchor           list of strings    ["Anchor 1", "Anchor 2"]
+
             voice            list of strings    ["Voice 1", "Voice 2"]
             
             length           string             "2:15"
@@ -101,6 +107,8 @@ class IniGeneral(object):
         self.lecturer = []
         self.contributor = []
         self.interviewee = []
+        self.interviewer = []
+        self.anchor = []
         self.voice = []
         
         self.length = None
@@ -189,6 +197,12 @@ class IniGeneral(object):
         
     def setInterviewees(self, intervieweeList):
         self.interviewee = intervieweeList        
+
+    def setInterviewers(self, interviewerList):
+        self.interviewer = interviewerList        
+
+    def setAnchors(self, AnchorList):
+        self.anchor = anchorList        
     
     def setVoices(self, voiceList):
         self.voice = voiceList
@@ -340,6 +354,12 @@ class IniGeneral(object):
 
     def getInterviewees(self):
         return self.interviewee
+
+    def getInterviewers(self):
+        return self.interviewer
+
+    def getAnchors(self):
+        return self.anchor
     
     def getVoices(self):
         return self.voice        
@@ -416,6 +436,8 @@ class IniGeneral(object):
         json.update({} if self.lecturer is None or not self.lecturer else {JSON_KEY_GENERAL_LECTURER: self.lecturer})
         json.update({} if self.contributor is None or not self.contributor else {JSON_KEY_GENERAL_CONTRIBUTOR: self.contributor})
         json.update({} if self.interviewee is None or not self.interviewee else {JSON_KEY_GENERAL_INTERVIEWEE: self.interviewee})
+        json.update({} if self.interviewer is None or not self.interviewer else {JSON_KEY_GENERAL_INTERVIEWER: self.interviewer})
+        json.update({} if self.anchor is None or not self.anchor else {JSON_KEY_GENERAL_ANCHOR: self.anchor})
         json.update({} if self.voice is None or not self.voice else {JSON_KEY_GENERAL_VOICE: self.voice})
         
         json.update({} if self.sounds is None or not self.sounds else {JSON_KEY_GENERAL_SOUND: self.sounds})
@@ -762,6 +784,12 @@ class IniGeneral(object):
         # --- INTERVIEWEE ---       
         widget.addQlinkSimpleWidget(media, scale, 'title_interviewee', media.general.getInterviewees)
 
+        # --- INTERVIEWER ---       
+        widget.addQlinkSimpleWidget(media, scale, 'title_interviewer', media.general.getInterviewers)
+
+        # --- ANCHOR ---       
+        widget.addQlinkSimpleWidget(media, scale, 'title_anchor', media.general.getAnchors)
+
         # --- VOICE ---       
         widget.addQlinkSimpleWidget(media, scale, 'title_voice', media.general.getVoices)
 
@@ -806,7 +834,7 @@ class IniGeneral(object):
 
     class QLinkLabelToSearch( QLabelToLinkOnClick ):
         """
-        Link Widget to search Genre/Theme/Director/Maker/Writer/Actor/Performer/Lecturer/Contributor/Voice
+        Link Widget to search Genre/Theme/Director/Maker/Writer/Actor/Performer/Lecturer/Contributor/Voice/Interviewer/Interviewee/Anchor
         """
         def __init__(self, media, scale, translatedText, rawText, title_id):
             super().__init__(media, translatedText, media.isInFocus)

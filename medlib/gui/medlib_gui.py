@@ -793,6 +793,12 @@ class ControlPanel(QWidget):
 #        return self.advanced_filter_holder
         
 def main():
+
+#    from subprocess import Popen
+#    #['/media/akoel/Movies/Final/99.Personal/04.Pictures/events/2008-Retyezat/2008_08_15_retyezat2_004.jpg /media/akoel/Movies/Final/99.Personal/04.Pictures/events/2008-Retyezat/2008_08_15_retyezat2_030.jpg /media/akoel/Movies/Final/99.Personal/04.Pictures/events/2008-Retyezat/2008_08_15_retyezat2_058.jpg /media/akoel/Movies/Final/99.Personal/04.Pictures/events/2008-Retyezat/2008_08_15_retyezat2_061.jpg /media/akoel/Movies/Final/99.Personal/04.Pictures/events/2008-Retyezat/2008_08_15_retyezat2_067.jpg /media/akoel/Movies/Final/99.Personal/04.Pictures/events/2008-Retyezat/2008_08_15_retyezat2_081.jpg /media/akoel/Movies/Final/99.Personal/04.Pictures/events/2008-Retyezat/2008_08_15_retyezat2_090.jpg /media/akoel/Movies/Final/99.Personal/04.Pictures/events/2008-Retyezat/2008_08_15_retyezat2_106.jpg /media/akoel/Movies/Final/99.Personal/04.Pictures/events/2008-Retyezat/2008_08_15_retyezat2_121.jpg /media/akoel/Movies/Final/99.Personal/04.Pictures/events/2008-Retyezat/2008_08_15_retyezat2_122.jpg /media/akoel/Movies/Final/99.Personal/04.Pictures/events/2008-Retyezat/2008_08_15_retyezat2_127.jpg /media/akoel/Movies/Final/99.Personal/04.Pictures/events/2008-Retyezat/2008_08_15_retyezat2_141.jpg /media/akoel/Movies/Final/99.Personal/04.Pictures/events/2008-Retyezat/2008_08_15_retyezat2_169.jpg /media/akoel/Movies/Final/99.Personal/04.Pictures/events/2008-Retyezat/2008_08_15_retyezat2_178.jpg /media/akoel/Movies/Final/99.Personal/04.Pictures/events/2008-Retyezat/2008_08_15_retyezat2_203.jpg /media/akoel/Movies/Final/99.Personal/04.Pictures/events/2008-Retyezat/2008_08_15_retyezat2_210.jpg /media/akoel/Movies/Final/99.Personal/04.Pictures/events/2008-Retyezat/2008_08_15_retyezat2_211.jpg']
+#    process = Popen(['eog'] + ['/media/akoel/Movies/Final/99.Personal/04.Pictures/events/2008-Retyezat/2008_08_15_retyezat2_004.jpg', '/media/akoel/Movies/Final/99.Personal/04.Pictures/events/2008-Retyezat/2008_08_15_retyezat2_030.jpg'] )
+#    process.communicate()    
+#    exit()
     
 #    getCollectedCardsFromRoot()
     
@@ -811,4 +817,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-    

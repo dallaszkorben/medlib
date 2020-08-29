@@ -46,6 +46,8 @@ from medlib.card_ini import KEY_GENERAL_PERFORMER
 from medlib.card_ini import KEY_GENERAL_LECTURER
 from medlib.card_ini import KEY_GENERAL_CONTRIBUTOR
 from medlib.card_ini import KEY_GENERAL_INTERVIEWEE
+from medlib.card_ini import KEY_GENERAL_INTERVIEWER
+from medlib.card_ini import KEY_GENERAL_ANCHOR
 from medlib.card_ini import KEY_GENERAL_VOICE
 from medlib.card_ini import KEY_GENERAL_GENRE
 from medlib.card_ini import KEY_GENERAL_THEME
@@ -70,6 +72,9 @@ from medlib.card_ini import JSON_KEY_GENERAL_ACTOR
 from medlib.card_ini import JSON_KEY_GENERAL_PERFORMER
 from medlib.card_ini import JSON_KEY_GENERAL_LECTURER
 from medlib.card_ini import JSON_KEY_GENERAL_CONTRIBUTOR
+from medlib.card_ini import JSON_KEY_GENERAL_INTERVIEWEE
+from medlib.card_ini import JSON_KEY_GENERAL_INTERVIEWER
+from medlib.card_ini import JSON_KEY_GENERAL_ANCHOR
 from medlib.card_ini import JSON_KEY_GENERAL_VOICE
 from medlib.card_ini import JSON_KEY_GENERAL_GENRE
 from medlib.card_ini import JSON_KEY_GENERAL_THEME
@@ -185,15 +190,13 @@ def getCollectedCardsFromRoot():
             
             logging.debug("    Path Collector: " + str(pathCollector.getJson()))
         
-# ---------        
-        
+# ---------
         
         for path in media_path_list:
             mainCollector = collectCardsFromFileSystem(path, collector)
             collector = mainCollector
-        #mainCollector = collectCardsFromFileSystem(media_path)
+            
         logging.info("Collect Cards From File System - Finished")
-        #saveJson(mainCollector)
         saveJson(collector)
     else:
         logging.info("Collect Cards From Json - Started")
@@ -291,11 +294,10 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
              
             # find the Media - Enabled Media file depends on the "control.media" in the card.ini (ex. media=video => enabled files: *.mkv, *.mp4, *.webm, *.avi, *.flv)
             if CardIni.getMediaFilePatternByMedia(con_media).match(file_name) and file_name != "image.jpeg":
-                #media_path = os.path.join(actualDir, file_name)
                 media_path_list.append( os.path.join(actualDir, file_name) )
                 media_name = file_name
-
-        media_path = " ".join(media_path_list)
+        
+        #media_path = " ".join(media_path_list)
 
         # --- TITLE --- #
         try:
@@ -514,7 +516,23 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
                     for interviewee in interviewees:
                         interviewee_list.append(interviewee.strip())
                     general.setInterviewees(interviewee_list)
-                
+
+                # - interviewer - #
+                elif key == KEY_GENERAL_INTERVIEWER and len(value) > 0:
+                    interviewers = value.split(",")
+                    interviewer_list = []            
+                    for interviewer in interviewers:
+                        interviewer_list.append(interviewer.strip())
+                    general.setInterviewers(interviewer_list)
+
+                # - anchor - #
+                elif key == KEY_GENERAL_ANCHOR and len(value) > 0:
+                    anchors = value.split(",")
+                    anchor_list = []
+                    for anchor in anchors:
+                        anchor_list.append(anchor.strip())
+                    general.setAnchors(anchor_list)
+
                 # - voice - #
                 elif key == KEY_GENERAL_VOICE and len(value) > 0:
                     voices = value.split(",")
@@ -648,9 +666,13 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
         # for example: link
         #
         try:
-            media_path = card_ini.get(SECTION_MEDIA, "link", media_path, False)
-            if media_path:
-                logging.debug("    Media path: " + media_path)
+#            media_path = card_ini.get(SECTION_MEDIA, "link", media_path, False)
+#            if media_path:
+#                logging.debug("    Media path: " + media_path)
+            
+            media_path_list = card_ini.get(SECTION_MEDIA, "link", media_path_list, False)
+            if media_path_list:
+                logging.debug("    Media path: " + ",".join(media_path_list))
 
         except (configparser.NoSectionError, configparser.NoOptionError):
             pass
@@ -694,8 +716,10 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
         #
         # If MediaAppendix - Under MediaStorage
         #
-        if media_path and issubclass(parentMediaCollector.__class__, MediaStorage) and con_category == 'appendix':
-            pathAppendix = PathsAppendix(os.path.dirname(card_path), card_path, image_path, media_path)
+        if media_path_list and issubclass(parentMediaCollector.__class__, MediaStorage) and con_category == 'appendix':
+            pathAppendix = PathsAppendix(os.path.dirname(card_path), card_path, image_path, media_path_list)
+#        if media_path and issubclass(parentMediaCollector.__class__, MediaStorage) and con_category == 'appendix':
+#            pathAppendix = PathsAppendix(os.path.dirname(card_path), card_path, image_path, media_path)
             recentMedia = MediaAppendix(pathAppendix, titles, control)
             parentMediaCollector.addMediaAppendix(recentMedia)
             logging.debug("    Path Appendix: " + str(pathAppendix.getJson()))
@@ -706,7 +730,8 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
         # If MediaStorage - Under MediaCollector
         #
         elif is_media_storage and issubclass(parentMediaCollector.__class__, MediaCollector):
-            pathStorage = PathsStorage(os.path.dirname(card_path), card_path, image_path, icon_path, media_path)            
+            #pathStorage = PathsStorage(os.path.dirname(card_path), card_path, image_path, icon_path, media_path)            
+            pathStorage = PathsStorage(os.path.dirname(card_path), card_path, image_path, icon_path, media_path_list)
             recentMedia = MediaStorage(pathStorage, titles, control, general, classification)
             parentMediaCollector.addMediaStorage(recentMedia)
             logging.debug("    Path Storage: " + str(pathStorage.getJson()))
@@ -715,7 +740,8 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
         #        
         # If MediaCollector - Under MediaCollector or Root
         #      
-        elif not media_path and dir_list and issubclass(parentMediaCollector.__class__, (MediaCollector, NoneType)):
+        #elif not media_path and dir_list and issubclass(parentMediaCollector.__class__, (MediaCollector, NoneType)):
+        elif not media_path_list and dir_list and issubclass(parentMediaCollector.__class__, (MediaCollector, NoneType)):            
             pathCollector = PathsCollector(os.path.dirname(card_path), card_path, image_path, icon_path)            
             recentMedia = MediaCollector(pathCollector, titles, control, general, classification)
             
@@ -845,6 +871,9 @@ def collectCardsFromJson(jsonForm, parentMediaCollector = None):
         performer = general.get(JSON_KEY_GENERAL_PERFORMER)
         lecturer = general.get(JSON_KEY_GENERAL_LECTURER)
         contributor = general.get(JSON_KEY_GENERAL_CONTRIBUTOR)
+        interviewer = general.get(JSON_KEY_GENERAL_INTERVIEWER)
+        interviewee = general.get(JSON_KEY_GENERAL_INTERVIEWEE)
+        anchor = general.get(JSON_KEY_GENERAL_ANCHOR)
         voice = general.get(JSON_KEY_GENERAL_VOICE)
         genre = general.get(JSON_KEY_GENERAL_GENRE)
         theme = general.get(JSON_KEY_GENERAL_THEME)
@@ -878,6 +907,12 @@ def collectCardsFromJson(jsonForm, parentMediaCollector = None):
             ini_general.setLecturers(lecturer)
         if contributor:
             ini_general.setContributors(contributor)
+        if interviewer:
+            ini_general.setInterviewers(interviewer)
+        if interviewee:
+            ini_general.setInterviewees(interviewee)
+        if anchor:
+            ini_general.setAnchors(anchor)
         if voice:
             ini_general.setVoices(voice)
         if genre:

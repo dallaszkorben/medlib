@@ -378,16 +378,7 @@ class ControlButtonsHolder(QWidget):
                 'media-type': self.get_play_continously_media_type_by_index(actual_index)})
         
         PlayerThread.play(list_to_play)
-#        ins.startNextPlaying.connect(self.select_in_playlist_by_index_listener)
-#        ins.stopPlaying.connect(self.stop_playing_listener)
 
-#
-#        # Start to play the media collection
-#        inst = PlayContinouslyThread.play(self)
-#       
-#        # connect the "selected" event to a method which will select the media in the drop-down list
-#        inst.selected.connect(self.select_play_continously_element_by_index)
-#
 
 
     # ---------------------------------------------

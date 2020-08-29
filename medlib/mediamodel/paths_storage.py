@@ -14,7 +14,7 @@ class PathsStorage(PathsCollector):
             pathCard          string        path to the ini file - for storing data
             pathImage         string        path to the Image file - for showing the image
             pathIcon          string        path to the Icon file - for showing in the title
-            pathMedia         string        path to the media file - to play/show
+            pathMedia         list          path to the media file - to play/show
         """
         super().__init__(nameFolder, pathCard, pathImage, pathIcon)
         self.pathMedia = pathMedia

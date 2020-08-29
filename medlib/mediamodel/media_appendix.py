@@ -97,7 +97,6 @@ class MediaAppendix(object):
                     'media-index': 0,
                     'media-path': self.pathOfMedia, 
                     'media-type': self.appendix_media.getControl().getMedia()}])
-                    #'media-type': self.media.getControl().getMedia()}])
 
         def enterEvent(self, event):
             super().enterEvent(event)
