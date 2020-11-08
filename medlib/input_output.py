@@ -48,6 +48,7 @@ from medlib.card_ini import KEY_GENERAL_CONTRIBUTOR
 from medlib.card_ini import KEY_GENERAL_INTERVIEWEE
 from medlib.card_ini import KEY_GENERAL_INTERVIEWER
 from medlib.card_ini import KEY_GENERAL_ANCHOR
+from medlib.card_ini import KEY_GENERAL_PRESENTER
 from medlib.card_ini import KEY_GENERAL_VOICE
 from medlib.card_ini import KEY_GENERAL_GENRE
 from medlib.card_ini import KEY_GENERAL_THEME
@@ -75,6 +76,7 @@ from medlib.card_ini import JSON_KEY_GENERAL_CONTRIBUTOR
 from medlib.card_ini import JSON_KEY_GENERAL_INTERVIEWEE
 from medlib.card_ini import JSON_KEY_GENERAL_INTERVIEWER
 from medlib.card_ini import JSON_KEY_GENERAL_ANCHOR
+from medlib.card_ini import JSON_KEY_GENERAL_PRESENTER
 from medlib.card_ini import JSON_KEY_GENERAL_VOICE
 from medlib.card_ini import JSON_KEY_GENERAL_GENRE
 from medlib.card_ini import JSON_KEY_GENERAL_THEME
@@ -533,6 +535,14 @@ def collectCardsFromFileSystem(actualDir, parentMediaCollector = None):
                         anchor_list.append(anchor.strip())
                     general.setAnchors(anchor_list)
 
+                # - presenter - #
+                elif key == KEY_GENERAL_PRESENTER and len(value) > 0:
+                    presenters = value.split(",")
+                    presenter_list = []
+                    for presenter in presenters:
+                        presenter_list.append(presenter.strip())
+                    general.setPresenters(presenter_list)
+
                 # - voice - #
                 elif key == KEY_GENERAL_VOICE and len(value) > 0:
                     voices = value.split(",")
@@ -874,6 +884,7 @@ def collectCardsFromJson(jsonForm, parentMediaCollector = None):
         interviewer = general.get(JSON_KEY_GENERAL_INTERVIEWER)
         interviewee = general.get(JSON_KEY_GENERAL_INTERVIEWEE)
         anchor = general.get(JSON_KEY_GENERAL_ANCHOR)
+        presenter = general.get(JSON_KEY_GENERAL_PRESENTER)
         voice = general.get(JSON_KEY_GENERAL_VOICE)
         genre = general.get(JSON_KEY_GENERAL_GENRE)
         theme = general.get(JSON_KEY_GENERAL_THEME)
@@ -913,6 +924,8 @@ def collectCardsFromJson(jsonForm, parentMediaCollector = None):
             ini_general.setInterviewees(interviewee)
         if anchor:
             ini_general.setAnchors(anchor)
+        if presenter:
+            ini_general.setPresenters(presenter)
         if voice:
             ini_general.setVoices(voice)
         if genre:

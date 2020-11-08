@@ -3,7 +3,7 @@ import re
 media_dict = {
     'video': {
         'ext': ('mkv', 'mp4', 'flv', 'divx', 'avi', 'webm', 'mov', 'mpg'), 
-        'category': ('movie', 'music', 'show', 'presentation', 'alternative', 'miscellaneous', 'elearning', 'family', 'appendix', 'recipe', 'footage', 'interview', 'portrait', 'news', 'speech')},
+        'category': ('movie', 'music', 'show', 'presentation', 'alternative', 'miscellaneous', 'elearning', 'family', 'appendix', 'recipe', 'footage', 'interview', 'portrait', 'news', 'speech', 'doc')},
     'audio': {
         'ext': ('mp3', 'ogg'), 
         'category': ('radioplay', 'music', 'show', 'presentation', 'audiobook', 'elearning', 'appendix', 'recipe', 'interview', 'portrait')},
@@ -43,6 +43,7 @@ section_dict = {
         'interviewee': (),
         'interviewer': (),
         'anchor': (),
+        'presenter': (),
         'voice': (),
         'genre': (),
         'theme': (),
@@ -131,6 +132,7 @@ KEY_GENERAL_CONTRIBUTOR = 'contributor'
 KEY_GENERAL_INTERVIEWEE = 'interviewee'
 KEY_GENERAL_INTERVIEWER = 'interviewer'
 KEY_GENERAL_ANCHOR = 'anchor'
+KEY_GENERAL_PRESENTER = 'presenter'
 KEY_GENERAL_VOICE = 'voice'
 KEY_GENERAL_GENRE = 'genre'
 KEY_GENERAL_THEME = 'theme'
@@ -193,6 +195,7 @@ JSON_KEY_GENERAL_CONTRIBUTOR = KEY_GENERAL_CONTRIBUTOR
 JSON_KEY_GENERAL_INTERVIEWEE = KEY_GENERAL_INTERVIEWEE
 JSON_KEY_GENERAL_INTERVIEWER = KEY_GENERAL_INTERVIEWER
 JSON_KEY_GENERAL_ANCHOR = KEY_GENERAL_ANCHOR
+JSON_KEY_GENERAL_PRESENTER = KEY_GENERAL_PRESENTER
 JSON_KEY_GENERAL_VOICE = KEY_GENERAL_VOICE
 JSON_KEY_GENERAL_GENRE = KEY_GENERAL_GENRE
 JSON_KEY_GENERAL_THEME = KEY_GENERAL_THEME

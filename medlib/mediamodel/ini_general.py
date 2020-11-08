@@ -36,6 +36,7 @@ from medlib.card_ini import JSON_KEY_GENERAL_LECTURER
 from medlib.card_ini import JSON_KEY_GENERAL_CONTRIBUTOR
 from medlib.card_ini import JSON_KEY_GENERAL_INTERVIEWEE
 from medlib.card_ini import JSON_KEY_GENERAL_INTERVIEWER
+from medlib.card_ini import JSON_KEY_GENERAL_PRESENTER
 from medlib.card_ini import JSON_KEY_GENERAL_ANCHOR
 from medlib.card_ini import JSON_KEY_GENERAL_VOICE
 from medlib.card_ini import JSON_KEY_GENERAL_SOUND
@@ -78,6 +79,7 @@ class IniGeneral(object):
             interviewee      list of strings    ["Interviewee 1", "Interviewee 2"]
             interviewer      list of strings    ["Interviewer 1", "Interviewer 2"]
             anchor           list of strings    ["Anchor 1", "Anchor 2"]
+            presenter        list of strings    ["Presenter 1", "Presenter 2"]
 
             voice            list of strings    ["Voice 1", "Voice 2"]
             
@@ -110,6 +112,7 @@ class IniGeneral(object):
         self.interviewer = []
         self.anchor = []
         self.voice = []
+        self.presenter = []
         
         self.length = None
         self.sounds = []
@@ -201,8 +204,12 @@ class IniGeneral(object):
     def setInterviewers(self, interviewerList):
         self.interviewer = interviewerList        
 
-    def setAnchors(self, AnchorList):
-        self.anchor = anchorList        
+    def setAnchors(self, anchorList):
+        self.anchor = anchorList
+
+    def setPresenters(self, presenterList):
+        self.presenter = presenterList
+
     
     def setVoices(self, voiceList):
         self.voice = voiceList
@@ -360,6 +367,10 @@ class IniGeneral(object):
 
     def getAnchors(self):
         return self.anchor
+
+    def getPresenters(self):
+        return self.presenter
+
     
     def getVoices(self):
         return self.voice        
@@ -438,6 +449,7 @@ class IniGeneral(object):
         json.update({} if self.interviewee is None or not self.interviewee else {JSON_KEY_GENERAL_INTERVIEWEE: self.interviewee})
         json.update({} if self.interviewer is None or not self.interviewer else {JSON_KEY_GENERAL_INTERVIEWER: self.interviewer})
         json.update({} if self.anchor is None or not self.anchor else {JSON_KEY_GENERAL_ANCHOR: self.anchor})
+        json.update({} if self.presenter is None or not self.presenter else {JSON_KEY_GENERAL_PRESENTER: self.presenter})
         json.update({} if self.voice is None or not self.voice else {JSON_KEY_GENERAL_VOICE: self.voice})
         
         json.update({} if self.sounds is None or not self.sounds else {JSON_KEY_GENERAL_SOUND: self.sounds})
@@ -790,6 +802,9 @@ class IniGeneral(object):
         # --- ANCHOR ---       
         widget.addQlinkSimpleWidget(media, scale, 'title_anchor', media.general.getAnchors)
 
+        # --- PRESENTER ---       
+        widget.addQlinkSimpleWidget(media, scale, 'title_presenter', media.general.getPresenters)
+
         # --- VOICE ---       
         widget.addQlinkSimpleWidget(media, scale, 'title_voice', media.general.getVoices)
 
@@ -834,7 +849,7 @@ class IniGeneral(object):
 
     class QLinkLabelToSearch( QLabelToLinkOnClick ):
         """
-        Link Widget to search Genre/Theme/Director/Maker/Writer/Actor/Performer/Lecturer/Contributor/Voice/Interviewer/Interviewee/Anchor
+        Link Widget to search Genre/Theme/Director/Maker/Writer/Actor/Performer/Lecturer/Contributor/Voice/Interviewer/Interviewee/Anchor/Presenter
         """
         def __init__(self, media, scale, translatedText, rawText, title_id):
             super().__init__(media, translatedText, media.isInFocus)
