@@ -5,7 +5,7 @@ media_dict = {
         'ext': ('mkv', 'mp4', 'flv', 'divx', 'avi', 'webm', 'mov', 'mpg'), 
         'category': ('movie', 'music', 'show', 'presentation', 'alternative', 'miscellaneous', 'elearning', 'family', 'appendix', 'recipe', 'footage', 'interview', 'portrait', 'news', 'speech', 'doc')},
     'audio': {
-        'ext': ('mp3', 'ogg'), 
+        'ext': ('mp3', 'ogg', 'm4a'), 
         'category': ('radioplay', 'music', 'show', 'presentation', 'audiobook', 'elearning', 'appendix', 'recipe', 'interview', 'portrait')},
     'text': {
         'ext': ('doc', 'odt', 'pdf', 'epub', 'mobi', 'azw', 'azw3', 'iba', 'txt','rtf'), 
