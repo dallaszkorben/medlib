@@ -163,9 +163,8 @@ class IniClassification(object):
                 self.classification_layout.setContentsMargins(0, 5, 12, 5)
 
                 self.setLayout(self.classification_layout)
-                
-#                self.setAttribute(Qt.WA_StyledBackground, True)
 
+#                self.setAttribute(Qt.WA_StyledBackground, True)
 
             def addWidget(self, widget):
                 self.classification_layout.addWidget(widget)  
@@ -202,7 +201,8 @@ class IniClassification(object):
             def __init__(self, ini_classification, scale):
                 super().__init__()
                 self.ini_classification = ini_classification
-        
+                #self.setKeyboardTracking(False)
+
                 if self.ini_classification.getRate() is None:
                     self.hide()
 
@@ -215,7 +215,7 @@ class IniClassification(object):
                     self.lineEdit().setStyleSheet( "QLineEdit{color:black}")
                     self.setStyleSheet( "QSpinBox{background:'" + CLASSIFICATION_RATE_FIELD_BACKGROUND_COLOR + "'}")
                     self.setValue(self.ini_classification.getRate())
-                    
+
                     self.valueChanged.connect(self.classificationRateOnValueChanged)
 
             def stepBy(self, steps):
@@ -242,26 +242,27 @@ class IniClassification(object):
                 QApplication.restoreOverrideCursor()
 
                 self.setButtonSymbols(QAbstractSpinBox.NoButtons) #PlusMinus / NoButtons / UpDownArrows        
-        
+
 #                self.card_panel.get_card_holder().setFocus()
                 event.ignore()
 
             def classificationRateOnValueChanged(self):
-                 
+
                 # change the value of the rate in the Object
                 self.ini_classification.setRate(self.value())
-                
+
                 # change the value of the rate in the card.ini
                 updateCardIni(media.getPathOfCard(), SECTION_CLASSIFICATION, KEY_CLASSIFICATION_RATE, self.value())
-                
-                # change the value of the rate in the json                
+
+                # change the value of the rate in the json
                 medlib.input_output.saveJson(media.getRoot())
+
 #       └──────────────────── MySpinBox ──────────────────────┘
 
-    
+
         widget = MySpinBox(self, scale)        
         return widget
-        
+
     # --------------- #
     # Favorite button #
     # --------------- #

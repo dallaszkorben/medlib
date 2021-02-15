@@ -596,7 +596,7 @@ class MediaBase(CardDataInterface):
         
             # --- Classification ---
             self.widget.addClassificationWidget(self.getWidgetClassification)
-        
+
         return self.widget
     
     def getMediaAppendixList(self):
