@@ -12,7 +12,7 @@ media_dict = {
         'category': ('book', 'doc', 'presentation', 'quiz', 'elearning', 'appendix', 'recipe')},
     'image': {
         'ext': ('jpg', 'jpeg', 'png'), 
-        'category': ('elearning', 'recipe', 'picture', 'dia')},
+        'category': ('elearning', 'recipe', 'picture', 'dia', 'miscellaneous')},
     'link' : {
         'ext': (), 
         'category': ('appendix','elearning')},
