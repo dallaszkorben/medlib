@@ -2,6 +2,7 @@
 
 The aim of this project is to produce a software which helps to organize and play media
 
+
 ## The main features are:
 - Navigation in the Card hierarchy
   - <img src='https://github.com/dallaszkorben/medlib/blob/master/wiki/card-navigation.png' width='600'>    
