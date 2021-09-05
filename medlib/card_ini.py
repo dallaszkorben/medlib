@@ -3,16 +3,16 @@ import re
 media_dict = {
     'video': {
         'ext': ('mkv', 'mp4', 'flv', 'divx', 'avi', 'webm', 'mov', 'mpg'), 
-        'category': ('movie', 'music', 'show', 'presentation', 'alternative', 'miscellaneous', 'elearning', 'family', 'appendix', 'recipe', 'footage', 'interview', 'portrait', 'news', 'speech', 'doc')},
+        'category': ('movie', 'music', 'show', 'presentation', 'alternative', 'miscellaneous', 'elearning', 'family', 'appendix', 'recipe', 'footage', 'interview', 'portrait', 'news', 'speech', 'doc', 'language')},
     'audio': {
         'ext': ('mp3', 'ogg', 'm4a'), 
-        'category': ('radioplay', 'music', 'show', 'presentation', 'audiobook', 'elearning', 'appendix', 'recipe', 'interview', 'portrait')},
+        'category': ('radioplay', 'music', 'show', 'presentation', 'audiobook', 'elearning', 'appendix', 'recipe', 'interview', 'portrait', 'language')},
     'text': {
         'ext': ('doc', 'odt', 'pdf', 'epub', 'mobi', 'azw', 'azw3', 'iba', 'txt','rtf'), 
-        'category': ('book', 'doc', 'presentation', 'quiz', 'elearning', 'appendix', 'recipe')},
+        'category': ('book', 'doc', 'presentation', 'quiz', 'elearning', 'appendix', 'recipe', 'language')},
     'image': {
         'ext': ('jpg', 'jpeg', 'png'), 
-        'category': ('elearning', 'recipe', 'picture', 'dia', 'miscellaneous', 'doc', 'appendix')},
+        'category': ('elearning', 'recipe', 'picture', 'dia', 'miscellaneous', 'doc', 'appendix', 'language')},
     'link' : {
         'ext': (), 
         'category': ('appendix','elearning')},
@@ -72,7 +72,7 @@ class CardIni(object):
     @staticmethod
     def getMediaList():
         return list(media_dict.keys())
-    
+
     @staticmethod
     def getCategoryListByMedia(media):
         return media_dict[media]['category']
@@ -83,7 +83,7 @@ class CardIni(object):
 
     @staticmethod
     def getMediaFilePatternByMedia(media):
-        
+    
         ptrn = '|'.join( media_dict[media]['ext'] )
         return re.compile( '^.+[.](' + ptrn + ')$', re.IGNORECASE )
 
