@@ -1,4 +1,4 @@
-#!env/bin/python3
+#!/home/akoel/Projects/python/medlib-project/env/bin/python3
 
 from medlib.gui import medlib_gui
 
